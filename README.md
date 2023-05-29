@@ -1,6 +1,6 @@
-# keninacafe
+# FYP: keninacafe
 
-KE Nina Cafe Management App
+KE Nina Cafe Management App on Mobile (Android)
 
 ## Getting Started
 
