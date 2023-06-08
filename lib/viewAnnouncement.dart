@@ -101,6 +101,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
               },
               icon: const Icon(Icons.notifications, size: 35,),
             ),
+
             IconButton(
               onPressed: () {},
               icon: const Icon(Icons.account_circle_rounded, size: 35,),
