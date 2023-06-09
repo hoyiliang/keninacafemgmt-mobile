@@ -38,6 +38,8 @@ dependencies:
   http: ^1.0.0
   json_annotation: ^4.8.1
   crypto: ^3.0.3
+  shared_preferences: ^2.1.2
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
