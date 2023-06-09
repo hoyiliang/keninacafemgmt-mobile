@@ -2,10 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/Security/encpw.dart';
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,6 +59,17 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool userFound = false;
   bool submittedOnce = false;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  void initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,12 +173,8 @@ class _LoginPageState extends State<LoginPage> {
       print('Email: $email');
       print('Password: $password');
     }
-    String encPw = encryptPassword(password);
-    if (kDebugMode) {
-      print('EncPW: $encPw');
-    }
-    var (thisUser, err_code) = await createUser(email, encPw);
-    if (thisUser.id == -1) {
+    var (thisUser, err_code) = await createUser(email, password);
+    if (thisUser.uid == -1) {
       if (kDebugMode) {
         print("Failed to retrieve User data.");
       }
@@ -175,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
     return (true, err_code);
   }
 
-  Future<(User, String)> createUser(String email, String encPw) async {
+  Future<(User, String)> createUser(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('http://localhost:8080/users'),
@@ -184,23 +192,24 @@ class _LoginPageState extends State<LoginPage> {
         },
         body: jsonEncode(<String, String>{
           'email': email,
-          'enc_pw': encPw,
+          'password': password,
         }),
       );
 
       if (response.statusCode == 201) {
-        return (User.fromJson(jsonDecode(response.body)), (ErrorCodes.OPERATION_OK));
+        var jwtToken = jsonDecode(response.body);
+        return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
       } else {
         if (kDebugMode) {
           print('No User found.');
         }
-        return (User(id: -1, name: '', email: '', address: ''), (ErrorCodes.LOGIN_FAIL_NO_USER));
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now()), (ErrorCodes.LOGIN_FAIL_NO_USER));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(id: -1, name: '', email: '', address: ''), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
     }
   }
 
