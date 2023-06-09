@@ -2,19 +2,23 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class User {
-  final int id;
+  final int uid;
   final String name;
   final String email;
   final String address;
+  final String gender;
+  final DateTime dob;
 
-  const User({required this.id, required this.name, required this.email, required this.address});
+  const User({required this.uid, required this.name, required this.email, required this.address, required this.gender, required this.dob});
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromJWT(Map<String, dynamic> jwtDecodedToken) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      address: json['address'],
+      uid: jwtDecodedToken['id'],
+      name: jwtDecodedToken['name'],
+      email: jwtDecodedToken['email'],
+      address: jwtDecodedToken['address'],
+      gender: jwtDecodedToken['gender'],
+      dob: jwtDecodedToken['dob']
     );
   }
 }
