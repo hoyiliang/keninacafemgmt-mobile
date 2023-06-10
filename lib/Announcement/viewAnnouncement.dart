@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:keninacafe/createAnnouncement.dart';
+import 'package:keninacafe/Announcement/createAnnouncement.dart';
 
 void main() {
   runApp(const MyApp());
