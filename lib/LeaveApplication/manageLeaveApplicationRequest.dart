@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Announcement/viewAnnouncement.dart';
 
@@ -40,13 +39,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewLeaveApplicationStatusPage(),
+      home: const ManageLeaveApplicationRequestPage(),
     );
   }
 }
 
-class ViewLeaveApplicationStatusPage extends StatefulWidget {
-  const ViewLeaveApplicationStatusPage({super.key});
+class ManageLeaveApplicationRequestPage extends StatefulWidget {
+  const ManageLeaveApplicationRequestPage({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -60,10 +59,10 @@ class ViewLeaveApplicationStatusPage extends StatefulWidget {
   // final String title;
 
   @override
-  State<ViewLeaveApplicationStatusPage> createState() => _ViewLeaveApplicationStatusPageState();
+  State<ManageLeaveApplicationRequestPage> createState() => _ManageLeaveApplicationRequestPageState();
 }
 
-class _ViewLeaveApplicationStatusPageState extends State<ViewLeaveApplicationStatusPage> {
+class _ManageLeaveApplicationRequestPageState extends State<ManageLeaveApplicationRequestPage> {
   String title = '';
   String text = '';
   final _formKey = GlobalKey<FormState>();
@@ -214,7 +213,7 @@ class _ViewLeaveApplicationStatusPageState extends State<ViewLeaveApplicationSta
         child: AppBar(
           elevation: 0,
           toolbarHeight: 100,
-          title: const Text('LA Status', style: TextStyle(
+          title: const Text('LA Request', style: TextStyle(
             fontWeight: FontWeight.bold,
           ),),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -248,165 +247,150 @@ class _ViewLeaveApplicationStatusPageState extends State<ViewLeaveApplicationSta
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(height: 30,),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric( horizontal: 32, vertical: 15),
+                //   child: Align(
+                //     alignment: Alignment.centerLeft,
+                //     child: FloatingActionButton.extended(
+                //       // child: Icon(Icons.navigation),
+                //       backgroundColor: Colors.blue,
+                //       foregroundColor: Colors.white,
+                //       onPressed: () => {
+                //         showAnnouncementCard(context),
+                //       },
+                //       label: const Text("Create", style: TextStyle(fontSize: 18)),
+                //       icon: const Icon(Icons.add_alert_sharp),
+                //     ),
+                //   ),
+                // ),
+
+                const SizedBox(height: 15,),
+
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 23),
-                  child: Table(
-                    border: TableBorder.symmetric(
-                        // outside:
-                        // const BorderSide(color: Colors.black, width: 10.0)
-                    ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
                     children: [
-                      //This table row is for the table header which is static
-                      const TableRow(
-                        decoration: BoxDecoration(color: Colors.black45),
-                        children: [
+                      Card (
+                        color: Colors.white,
+                        shadowColor: Colors.black,
+                        elevation: 15,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children:
+                          [
+                            const ListTile(
+                              title: Text(
+                                "Annual Leave",
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
+                              ),
+                              subtitle: Text(
+                                'Applied by GOH CHEE LAM',
+                                style: TextStyle(overflow: TextOverflow.ellipsis,),
+                              ),
+                            ),
+                            // const SizedBox(
+                            //   child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
+                            // ),
 
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                "Date From",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: Colors.black87),
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                "Date To",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: Colors.black87),
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                "Leave Type",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: Colors.black87),
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                "Details",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: Colors.black87),
-                              ),
-                            ),
-                          ),
-                        ]
-                      ),
-                      // Using the spread operator to add the remaining table rows which have dynamic data
-                      // Be sure to use .asMap().entries.map if you want to access their indexes and objectName.map() if you have no interest in the items index.
-
-                      TableRow(
-                        decoration: const BoxDecoration(color: Colors.black26),
-                        children: [
-
-                          const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Text(
-                                'aaaa',
-                              ),
-                            ),
-                          ),
-                            const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 20),
-                                    child: Text(
-                                      'aaaa',
-                                    ),
-                                  ),
-                                ),
-                          const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Text(
-                                'bbbb',
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 23),
-                                child: Text.rich(
-                                    TextSpan(
-                                        children: [
-                                          TextSpan(text: 'Approved',
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              decoration: TextDecoration.underline,
-                                              color: Colors.transparent,
-                                              shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
-                                              decorationThickness: 4,
-                                              decorationColor: Colors.blue,
-                                            ),
-                                            recognizer: TapGestureRecognizer()
-                                              ..onTap = () {
-                                                // Navigator.push(
-                                                //   context,
-                                                //   MaterialPageRoute(
-                                                //     builder: (context) => const ViewAnnouncementPage(),
-                                                //   ),
-                                                // );
-                                              },
-                                          ),
-                                        ]
+                            Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text.rich(
+                                        TextSpan(
+                                            children: [
+                                              TextSpan(text: 'View Details',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration: TextDecoration.underline,
+                                                  color: Colors.transparent,
+                                                  shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
+                                                  decorationThickness: 4,
+                                                  decorationColor: Colors.blue,
+                                                ),
+                                                recognizer: TapGestureRecognizer()
+                                                  ..onTap = () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => const ViewAnnouncementPage(),
+                                                      ),
+                                                    );
+                                                  },
+                                              ),
+                                            ]
+                                        )
                                     )
                                 )
-                            ),
-                          ),
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-
-                      // ...students.asMap().entries.map(
-                      //       (student) {
-                      //     return TableRow(
-                      //         decoration: BoxDecoration(color: tertiary),
-                      //         children: [
+                      const SizedBox(height: 15,),
+                      // Card (
+                      //   color: Colors.white,
+                      //   shadowColor: Colors.black,
+                      //   elevation: 15,
+                      //   child: Column(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children:
+                      //     [
+                      //       const ListTile(
+                      //         // leading: Icon (
+                      //         //     Icons.album,
+                      //         //     color: Colors.cyan,
+                      //         //     size: 45
+                      //         // ),
+                      //         title: Text(
+                      //           "Hari Raya",
+                      //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
+                      //         ),
+                      //         subtitle: Text(
+                      //           'Created by GOH CHEE LAM',
+                      //           style: TextStyle(overflow: TextOverflow.ellipsis,),
+                      //         ),
+                      //       ),
+                      //       const SizedBox(
+                      //         child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
+                      //         // Text(' (26/04/2023)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                      //       ),
                       //
-                      //           Center(
-                      //             child: Padding(
-                      //               padding: const EdgeInsets.symmetric(vertical: 20),
-                      //               child: Text(
-                      //                 student.value.id.toString(),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //           Center(
-                      //             child: Padding(
-                      //               padding: const EdgeInsets.symmetric(vertical: 20),
-                      //               child: Text(
-                      //                 '${student.value.firstName} ${student.value.surName}',
-                      //               ),
-                      //             ),
-                      //           ),
-                      //           Center(
-                      //             child: Padding(
-                      //               padding: const EdgeInsets.symmetric(vertical: 10),
-                      //               child: Checkbox(
-                      //                 materialTapTargetSize:
-                      //                 MaterialTapTargetSize.shrinkWrap,
-                      //                 onChanged: (val) {},
-                      //                 value: false,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ]);
-                      //   },
-                      // )
-                    // ],
-                  // )
+                      //       Padding(
+                      //           padding: const EdgeInsets.symmetric(vertical: 10),
+                      //           child: Align(
+                      //               alignment: Alignment.center,
+                      //               child: Text.rich(
+                      //                   TextSpan(
+                      //                       children: [
+                      //                         TextSpan(text: 'View Announcement',
+                      //                           style: const TextStyle(
+                      //                             fontSize: 10,
+                      //                             fontWeight: FontWeight.bold,
+                      //                             decoration: TextDecoration.underline,
+                      //                             color: Colors.transparent,
+                      //                             shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
+                      //                             decorationThickness: 4,
+                      //                             decorationColor: Colors.blue,
+                      //                           ),
+                      //                           recognizer: TapGestureRecognizer()
+                      //                             ..onTap = () {
+                      //                               Navigator.push(
+                      //                                 context,
+                      //                                 MaterialPageRoute(
+                      //                                   builder: (context) => const CreateAnnouncementPage(),
+                      //                                 ),
+                      //                               );
+                      //                             },
+                      //                         ),
+                      //                       ]
+                      //                   )
+                      //               )
+                      //           )
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
