@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 
 void main() {
@@ -66,7 +67,9 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
   final dateFromController = TextEditingController();
   final dateToController = TextEditingController();
   final commentsController = TextEditingController();
-  final _dropdownFormKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  // final _dateFromKey = GlobalKey<FormState>();
+  // final _dateToFormKey = GlobalKey<FormState>();
   String? selectedValue;
 
   @override
@@ -97,39 +100,8 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
     enterFullScreen();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize( //wrap with PreferredSize
-        preferredSize: const Size.fromHeight(80),
-        child: AppBar(
-          elevation: 0,
-          toolbarHeight: 100,
-          title: const Text('Leave Form', style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          centerTitle: true,
-          leading:
-          IconButton(
-              onPressed: (){
-                // Navigator.of(context).push(
-                //     MaterialPageRoute(builder: (context) => const ViewAnnouncementPage()));
-              },icon: const Icon(Icons.menu,size: 30,color: Colors.black,)),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const CreateAnnouncementPage()));
-              },
-              icon: const Icon(Icons.notifications, size: 35,),
-            ),
-
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.account_circle_rounded, size: 35,),
-            ),
-          ],
-        ),
-      ),
-
+      drawer: AppsBarState().buildDrawer(context),
+      appBar: AppsBarState().buildAppBar(context, 'Leave Form'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -142,22 +114,23 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                     vertical: 10,
                   ),
                   // child: Expanded(
-                  child: Column(
-                    children: [
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child: Row(
-                              children: [
-                                Text('Leave Type', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
-                                Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                              ]
-                          )
-                      ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Leave Type', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                        ),
 
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                        child: Form(
-                          key: _dropdownFormKey,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                          // child: Form(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -171,8 +144,12 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                                     filled: true,
                                     fillColor: Colors.white,
                                   ),
-                                  validator: (value) => value == null ? "Select a country" : null,
                                   // dropdownColor: Colors.white,
+                                  // validator: (value) => value == null ? "Select a country" : null,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) return 'Please select the leave type !';
+                                    return null;
+                                  },
                                   value: selectedValue,
                                   onChanged: (String? newValue) {
                                     setState(() {
@@ -182,7 +159,7 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                                   items: dropdownItems),
                               // ElevatedButton(
                               //     onPressed: () {
-                              //       if (_dropdownFormKey.currentState!.validate()) {
+                              //       if (_formKey.currentState!.validate()) {
                               //         //valid flow
                               //       }
                               //     },
@@ -191,148 +168,136 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                             ],
                           )
 
+                          // ),
                         ),
-                      ),
 
-                      const SizedBox(height: 13,),
+                        const SizedBox(height: 13,),
 
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child: Row(
-                              children: [
-                                Text('Date From', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
-                                Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                              ]
-                          )
-                      ),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Date From', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                        ),
 
-                      Padding(
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child:TextFormField(
+                              controller: dateFromController, //editing controller of this TextField
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today), //icon of text field
+                                  labelText: "Date From" //label text of field
+                              ),
+                              validator: (dateFromController) {
+                                if (dateFromController == null || dateFromController.isEmpty) return 'Please choose the date from !';
+                                return null;
+                              },
+                              readOnly: true,  //set it true, so that user will not able to edit text
+                              onTap: () async {
+                                var pickedDate = await showDatePicker(
+                                    context: context, initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
+                                    lastDate: DateTime(2101)
+                                );
+
+                                if(pickedDate != null ){
+                                  // print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
+                                  String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                  // print(formattedDate); //formatted date output using intl package =>  2021-03-16
+                                  //you can implement different kind of Date Format here according to your requirement
+                                  setState(() {
+                                    dateFromController.text = formattedDate; //set output date to TextField value.
+                                  });
+                                }else{
+                                  // print("Date is not selected");
+                                }
+                              },
+                            )
+                        ),
+
+                        const SizedBox(height: 13,),
+
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Date To', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                        ),
+
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child:TextFormField(
+                              controller: dateToController, //editing controller of this TextField
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today), //icon of text field
+                                  labelText: "Date To" //label text of field
+                              ),
+                              validator: (dateToController) {
+                                if (dateToController == null || dateToController.isEmpty) return 'Please choose the date to !';
+                                return null;
+                              },
+                              readOnly: true,  //set it true, so that user will not able to edit text
+                              onTap: () async {
+                                var pickedDate = await showDatePicker(
+                                    context: context, initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
+                                    lastDate: DateTime(2101)
+                                );
+
+                                if(pickedDate != null ){
+                                  // print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
+                                  String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                  // print(formattedDate); //formatted date output using intl package =>  2021-03-16
+                                  //you can implement different kind of Date Format here according to your requirement
+
+                                  setState(() {
+                                    dateToController.text = formattedDate; //set output date to TextField value.
+                                  });
+                                }else{
+                                  // print("Date is not selected");
+                                }
+                              },
+                            )
+                        ),
+
+                        const SizedBox(height: 13,),
+
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Comments', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                        ),
+
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child:TextField(
-                            controller: dateFromController, //editing controller of this TextField
+                          child:
+                          TextFormField(
+                            controller: commentsController,
                             decoration: const InputDecoration(
-                                icon: Icon(Icons.calendar_today), //icon of text field
-                                labelText: "Date From" //label text of field
+                              border: OutlineInputBorder(),
+                              hintText: 'Please state your reason',
                             ),
-                            readOnly: true,  //set it true, so that user will not able to edit text
-                            onTap: () async {
-                              var pickedDate = await showDatePicker(
-                                  context: context, initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
-                                  lastDate: DateTime(2101)
-                              );
-
-                              if(pickedDate != null ){
-                                // print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
-                                String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                // print(formattedDate); //formatted date output using intl package =>  2021-03-16
-                                //you can implement different kind of Date Format here according to your requirement
-
-                                setState(() {
-                                  dateFromController.text = formattedDate; //set output date to TextField value.
-                                });
-                              }else{
-                                // print("Date is not selected");
-                              }
+                            validator: (commentsController) {
+                              if (commentsController == null || commentsController.isEmpty) return 'Please state your reason !';
+                              return null;
                             },
-                          )
-                      ),
-
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                      //   child:
-                      //   TextField(
-                      //     controller: emailController,
-                      //     decoration: const InputDecoration(
-                      //       border: OutlineInputBorder(),
-                      //       hintText: 'Please enter your email',
-                      //     ),
-                      //   ),
-                      // ),
-
-                      const SizedBox(height: 13,),
-
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child: Row(
-                              children: [
-                                Text('Date To', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
-                                Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                              ]
-                          )
-                      ),
-
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child:TextField(
-                            controller: dateToController, //editing controller of this TextField
-                            decoration: const InputDecoration(
-                                icon: Icon(Icons.calendar_today), //icon of text field
-                                labelText: "Date To" //label text of field
-                            ),
-                            readOnly: true,  //set it true, so that user will not able to edit text
-                            onTap: () async {
-                              var pickedDate = await showDatePicker(
-                                  context: context, initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
-                                  lastDate: DateTime(2101)
-                              );
-
-                              if(pickedDate != null ){
-                                // print(pickedDate);  //pickedDate output format => 2021-03-10 00:00:00.000
-                                String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                // print(formattedDate); //formatted date output using intl package =>  2021-03-16
-                                //you can implement different kind of Date Format here according to your requirement
-
-                                setState(() {
-                                  dateToController.text = formattedDate; //set output date to TextField value.
-                                });
-                              }else{
-                                // print("Date is not selected");
-                              }
-                            },
-                          )
-                      ),
-
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                      //   child:
-                      //   TextField(
-                      //     controller: passwordController,
-                      //     decoration: const InputDecoration(
-                      //       border: OutlineInputBorder(),
-                      //       hintText: 'Please enter your password',
-                      //     ),
-                      //   ),
-                      // ),
-
-                      const SizedBox(height: 13,),
-
-                      const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                          child: Row(
-                              children: [
-                                Text('Comments', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
-                                Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                              ]
-                          )
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                        child:
-                        TextField(
-                          controller: commentsController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Please state your reason',
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 13,),
-                    ],
+                        const SizedBox(height: 13,),
+                      ],
 
+                    ),
                   ),
                 ),
 
@@ -354,7 +319,11 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height:40,
-                      onPressed: (){},
+                      onPressed: (){
+                        if (_formKey.currentState!.validate()) {
+                                 //valid flow
+                        }
+                      },
                       color: Colors.lightBlueAccent,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40)

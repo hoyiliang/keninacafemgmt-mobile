@@ -74,6 +74,7 @@ flutter:
     - images/KE_Nina_Cafe_logo.jpg
     - images/applyLeave.png
     - images/viewApplication.png
+    - images/KE_Nina_Cafe_appsbar.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

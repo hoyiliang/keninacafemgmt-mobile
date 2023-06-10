@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Announcement/viewAnnouncement.dart';
@@ -209,39 +210,8 @@ class _ViewLeaveApplicationStatusPageState extends State<ViewLeaveApplicationSta
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize( //wrap with PreferredSize
-        preferredSize: const Size.fromHeight(80),
-        child: AppBar(
-          elevation: 0,
-          toolbarHeight: 100,
-          title: const Text('LA Status', style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          centerTitle: true,
-          leading:
-          IconButton(
-              onPressed: (){
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const ViewAnnouncementPage()));
-              },icon: const Icon(Icons.menu,size: 30,color: Colors.black,)),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const CreateAnnouncementPage())
-                );
-              },
-              icon: const Icon(Icons.notifications, size: 35,),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.account_circle_rounded, size: 35,),
-            ),
-          ],
-        ),
-      ),
-
+      drawer: AppsBarState().buildDrawer(context),
+      appBar: AppsBarState().buildAppBar(context, 'LA Status'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
