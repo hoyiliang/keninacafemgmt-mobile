@@ -4,9 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Security/Encryptor.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
   bool userFound = false;
   bool submittedOnce = false;
   late SharedPreferences prefs;
+  late User  currentUser;
 
   @override
   void initState() {
@@ -153,6 +157,23 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                           );
                         }
+                      } else {
+                        showDialog(context: context, builder: (
+                            BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Login Successful'),
+                              content: Text(
+                                  'Welcome back, ${emailController.text}!'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                        );
                       }
                     });
                   }, child: const Text('Login', textAlign: TextAlign.center)
@@ -173,20 +194,22 @@ class _LoginPageState extends State<LoginPage> {
       print('Email: $email');
       print('Password: $password');
     }
-    var (thisUser, err_code) = await createUser(email, password);
+    String enc_pw = Encryptor().encryptPassword(password);
+    var (thisUser, err_code) = await createUser(email, enc_pw);
     if (thisUser.uid == -1) {
       if (kDebugMode) {
         print("Failed to retrieve User data.");
       }
       return (false, err_code);
     }
+    currentUser = thisUser;
     return (true, err_code);
   }
 
   Future<(User, String)> createUser(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/users'),
+        Uri.parse('http://10.0.2.2:8000/users/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -196,20 +219,21 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
-      if (response.statusCode == 201) {
-        var jwtToken = jsonDecode(response.body);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        var jsonResp = jsonDecode(response.body);
+        var jwtToken = jsonResp['token'];
         return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
       } else {
         if (kDebugMode) {
           print('No User found.');
         }
-        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now()), (ErrorCodes.LOGIN_FAIL_NO_USER));
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, staff_type: '', phone: '', ic: ''), (ErrorCodes.LOGIN_FAIL_NO_USER));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, staff_type: '', phone: '', ic: '', ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
     }
   }
 
