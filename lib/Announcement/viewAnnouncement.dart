@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Announcement/createAnnouncement.dart';
+
+import '../Entity/User.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,14 +39,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewAnnouncementPage(),
+      home: const ViewAnnouncementPage(user: null,),
     );
   }
 }
 
 class ViewAnnouncementPage extends StatefulWidget {
-  const ViewAnnouncementPage({super.key});
+  const ViewAnnouncementPage({super.key, this.user});
 
+  final User? user;
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -64,9 +65,16 @@ class ViewAnnouncementPage extends StatefulWidget {
 
 class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
 
+  User? getUser() {
+    return widget.user;
+  }
+
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
+    User? currentUser = getUser();
+    print(currentUser?.name);
+
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
