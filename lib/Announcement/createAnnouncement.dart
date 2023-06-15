@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Announcement/viewAnnouncement.dart';
+import 'package:keninacafe/Entity/Announcement.dart';
+import 'package:keninacafe/Utils/error_codes.dart';
+import '../Entity/User.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,14 +45,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateAnnouncementPage(),
+      home: const CreateAnnouncementPage(user: null,),
     );
   }
 }
 
 class CreateAnnouncementPage extends StatefulWidget {
-  const CreateAnnouncementPage({super.key});
+  const CreateAnnouncementPage({super.key, this.user});
 
+  final User? user;
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -63,20 +70,37 @@ class CreateAnnouncementPage extends StatefulWidget {
 }
 
 class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
-  String title = '';
-  String text = '';
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool announcementCreated = false;
+  // late List<Announcement> announcements = [];
+
+  User? getUser() {
+    return widget.user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // List<dynamic> announcementList = getAnnouncement();
+  }
+  // List<Widget> buildAnnouncementList() {
+  //   List<Widget> announcementList = <Widget>[];
+  //   // Get announcement list from django API JSON
+  //   // announcementList.add(value);
+  //   return announcementList;
+  // }
 
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
+    // getAnnouncement();
 
-    void saveAnnouncement(String title, String text) {
-      // Save announcement logic goes here
-      // print('Announcement Saved: $_title - $_text');
-    }
+    User? currentUser = getUser();
+    print(currentUser?.name);
 
-    void showConfirmationDialog(String title, String text) {
+    void showConfirmationDialog(String title, String description) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -85,11 +109,82 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
             content: const Text('Are you sure you want to create the announcement?'),
             actions: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   // Perform save logic here
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  saveAnnouncement(title, text);
+                  // Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
+                  if (_formKey.currentState!.validate()) {
+                    var (announcementCreatedAsync, err_code) = await _submitAnnouncementDetails(title, description, currentUser!);
+                    setState(() {
+                      announcementCreated = announcementCreatedAsync;
+                      if (!announcementCreated) {
+                        if (err_code == ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_BACKEND) {
+                          showDialog(context: context, builder: (
+                              BuildContext context) =>
+                              AlertDialog(
+                                title: const Text('Error'),
+                                content: Text(
+                                    'An Error occurred while trying to create a new announcement.\n\nError Code: $err_code'),
+                                actions: <Widget>[
+                                  TextButton(onPressed: () =>
+                                      Navigator.pop(context, 'Ok'),
+                                      child: const Text('Ok')),
+                                ],
+                              ),
+                          );
+                        } else {
+                          showDialog(context: context, builder: (
+                              BuildContext context) =>
+                              AlertDialog(
+                                title: const Text('Connection Error'),
+                                content: Text(
+                                    'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                                actions: <Widget>[
+                                  TextButton(onPressed: () =>
+                                      Navigator.pop(context, 'Ok'),
+                                      child: const Text('Ok')),
+                                ],
+                              ),
+                          );
+                        }
+                      } else {
+                        // If Announcement success created
+                        titleController.text = '';
+                        descriptionController.text = '';
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        showDialog(context: context, builder: (
+                            BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Create New Announcement Successful'),
+                              content: const Text(
+                                  'The announcement can be viewed in the Announcement page.'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) =>
+                        //         const HomePage(),
+                        //   ),
+                        // );
+                      }
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) =>
+                        //         const HomePage(),
+                        //   ),
+                        // );
+                      // }
+                    });
+                  }
+                  // saveAnnouncement(title, text);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -137,30 +232,22 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
+                    controller: titleController,
                     decoration: const InputDecoration(
                       labelText: 'Title',
                     ),
-                    validator: (title) {
-                      if (title == null || title.isEmpty) return 'Please fill in the title !';
+                    validator: (titleController) {
+                      if (titleController == null || titleController.isEmpty) return 'Please fill in the title !';
                       return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        title = value;
-                      });
                     },
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
+                    controller: descriptionController,
                     maxLines: 5,
                     decoration: const InputDecoration(
                       labelText: 'Description',
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        text = value;
-                      });
-                    },
                   ),
                 ],
               ),
@@ -171,17 +258,15 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                   // Save announcement logic goes here
                   // Navigator.of(context).pop();
                   if (_formKey.currentState!.validate()) {
-                    showConfirmationDialog(title, text);
-                    title = '';
-                    text = '';
+                    showConfirmationDialog(titleController.text, descriptionController.text);
                   }
                 },
                 child: const Text('Confirm'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  title = '';
-                  text = '';
+                  titleController.text = '';
+                  descriptionController.text = '';
                   Navigator.of(context).pop();
                 },
                 child: const Text('Cancel'),
@@ -190,13 +275,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
           );
         },
       );
-    }
-
-    List<Widget> buildAnnouncementList() {
-      List<Widget> announcementList = <Widget>[];
-      // Get announcement list from django API JSON
-      // announcementList.add(value);
-      return announcementList;
     }
 
     return Scaffold(
@@ -228,131 +306,22 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
                 Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: [
-                    Card (
-                      color: Colors.white,
-                      shadowColor: Colors.black,
-                      elevation: 15,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children:
-                        [
-                          const ListTile(
-                            title: Text(
-                              "Hari Raya",
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
-                            ),
-                            subtitle: Text(
-                              'Created by GOH CHEE LAM',
-                              style: TextStyle(overflow: TextOverflow.ellipsis,),
-                            ),
-                          ),
-                          const SizedBox(
-                            child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
-                          ),
-
-                          Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(text: 'View Announcement',
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            decoration: TextDecoration.underline,
-                                            color: Colors.transparent,
-                                            shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
-                                            decorationThickness: 4,
-                                            decorationColor: Colors.blue,
-                                          ),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => const ViewAnnouncementPage(),
-                                                ),
-                                              );
-                                            },
-                                        ),
-                                      ]
-                                    )
-                                  )
-                              )
-                          )
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 15,),
-                    // Card (
-                    //   color: Colors.white,
-                    //   shadowColor: Colors.black,
-                    //   elevation: 15,
-                    //   child: Column(
-                    //     mainAxisSize: MainAxisSize.min,
-                    //     children:
-                    //     [
-                    //       const ListTile(
-                    //         // leading: Icon (
-                    //         //     Icons.album,
-                    //         //     color: Colors.cyan,
-                    //         //     size: 45
-                    //         // ),
-                    //         title: Text(
-                    //           "Hari Raya",
-                    //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
-                    //         ),
-                    //         subtitle: Text(
-                    //           'Created by GOH CHEE LAM',
-                    //           style: TextStyle(overflow: TextOverflow.ellipsis,),
-                    //         ),
-                    //       ),
-                    //       const SizedBox(
-                    //         child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
-                    //         // Text(' (26/04/2023)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                    //       ),
-                    //
-                    //       Padding(
-                    //           padding: const EdgeInsets.symmetric(vertical: 10),
-                    //           child: Align(
-                    //               alignment: Alignment.center,
-                    //               child: Text.rich(
-                    //                   TextSpan(
-                    //                       children: [
-                    //                         TextSpan(text: 'View Announcement',
-                    //                           style: const TextStyle(
-                    //                             fontSize: 10,
-                    //                             fontWeight: FontWeight.bold,
-                    //                             decoration: TextDecoration.underline,
-                    //                             color: Colors.transparent,
-                    //                             shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
-                    //                             decorationThickness: 4,
-                    //                             decorationColor: Colors.blue,
-                    //                           ),
-                    //                           recognizer: TapGestureRecognizer()
-                    //                             ..onTap = () {
-                    //                               Navigator.push(
-                    //                                 context,
-                    //                                 MaterialPageRoute(
-                    //                                   builder: (context) => const CreateAnnouncementPage(),
-                    //                                 ),
-                    //                               );
-                    //                             },
-                    //                         ),
-                    //                       ]
-                    //                   )
-                    //               )
-                    //           )
-                    //       )
-                    //     ],
-                    //   ),
-                    // ),
-                  ],
-                ),
+                child: FutureBuilder<List<Announcement>>(
+                  future: getAnnouncement(),
+                  builder: (BuildContext context, AsyncSnapshot<List<Announcement>> snapshot) {
+                    if (snapshot.hasData) {
+                      return Column(
+                        children: buildAnnouncementCards(snapshot.data, currentUser),
+                      );
+                    } else {
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        return const Center(child: Text('Error: invalid state'));
+                      }
+                    }
+                  }
+                )
               ),
               ],
             ),
@@ -360,5 +329,166 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> buildAnnouncementCards(List<Announcement>? listAnnouncement, User? currentUser) {
+    List<Widget> cards = [];
+    for (Announcement a in listAnnouncement!) {
+      cards.add(
+        Card (
+          color: Colors.white,
+          shadowColor: Colors.black,
+          elevation: 15,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children:
+            [
+              ListTile(
+                title: Text(
+                  a.title,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
+                ),
+                subtitle: Text(
+                  'Created by ${a.name}',
+                  style: const TextStyle(overflow: TextOverflow.ellipsis,),
+                ),
+              ),
+              SizedBox(
+                child: Text(a.description, style: const TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
+              ),
+
+              Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Text.rich(
+                          TextSpan(
+                              children: [
+                                TextSpan(text: 'View Announcement',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.transparent,
+                                    shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
+                                    decorationThickness: 4,
+                                    decorationColor: Colors.blue,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ViewAnnouncementPage(announcement: a, user: currentUser),
+                                        ),
+                                      );
+                                    },
+                                ),
+                              ]
+                          )
+                      )
+                  )
+              )
+            ],
+          ),
+        ),
+      );
+      cards.add(const SizedBox(height: 15,),);
+    }
+    return cards;
+  }
+
+  // Create Announcement
+  Future<(bool, String)> _submitAnnouncementDetails(String title, String description, User currentUser) async {
+    String title = titleController.text;
+    String description = descriptionController.text;
+
+    if (kDebugMode) {
+      print('title: $title');
+      print('description: $description');
+    }
+
+    var (success, err_code) = await createAnnouncement(title, description, currentUser);
+    return (success, err_code);
+  }
+
+  Future<(bool, String)> createAnnouncement(String title, String description, User currentUser) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/announcements/announcement_form'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          'title': title,
+          'description': description,
+          'user_created_id': currentUser.uid,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        if (kDebugMode) {
+          print("Create Announcement Successful.");
+        }
+        return (true, ErrorCodes.OPERATION_OK);
+      } else {
+        if (kDebugMode) {
+          print('Failed to Create Announcement.');
+        }
+        return (false, ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_BACKEND);
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return (false, ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_API_CONNECTION);
+    }
+  }
+
+  // Get Announcement
+  Future<List<Announcement>> getAnnouncement() async {
+    // String title = titleController.text;
+    // String description = descriptionController.text;
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/announcements/request_list'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // var futureAnnouncements = jsonDecode(response.body);
+        // List<Announcement> announcement = [];
+        // for (var futureAnnouncement in futureAnnouncements) {
+        //    Announcement announcements = Announcement(
+        //       title: futureAnnouncement["title"],
+        //       description: futureAnnouncement["description"],
+        //       user: futureAnnouncement["user_created"],
+        //    );
+        //   //Adding user to the list.
+        //   announcement.add(announcements);
+        // }
+        // return announcement;
+
+        // print(response.body.toString());
+
+
+        return Announcement.getAnnouncementList(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to load album');
+      }
+    } on Exception catch (e) {
+      throw Exception('Failed to connect API $e');
+    }
+
+    // if (kDebugMode) {
+    //   print('title: $title');
+    //   print('description: $description');
+    // }
+    //
+    // var (success, err_code) = await createAnnouncement(title, description, currentUser);
+    // return (success, err_code);
   }
 }
