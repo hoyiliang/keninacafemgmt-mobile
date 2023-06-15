@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
 
 import '../Entity/User.dart';
+import '../Entity/Announcement.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,15 +40,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewAnnouncementPage(user: null,),
+      home: const ViewAnnouncementPage(announcement: null, user: null,),
     );
   }
 }
 
 class ViewAnnouncementPage extends StatefulWidget {
-  const ViewAnnouncementPage({super.key, this.user});
+  const ViewAnnouncementPage({super.key, this.announcement, this.user});
 
   final User? user;
+  final Announcement? announcement;
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -65,6 +67,10 @@ class ViewAnnouncementPage extends StatefulWidget {
 
 class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
 
+  Announcement? getAnnouncement() {
+    return widget.announcement;
+  }
+
   User? getUser() {
     return widget.user;
   }
@@ -72,8 +78,11 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
+    Announcement? currentAnnouncement = getAnnouncement();
     User? currentUser = getUser();
     print(currentUser?.name);
+    print(currentAnnouncement?.title);
+    print(currentAnnouncement?.description);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -85,8 +94,8 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10,),
                   child: Card (
                     color: Colors.white,
                     shadowColor: Colors.black,
@@ -94,18 +103,18 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                     child: Column(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
-                        ListTile(
+                        const ListTile(
                           tileColor: Colors.black12,
                           title: Text(
-                            "Title",
+                            'Title',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         // const SizedBox(
-                          child: Text('Hari Rayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', style: TextStyle(fontSize: 15,),),
+                          child: Text(currentAnnouncement!.title, style: TextStyle(fontSize: 15,),),
                           // Text(' (26/04/2023)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
                         // ),
                         ),
@@ -114,8 +123,8 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                   ),
                 ),
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10,),
                   child: Card (
                     color: Colors.white,
                     shadowColor: Colors.black,
@@ -123,7 +132,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                     child: Column(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
-                        ListTile(
+                        const ListTile(
                           tileColor: Colors.black12,
                           title: Text(
                             "Description",
@@ -132,9 +141,9 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           // const SizedBox(
-                          child: Text('Hari Rayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', style: TextStyle(fontSize: 15,),),
+                          child: Text(currentAnnouncement!.description, style: const TextStyle(fontSize: 15,),),
                           // Text(' (26/04/2023)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
                           // ),
                         ),

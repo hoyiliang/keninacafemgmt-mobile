@@ -74,7 +74,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   final descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool announcementCreated = false;
-  List<Announcement> listAnnouncement = [];
   // late List<Announcement> announcements = [];
 
   User? getUser() {
@@ -84,7 +83,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   @override
   void initState() {
     super.initState();
-    getAnnouncementAsync();
     // List<dynamic> announcementList = getAnnouncement();
   }
   // List<Widget> buildAnnouncementList() {
@@ -94,10 +92,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   //   return announcementList;
   // }
 
-  void getAnnouncementAsync() async {
-    listAnnouncement = await getAnnouncement();
-  }
-
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
@@ -105,14 +99,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     User? currentUser = getUser();
     print(currentUser?.name);
-
-    // @override
-    // void initState() {
-    //   super.initState();
-    //   futureAnnouncement = getAnnouncement();
-    //   print(futureAnnouncement);
-    //   // List<dynamic> announcementList = getAnnouncement();
-    // }
 
     void showConfirmationDialog(String title, String description) {
       showDialog(
@@ -291,13 +277,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       );
     }
 
-    // List<Widget> buildAnnouncementList() {
-    //   List<Widget> announcementList = <Widget>[];
-    //   // Get announcement list from django API JSON
-    //   // announcementList.add(value);
-    //   return announcementList;
-    // }
-
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
@@ -327,9 +306,22 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
                 Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: buildAnnouncementCards(),
-                ),
+                child: FutureBuilder<List<Announcement>>(
+                  future: getAnnouncement(),
+                  builder: (BuildContext context, AsyncSnapshot<List<Announcement>> snapshot) {
+                    if (snapshot.hasData) {
+                      return Column(
+                        children: buildAnnouncementCards(snapshot.data, currentUser),
+                      );
+                    } else {
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        return const Center(child: Text('Error: invalid state'));
+                      }
+                    }
+                  }
+                )
               ),
               ],
             ),
@@ -339,9 +331,9 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
     );
   }
 
-  List<Widget> buildAnnouncementCards() {
+  List<Widget> buildAnnouncementCards(List<Announcement>? listAnnouncement, User? currentUser) {
     List<Widget> cards = [];
-    for (Announcement a in listAnnouncement) {
+    for (Announcement a in listAnnouncement!) {
       cards.add(
         Card (
           color: Colors.white,
@@ -387,7 +379,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const ViewAnnouncementPage(),
+                                          builder: (context) => ViewAnnouncementPage(announcement: a, user: currentUser),
                                         ),
                                       );
                                     },
