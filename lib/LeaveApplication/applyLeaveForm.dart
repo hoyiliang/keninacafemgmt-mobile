@@ -566,6 +566,7 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
                         ]
                     )
                 ),
+
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
                     child:TextFormField(
