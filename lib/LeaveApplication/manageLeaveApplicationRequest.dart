@@ -1,9 +1,15 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Announcement/createAnnouncement.dart';
-import 'package:keninacafe/Announcement/viewAnnouncement.dart';
+import 'package:http/http.dart' as http;
+import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
+import 'package:keninacafe/Utils/error_codes.dart';
+import '../Entity/User.dart';
+import '../Entity/LeaveFormData.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,42 +28,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ManageLeaveApplicationRequestPage(),
+      home: const ManageLeaveApplicationRequestPage(user: null,),
     );
   }
 }
 
 class ManageLeaveApplicationRequestPage extends StatefulWidget {
-  const ManageLeaveApplicationRequestPage({super.key});
+  const ManageLeaveApplicationRequestPage({super.key, this.user});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // final String title;
+  final User? user;
 
   @override
   State<ManageLeaveApplicationRequestPage> createState() => _ManageLeaveApplicationRequestPageState();
@@ -68,144 +51,16 @@ class _ManageLeaveApplicationRequestPageState extends State<ManageLeaveApplicati
   String text = '';
   final _formKey = GlobalKey<FormState>();
 
+  User? getUser() {
+    return widget.user;
+  }
+
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
 
-    void saveAnnouncement(String title, String text) {
-      // Save announcement logic goes here
-      // print('Announcement Saved: $_title - $_text');
-    }
-
-    void showConfirmationDialog(String title, String text) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-            content: const Text('Are you sure you want to create the announcement?'),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  // Perform save logic here
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  saveAnnouncement(title, text);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('Yes'),
-
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('No'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    void showAnnouncementCard(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Row(
-                children:[
-                  const Text('Create Announcement', style: TextStyle(fontSize: 21.5, fontWeight: FontWeight.bold,),),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ]
-            ),
-            // title: const Text('Create Announcement', style: TextStyle(fontWeight: FontWeight.bold,)),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                    ),
-                    validator: (title) {
-                      if (title == null || title.isEmpty) return 'Please fill in the title !';
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        title = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextFormField(
-                    maxLines: 5,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        text = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  // Save announcement logic goes here
-                  // Navigator.of(context).pop();
-                  if (_formKey.currentState!.validate()) {
-                    showConfirmationDialog(title, text);
-                    title = '';
-                    text = '';
-                  }
-                },
-                child: const Text('Confirm'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  title = '';
-                  text = '';
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    List<Widget> buildAnnouncementList() {
-      List<Widget> announcementList = <Widget>[];
-      // Get announcement list from django API JSON
-      // announcementList.add(value);
-      return announcementList;
-    }
-
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    User? currentUser = getUser();
+    print(currentUser?.name);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -217,152 +72,27 @@ class _ManageLeaveApplicationRequestPageState extends State<ManageLeaveApplicati
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.symmetric( horizontal: 32, vertical: 15),
-                //   child: Align(
-                //     alignment: Alignment.centerLeft,
-                //     child: FloatingActionButton.extended(
-                //       // child: Icon(Icons.navigation),
-                //       backgroundColor: Colors.blue,
-                //       foregroundColor: Colors.white,
-                //       onPressed: () => {
-                //         showAnnouncementCard(context),
-                //       },
-                //       label: const Text("Create", style: TextStyle(fontSize: 18)),
-                //       icon: const Icon(Icons.add_alert_sharp),
-                //     ),
-                //   ),
-                // ),
 
                 const SizedBox(height: 15,),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    children: [
-                      Card (
-                        color: Colors.white,
-                        shadowColor: Colors.black,
-                        elevation: 15,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children:
-                          [
-                            const ListTile(
-                              title: Text(
-                                "Annual Leave",
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
-                              ),
-                              subtitle: Text(
-                                'Applied by GOH CHEE LAM',
-                                style: TextStyle(overflow: TextOverflow.ellipsis,),
-                              ),
-                            ),
-                            // const SizedBox(
-                            //   child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
-                            // ),
-
-                            Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text.rich(
-                                        TextSpan(
-                                            children: [
-                                              TextSpan(text: 'View Details',
-                                                style: const TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  decoration: TextDecoration.underline,
-                                                  color: Colors.transparent,
-                                                  shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
-                                                  decorationThickness: 4,
-                                                  decorationColor: Colors.blue,
-                                                ),
-                                                recognizer: TapGestureRecognizer()
-                                                  ..onTap = () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => const ViewAnnouncementPage(),
-                                                      ),
-                                                    );
-                                                  },
-                                              ),
-                                            ]
-                                        )
-                                    )
-                                )
-                            )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 15,),
-                      // Card (
-                      //   color: Colors.white,
-                      //   shadowColor: Colors.black,
-                      //   elevation: 15,
-                      //   child: Column(
-                      //     mainAxisSize: MainAxisSize.min,
-                      //     children:
-                      //     [
-                      //       const ListTile(
-                      //         // leading: Icon (
-                      //         //     Icons.album,
-                      //         //     color: Colors.cyan,
-                      //         //     size: 45
-                      //         // ),
-                      //         title: Text(
-                      //           "Hari Raya",
-                      //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis,),
-                      //         ),
-                      //         subtitle: Text(
-                      //           'Created by GOH CHEE LAM',
-                      //           style: TextStyle(overflow: TextOverflow.ellipsis,),
-                      //         ),
-                      //       ),
-                      //       const SizedBox(
-                      //         child: Text('Hari Rayaaaaaaaa', style: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis,),),
-                      //         // Text(' (26/04/2023)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                      //       ),
-                      //
-                      //       Padding(
-                      //           padding: const EdgeInsets.symmetric(vertical: 10),
-                      //           child: Align(
-                      //               alignment: Alignment.center,
-                      //               child: Text.rich(
-                      //                   TextSpan(
-                      //                       children: [
-                      //                         TextSpan(text: 'View Announcement',
-                      //                           style: const TextStyle(
-                      //                             fontSize: 10,
-                      //                             fontWeight: FontWeight.bold,
-                      //                             decoration: TextDecoration.underline,
-                      //                             color: Colors.transparent,
-                      //                             shadows: [Shadow(color: Colors.blue, offset: Offset(0, -2))],
-                      //                             decorationThickness: 4,
-                      //                             decorationColor: Colors.blue,
-                      //                           ),
-                      //                           recognizer: TapGestureRecognizer()
-                      //                             ..onTap = () {
-                      //                               Navigator.push(
-                      //                                 context,
-                      //                                 MaterialPageRoute(
-                      //                                   builder: (context) => const CreateAnnouncementPage(),
-                      //                                 ),
-                      //                               );
-                      //                             },
-                      //                         ),
-                      //                       ]
-                      //                   )
-                      //               )
-                      //           )
-                      //       )
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
-                  ),
+                  child: FutureBuilder<List<LeaveFormData>>(
+                      future: getLeaveFormData(),
+                      builder: (BuildContext context, AsyncSnapshot<List<LeaveFormData>> snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
+                            children: buildLeaveFormDataCards(snapshot.data, currentUser),
+                          );
+                        } else {
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return const Center(child: Text('Error: invalid state'));
+                          }
+                        }
+                      }
+                  )
                 ),
               ],
             ),
@@ -370,5 +100,160 @@ class _ManageLeaveApplicationRequestPageState extends State<ManageLeaveApplicati
         ),
       ),
     );
+  }
+
+  List<Widget> buildLeaveFormDataCards(List<LeaveFormData>? listLeaveFormData, User? currentUser) {
+    List<Widget> cards = [];
+    for (LeaveFormData a in listLeaveFormData!) {
+      if (a.is_active) {
+        cards.add(
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            elevation: 15,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  color: Colors.grey[350],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15.0, vertical: 8.0),
+                    child: Text(
+                      a.leave_type,
+                      style: const TextStyle(fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis,),
+                    ),
+                  ),
+                ),
+                Container(
+                  color: Colors.grey[100],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(),
+                      child: Column(
+                          children: [
+                            Align(
+                              alignment: const Alignment(-1, -1),
+                              child: Text(
+                                'Date From: ${a.date_from.toString().substring(
+                                    0, 10)}',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: const Alignment(-1, -1),
+                              child: Text(
+                                'Date To: ${a.date_to.toString().substring(
+                                    0, 10)}',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: const Alignment(-1, -1),
+                              child: Text(
+                                'Applied by: ${a.user_name}',
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: const Alignment(-1, -1),
+                              child: Text(
+                                'Total Day(s): ${a.total_day.toString()
+                                    .substring(a.total_day
+                                    .toString()
+                                    .length - 3, a.total_day
+                                    .toString()
+                                    .length - 2)}', textAlign: TextAlign.left,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ]
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                    color: Colors.grey[350],
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text.rich(
+                                TextSpan(
+                                    children: [
+                                      TextSpan(text: 'Review',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          decoration: TextDecoration.underline,
+                                          color: Colors.transparent,
+                                          shadows: [
+                                            Shadow(color: Colors.blue,
+                                                offset: Offset(0, -2))
+                                          ],
+                                          decorationThickness: 4,
+                                          decorationColor: Colors.blue,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (
+                                                    context) => ApplyLeaveFormPage(leaveFormData: a, user: currentUser),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ]
+                                )
+                            )
+                        )
+                    )
+                ),
+              ],
+            ),
+          ),
+        );
+        cards.add(const SizedBox(height: 15,),);
+      }
+    }
+    return cards;
+  }
+
+  Future<List<LeaveFormData>> getLeaveFormData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/leave/request_application_list'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return LeaveFormData.getLeaveFormDataList(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to load leave form data');
+      }
+    } on Exception catch (e) {
+      throw Exception('Failed to connect API $e');
+    }
   }
 }

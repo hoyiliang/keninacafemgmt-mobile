@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
+import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
+
+import '../Entity/User.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,24 +41,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ApplyViewLeaveApplicationPage(),
+      home: const ApplyViewLeaveApplicationPage(user: null,),
     );
   }
 }
 
 class ApplyViewLeaveApplicationPage extends StatefulWidget {
-  const ApplyViewLeaveApplicationPage({super.key});
+  const ApplyViewLeaveApplicationPage({super.key, this.user});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // final String title;
+  final User? user;
 
   @override
   State<ApplyViewLeaveApplicationPage> createState() => _ApplyViewLeaveApplicationState();
@@ -64,9 +57,17 @@ class ApplyViewLeaveApplicationPage extends StatefulWidget {
 
 class _ApplyViewLeaveApplicationState extends State<ApplyViewLeaveApplicationPage> {
 
+  User? getUser() {
+    return widget.user;
+  }
+
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
+
+    User? currentUser = getUser();
+    print(currentUser?.name);
+
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
@@ -86,7 +87,7 @@ class _ApplyViewLeaveApplicationState extends State<ApplyViewLeaveApplicationPag
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => const ApplyLeaveFormPage()));
+                              MaterialPageRoute(builder: (context) => ApplyLeaveFormPage(leaveFormData: null, user: currentUser)));
                         },
                         child: Column(
                           children: [
@@ -110,7 +111,10 @@ class _ApplyViewLeaveApplicationState extends State<ApplyViewLeaveApplicationPag
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => ViewLeaveApplicationStatusPage(user: currentUser)));
+                        },
                         child: Column(
                           children: [
                             Image.asset('images/viewApplication.png'),

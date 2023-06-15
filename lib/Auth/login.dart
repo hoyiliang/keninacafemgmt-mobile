@@ -5,6 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
+import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
+import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
+import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
+import 'package:keninacafe/LeaveApplication/manageLeaveApplicationRequest.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -172,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                         );
                         Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                            MaterialPageRoute(builder: (context) => ManageLeaveApplicationRequestPage(user: currentUser))
                         );
                       }
                     });
