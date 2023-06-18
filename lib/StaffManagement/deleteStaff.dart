@@ -219,6 +219,7 @@ class _DeleteStaffPageState extends State<DeleteStaffPage> {
     // reqPermission();
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Update Profile', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

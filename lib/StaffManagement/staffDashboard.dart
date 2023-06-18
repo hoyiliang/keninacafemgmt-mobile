@@ -72,6 +72,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Staff Dashboard', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

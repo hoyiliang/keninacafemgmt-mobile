@@ -85,6 +85,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Manage Attendance', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

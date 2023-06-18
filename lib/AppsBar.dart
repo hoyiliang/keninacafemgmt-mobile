@@ -113,16 +113,16 @@ class AppsBarState extends State<AppsBar> {
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_outlined),
-            onPressed: () {
-              // Handle back button press
-              Navigator.pop(context);
-            },
-          ),
-        ),
+        // leading: Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 20),
+        //   child: IconButton(
+        //     icon: const Icon(Icons.arrow_back_ios_outlined),
+        //     onPressed: () {
+        //       // Handle back button press
+        //       Navigator.pop(context);
+        //     },
+        //   ),
+        // ),
         elevation: 0,
         toolbarHeight: 100,
         title: Text(title,
@@ -241,9 +241,9 @@ class AppsBarState extends State<AppsBar> {
           );
         }
       }
-      setState(() {
-        selectedIndex = index;
-      });
+      // setState(() {
+      //   selectedIndex = index;
+      // });
     }
 
 

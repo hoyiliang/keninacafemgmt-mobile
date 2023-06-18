@@ -282,6 +282,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

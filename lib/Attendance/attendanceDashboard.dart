@@ -76,7 +76,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
       context: context,
       builder: (BuildContext context) {
         return FutureBuilder<bool>(
-            future: getAttendance(),
+            future: getAttendance(currentUser),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               if (snapshot.hasData) {
                 dateNotExist = snapshot.data!;
@@ -417,6 +417,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -529,13 +530,13 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
     }
   }
 
-  Future<bool> getAttendance() async {
+  Future<bool> getAttendance(User currentUser) async {
     // String title = titleController.text;
     // String description = descriptionController.text;
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_list'),
+        Uri.parse('http://10.0.2.2:8000/attendance/request_list/${currentUser.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
