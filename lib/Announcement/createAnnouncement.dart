@@ -74,6 +74,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   final descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool announcementCreated = false;
+  User? currentUser;
   // late List<Announcement> announcements = [];
 
   User? getUser() {
@@ -98,7 +99,9 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
     // getAnnouncement();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
+    // if (kDebugMode) {
+    //   print("createAnnouncement " +currentUser!.name);
+    // }
 
     void showConfirmationDialog(String title, String description) {
       showDialog(
@@ -279,8 +282,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Announcement'),
+      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -328,6 +330,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
           ),
         ),
       ),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 

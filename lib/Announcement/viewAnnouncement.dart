@@ -86,8 +86,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Announcement'),
+      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -173,6 +172,7 @@ class _ViewAnnouncementPageState extends State<ViewAnnouncementPage> {
           ),
         ),
       ),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 }

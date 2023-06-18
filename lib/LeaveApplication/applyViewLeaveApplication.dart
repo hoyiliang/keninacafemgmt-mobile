@@ -71,7 +71,7 @@ class _ApplyViewLeaveApplicationState extends State<ApplyViewLeaveApplicationPag
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Leave Application'),
+      appBar: AppsBarState().buildAppBar(context, 'Leave Application', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 20,),

@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:keninacafe/Auth/login.dart';
+import 'package:keninacafe/PersonalProfile/changePassword.dart';
 import 'package:keninacafe/PersonalProfile/editPersonalProfile.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
+import '../Entity/User.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,48 +44,37 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewPersonalProfilePage(),
+      home: const ViewPersonalProfilePage(user: null,),
     );
   }
 }
 
 class ViewPersonalProfilePage extends StatefulWidget {
-  const ViewPersonalProfilePage({super.key});
+  const ViewPersonalProfilePage({super.key, this.user});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // final String title;
+  final User? user;
 
   @override
   State<ViewPersonalProfilePage> createState() => _ViewPersonalProfilePageState();
 }
 
 class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
-  // var isDark = MediaQuery
-  //     .of(context)
-  //     .platformBrightness == Brightness.dark;
   var iconColor = true ? Colors.blue : Colors.red;
 
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
+  User? getUser() {
+    return widget.user;
+  }
 
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
+
+    User? currentUser = getUser();
+    print(currentUser?.name);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Profile'),
+      appBar: AppsBarState().buildAppBar(context, 'Profile', currentUser!),
       body: SingleChildScrollView(
         child: SizedBox(
           child: Padding(
@@ -96,7 +90,8 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                         width: 120,
                         height: 120,
                         child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100), child: const Image(image: AssetImage('images/KE_Nina_Cafe_appsbar.jpg'))),
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image.memory(base64Decode(widget.user!.image))),
                       ),
                       Positioned(
                         bottom: 0,
@@ -115,8 +110,8 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Text('Goh Chee Lam', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
-                  const Text('clgoh0726@gmail.com', style: TextStyle(fontSize: 15),),
+                  Text(currentUser.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                  Text(currentUser.email, style: const TextStyle(fontSize: 15),),
                   const SizedBox(height: 20),
 
                   /// -- BUTTON
@@ -125,7 +120,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                     child: ElevatedButton(
                       onPressed: () => {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const EditPersonalProfilePage())
+                          MaterialPageRoute(builder: (context) => EditPersonalProfilePage(user: currentUser))
                         ),
                       },
                       style: ElevatedButton.styleFrom(
@@ -136,29 +131,88 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                   const SizedBox(height: 30),
                   const Divider(),
 
-                  ListTile(
-                    // onTap: onPress,
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: iconColor.withOpacity(0.1),
-                      ),
-                      child: Icon(LineAwesomeIcons.alternate_sign_out, color: iconColor),
-                    ),
-                    title: const Text('Logout', style: TextStyle(color: Colors.red, fontSize: 15)),
-                    trailing: true
-                        ? Container(
-                        width: 30,
-                        height: 30,
+                  GestureDetector(
+                    onTap: () {
+                      // Handle button press
+                      // Put your logic here
+                      // For example, call a function or navigate to another screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangePasswordPage(user: currentUser),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
-                          color: Colors.grey.withOpacity(0.1),
+                          color: iconColor.withOpacity(0.1),
                         ),
-                        child: const Icon(
-                            LineAwesomeIcons.angle_right, size: 18.0, color: Colors.grey))
-                        : null,
+                        child: Icon(LineAwesomeIcons.key, color: iconColor),
+                      ),
+                      title: const Text('Change Password', style: TextStyle(color: Colors.black, fontSize: 15)),
+                      trailing: true
+                          ? Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          child: const Column(
+                            children: [
+                              Icon(LineAwesomeIcons.angle_right, size: 18.0, color: Colors.grey)
+                            ],
+                          )
+                      )
+                          : null,
+                    ),
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 10),
+
+                  GestureDetector(
+                    onTap: () {
+                      // Handle button press
+                      // Put your logic here
+                      // For example, call a function or navigate to another screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: iconColor.withOpacity(0.1),
+                        ),
+                        child: Icon(LineAwesomeIcons.alternate_sign_out, color: iconColor),
+                      ),
+                      title: const Text('Logout', style: TextStyle(color: Colors.red, fontSize: 15)),
+                      trailing: true
+                          ? Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          child: const Column(
+                            children: [
+                              Icon(LineAwesomeIcons.angle_right, size: 18.0, color: Colors.grey)
+                            ],
+                          )
+                      )
+                          : null,
+                    ),
                   ),
                   const Divider(),
                   const SizedBox(height: 10),
@@ -168,6 +222,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
           ),
         ),
       ),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 }

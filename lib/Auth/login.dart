@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:keninacafe/Attendance/manageRestaurantWorkerAttendance.dart';
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
@@ -9,14 +10,23 @@ import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
 import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
 import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
 import 'package:keninacafe/LeaveApplication/manageLeaveApplicationRequest.dart';
+import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
+import 'package:keninacafe/StaffManagement/createStaff.dart';
+import 'package:keninacafe/StaffManagement/staffDashboard.dart';
+import 'package:keninacafe/Attendance/attendanceDashboard.dart';
+import 'package:keninacafe/Attendance/manageAttendanceRequest.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Security/Encryptor.dart';
+import '../StaffManagement/staffList.dart';
+import '../home.dart';
 
 void main() {
-  runApp(const MyApp());
+    runApp(const MyApp());
 }
 
 void enterFullScreen() {
@@ -66,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool userFound = false;
   bool submittedOnce = false;
+  bool securePasswordText = true;
   late SharedPreferences prefs;
   late User  currentUser;
 
@@ -77,6 +88,12 @@ class _LoginPageState extends State<LoginPage> {
 
   void initSharedPref() async {
     prefs = await SharedPreferences.getInstance();
+  }
+
+  void _togglePasswordView() {
+    setState(() {
+      securePasswordText = !securePasswordText;
+    });
   }
 
   @override
@@ -113,11 +130,15 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 6),
                 child:
                   TextField(
+                    obscureText: securePasswordText,
                     controller: passwordController,
-                    obscureText: true,
                     enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      suffix: InkWell(
+                        onTap: _togglePasswordView,
+                        child: const Icon( Icons.visibility),
+                      ),
                       hintText: 'Password',
                     ),
                   )
@@ -175,8 +196,8 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                         );
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => ManageLeaveApplicationRequestPage(user: currentUser))
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
                         );
                       }
                     });
@@ -231,13 +252,13 @@ class _LoginPageState extends State<LoginPage> {
         if (kDebugMode) {
           print('No User found.');
         }
-        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, staff_type: '', phone: '', ic: ''), (ErrorCodes.LOGIN_FAIL_NO_USER));
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.LOGIN_FAIL_NO_USER));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, staff_type: '', phone: '', ic: '', ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
     }
   }
 

@@ -121,7 +121,7 @@ class _ApplyLeaveFormPageState extends State<ApplyLeaveFormPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Leave Form'),
+      appBar: AppsBarState().buildAppBar(context, 'Leave Form', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
