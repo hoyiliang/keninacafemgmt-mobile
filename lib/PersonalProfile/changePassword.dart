@@ -214,6 +214,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Change Password', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

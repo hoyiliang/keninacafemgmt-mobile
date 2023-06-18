@@ -72,6 +72,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

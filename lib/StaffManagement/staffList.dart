@@ -68,6 +68,7 @@ class _StaffListPageState extends State<StaffListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Staff List', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

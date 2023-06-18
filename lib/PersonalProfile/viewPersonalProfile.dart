@@ -74,6 +74,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Profile', currentUser!),
       body: SingleChildScrollView(
         child: SizedBox(

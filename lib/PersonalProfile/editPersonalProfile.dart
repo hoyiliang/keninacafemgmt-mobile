@@ -213,6 +213,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     // reqPermission();
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Update Profile', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

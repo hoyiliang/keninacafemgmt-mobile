@@ -417,6 +417,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

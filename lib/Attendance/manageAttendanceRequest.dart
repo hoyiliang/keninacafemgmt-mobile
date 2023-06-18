@@ -73,6 +73,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppsBarState().buildDrawer(context),
       appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
