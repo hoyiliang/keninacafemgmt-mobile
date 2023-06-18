@@ -241,9 +241,9 @@ class AppsBarState extends State<AppsBar> {
           );
         }
       }
-      setState(() {
-        selectedIndex = index;
-      });
+      // setState(() {
+      //   selectedIndex = index;
+      // });
     }
 
 
