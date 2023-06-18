@@ -1,13 +1,19 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:flutter/gestures.dart';
+import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:keninacafe/Utils/error_codes.dart';
+import '../Entity/User.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,24 +50,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const EditPersonalProfilePage(),
+      home: const EditPersonalProfilePage(user: null,),
     );
   }
 }
 
 class EditPersonalProfilePage extends StatefulWidget {
-  const EditPersonalProfilePage({super.key});
+  const EditPersonalProfilePage({super.key, this.user});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // final String title;
+  final User? user;
 
   @override
   State<EditPersonalProfilePage> createState() => _EditPersonalProfilePageState();
@@ -75,24 +72,99 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
   final addressController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final staffTypeController = TextEditingController();
+  final dobController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool profileUpdated = false;
   bool securePasswordText = true;
   bool secureConfirmPasswordText = true;
   ImagePicker picker = ImagePicker();
-  File? image;
+  String base64Image = "";
 
-  void showConfirmationDialog() {
+  User? getUser() {
+    return widget.user;
+  }
+
+  void showConfirmationDialog(User currentUser) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: const Text('Are you sure you want to update your profile?'),
+          content: const Text('Are you sure you want to update the personal profile?'),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Perform save logic here
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                if (_formKey.currentState!.validate()) {
+                  var (err_code, currentUserUpdated) = await _submitUpdateDetails(currentUser);
+                  setState(() {
+                    // profileUpdated = profileUpdatedAsync;
+                    // if (!profileUpdated) {
+                    if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND) {
+                      showDialog(context: context, builder: (
+                          BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Error'),
+                            content: Text('An Error occurred while trying to update the personal profile.\n\nError Code: $err_code'),
+                            actions: <Widget>[
+                              TextButton(onPressed: () =>
+                                  Navigator.pop(context, 'Ok'),
+                                  child: const Text('Ok')),
+                            ],
+                          ),
+                      );
+                    } else if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_API_CONNECTION){
+                        showDialog(context: context, builder: (
+                            BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Connection Error'),
+                              content: Text(
+                                  'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                      } else {
+                      // If Leave Form Data success created
+
+                      Navigator.of(context).pop();
+                      showDialog(context: context, builder: (
+                          BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Update Personal Profile Successful'),
+                            // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated)),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                      );
+                      _formKey.currentState?.reset();
+                      setState(() {
+                        nameController.text = "";
+                        emailController.text = "";
+                        passwordController.text = '';
+                        addressController.text = '';
+                        staffTypeController.text = '';
+                        dobController.text = '';
+                      });
+                    }
+                  });
+                }
+                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -115,33 +187,33 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     );
   }
 
-  void reqPermission() async {
-    Map<Permission, PermissionStatus> statuses = await [
-        Permission.location,
-        Permission.storage,
-    ].request();
-  }
-
-  void _togglePasswordView() {
-    setState(() {
-      securePasswordText = !securePasswordText;
-    });
-  }
-
-  void _toggleConfirmPasswordView() {
-    setState(() {
-      secureConfirmPasswordText = !secureConfirmPasswordText;
-    });
-  }
+  // void reqPermission() async {
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //       Permission.location,
+  //       Permission.storage,
+  //   ].request();
+  // }
 
   @override
   Widget build(BuildContext context) {
     enterFullScreen();
-    reqPermission();
+
+    User? currentUser = getUser();
+    // print(currentUser?.name);
+    nameController.text = currentUser!.name;
+    icController.text = currentUser.ic;
+    emailController.text = currentUser.email;
+    phoneNumberController.text = currentUser.phone;
+    addressController.text = currentUser.address;
+    staffTypeController.text = currentUser.staff_type;
+    dobController.text = currentUser.dob.toString().substring(0,10);
+    base64Image = widget.user!.image;
+    Widget image = Image.memory(base64Decode(base64Image));
+
+    // reqPermission();
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Update Profile'),
+      appBar: AppsBarState().buildAppBar(context, 'Update Profile', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -158,64 +230,36 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                         height: 120,
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
-                            child: const Image(image: AssetImage('images/KE_Nina_Cafe_appsbar.jpg'))),
+                            child: image,
+                        ),
                       ),
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: SizedBox(
-                          width: 40,
+                          width: 35,
                           height: 35,
                           child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 0, 0, 0)),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
                               // image = await picker.pickImage(source: ImageSource.gallery);
                               // setState(() {
                               //   //update UI
                               // });
-                              final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                              XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
+                              final File imageFile = File(imageRaw!.path);
+                              final Image imageImage = Image.file(imageFile);
+                              final imageBytes = await imageFile.readAsBytes();
+                              base64Image = base64Encode(imageBytes);
+                              setState(() {
+                                image = Image.memory(imageBytes);
+                              });
                             },
                             child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
-
-                            // child: const Text("Upload Image")
                           ),
-                          // decoration:
-                          // BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                          // child: const Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
                         ),
-                        // child: SizedBox(
-                        //   width: 35,
-                        //   height: 35,
-                        //   child: ElevatedButton(
-                        //       // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                        //     onPressed: () async {
-                        //       // image = await picker.pickImage(source: ImageSource.gallery);
-                        //       // setState(() {
-                        //       //   //update UI
-                        //       // });
-                        //       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                        //     },
-                        //     child: const Padding(
-                        //       padding: EdgeInsets.fromLTRB(0,0,100,0),
-                        //       child: Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
-                        //     ),
-                        //       // child: const Text("Upload Image")
-                        //   ),
-                        //   // decoration:
-                        //   // BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                        //   // child: const Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
-                        // ),
-                        // ElevatedButton(
-                        //   onPressed: () async {
-                        //     // image = await picker.pickImage(source: ImageSource.gallery);
-                        //     // setState(() {
-                        //     //   //update UI
-                        //     // });
-                        //     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                        //   },
-                        //   child: const Text("Upload Image")
-                        // ),
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 13),
@@ -235,23 +279,17 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
-                          controller: icController,
-                          decoration: const InputDecoration(
-                            label: Text('IC'), prefixIcon: Icon(LineAwesomeIcons.identification_badge)
-                          ),
-                          validator: (icController) {
-                            if (icController == null || icController.isEmpty) return 'Please fill in your IC !';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 13),
-                        TextFormField(
                           controller: emailController,
                           decoration: const InputDecoration(
                               label: Text('Email'), prefixIcon: Icon(LineAwesomeIcons.envelope_1)
                           ),
                           validator: (emailController) {
                             if (emailController == null || emailController.isEmpty) return 'Please fill in your email !';
+                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                            if (!emailRegex.hasMatch(emailController)) {
+                              return 'Please enter a valid email address';
+                            }
                             return null;
                           },
                         ),
@@ -266,45 +304,46 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                             return null;
                           },
                         ),
-                          const SizedBox(height: 13),
+                        const SizedBox(height: 13),
                         TextFormField(
-                          obscureText: securePasswordText,
-                          controller: passwordController,
-                          decoration: InputDecoration(
-                            label: const Text('Password'),
-                            prefixIcon: const Icon(Icons.fingerprint),
-                            suffix: InkWell(
-                              onTap: _togglePasswordView,
-                              child: const Icon( Icons.visibility),
-                            ),
-                            // suffixIcon: IconButton(icon: const Icon(LineAwesomeIcons.eye), onPressed: () {
-                            //   _togglePasswordView;
-                            // }),
+                          controller: addressController,
+                          decoration: const InputDecoration(
+                              label: Text('Address'), prefixIcon: Icon(LineAwesomeIcons.address_card)
                           ),
-                          validator: (passwordController) {
-                            if (passwordController == null || passwordController.isEmpty) return 'Please fill in your password !';
+                          validator: (phoneNumberController) {
+                            if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
                             return null;
                           },
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
-                          obscureText: secureConfirmPasswordText,
-                          controller: confirmPasswordController,
-                          decoration: InputDecoration(
-                            label: const Text('Confirm Password'),
-                            prefixIcon: const Icon(Icons.fingerprint),
-                            suffix: InkWell(
-                              onTap: _toggleConfirmPasswordView,
-                              child: const Icon( Icons.visibility),
-                            ),
-                            // suffixIcon: IconButton(icon: const Icon(LineAwesomeIcons.eye_slash), onPressed: () {}),
+                          controller: staffTypeController,
+                          decoration: const InputDecoration(
+                              label: Text('Staff Type'), prefixIcon: Icon(LineAwesomeIcons.people_carry)
                           ),
-                          validator: (confirmPasswordController) {
-                            if (confirmPasswordController == null || confirmPasswordController.isEmpty) return 'Please fill in your password again !';
+                          validator: (phoneNumberController) {
+                            if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
                             return null;
                           },
+                          readOnly: true,
                         ),
                         const SizedBox(height: 13),
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: TextFormField(
+                              controller: dobController, //editing controller of this TextField
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today), //icon of text field
+                                  labelText: "Date Of Birth" //label text of field
+                              ),
+                              validator: (dobController) {
+                                if (dobController == null || dobController.isEmpty) return 'Please choose the date to !';
+                                return null;
+                              },
+                              readOnly: true,//set it true, so that user will not able to edit text
+                              onTap: null,
+                            ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                           child: Container(
@@ -314,7 +353,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                               height:50,
                               onPressed: (){
                                 if (_formKey.currentState!.validate()) {
-                                  showConfirmationDialog();
+                                  showConfirmationDialog(currentUser);
                                   // if (image != null) {
                                   //   showConfirmationDialog();
                                   // } else {
@@ -379,6 +418,67 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
           ),
         ),
       ),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
+  }
+
+  Future<(String, User)> _submitUpdateDetails(User currentUser) async {
+    var (thisUser, err_code) = await updatePersonalProfile(currentUser);
+    if (thisUser.uid == -1) {
+      if (kDebugMode) {
+        print("Failed to update User data.");
+      }
+      return (err_code, currentUser);
+    }
+    currentUser = thisUser;
+    return (err_code, currentUser);
+  }
+
+  Future<(User, String)> updatePersonalProfile(User currentUser) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/editProfile/update_user_profile/${currentUser.uid}/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          // 'id': leaveFormData.id,
+          'image': base64Image,
+          'name': nameController.text,
+          'email': emailController.text,
+          'address': addressController.text,
+          'phone': phoneNumberController.text,
+          'dob': DateTime.parse(dobController.text).toString(),
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        var jsonResp = jsonDecode(response.body);
+        var jwtToken = jsonResp['token'];
+        return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
+      } else {
+        if (kDebugMode) {
+          print('No User found.');
+        }
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.LOGIN_FAIL_NO_USER));
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+    }
+    //   } else {
+    //     if (kDebugMode) {
+    //       print('Failed to Approve Leave Application.');
+    //     }
+    //     return (false, ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND);
+    //   }
+    // } on Exception catch (e) {
+    //   if (kDebugMode) {
+    //     print('API Connection Error. $e');
+    //   }
+    //   return (false, ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_API_CONNECTION);
+    // }
   }
 }

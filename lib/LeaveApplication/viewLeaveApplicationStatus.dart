@@ -72,7 +72,7 @@ class _ViewLeaveApplicationStatusPageState extends State<ViewLeaveApplicationSta
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'LA Status'),
+      appBar: AppsBarState().buildAppBar(context, 'LA Status', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(

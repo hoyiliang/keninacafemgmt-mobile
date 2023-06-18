@@ -1,8 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
+import 'package:keninacafe/Attendance/attendanceDashboard.dart';
+import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
+import 'package:keninacafe/Entity/User.dart';
+
+import 'StaffManagement/staffDashboard.dart';
+import 'home.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+void enterFullScreen() {
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
 }
 
 class MyApp extends StatelessWidget {
@@ -40,31 +52,15 @@ class MyApp extends StatelessWidget {
 class AppsBar extends StatefulWidget {
   const AppsBar({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // final String title;
-
   @override
   State<AppsBar> createState() => AppsBarState();
 }
 
 class AppsBarState extends State<AppsBar> {
 
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-
   @override
   Widget buildDrawer(BuildContext context) {
+    enterFullScreen();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -112,10 +108,21 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildAppBar(BuildContext context, String title) {
+  PreferredSizeWidget buildAppBar(BuildContext context, String title, User currentUser) {
+
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_outlined),
+            onPressed: () {
+              // Handle back button press
+              Navigator.pop(context);
+            },
+          ),
+        ),
         elevation: 0,
         toolbarHeight: 100,
         title: Text(title,
@@ -126,22 +133,204 @@ class AppsBarState extends State<AppsBar> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const CreateAnnouncementPage())
-              );
-            },
-            icon: const Icon(Icons.notifications, size: 35,),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.account_circle_rounded, size: 35,),
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
         ],
       ),
     );
   }
+
+
+  PreferredSize buildBottomNavigationBar(User currentUser, BuildContext context) {
+    int selectedIndex = 0;
+    print(currentUser.staff_type);
+
+    void _onItemTapped(int index) {
+      // setState(() {
+         selectedIndex = index;
+      // });
+
+      // Perform specific actions based on user and index
+      if (currentUser.staff_type == "Restaurant Owner") {
+        // Admin-specific logic
+        // List<Widget> _widgetOptions = <Widget>[
+        //   HomePage(user: currentUser,),
+        //   ViewPersonalProfilePage(user: currentUser,),
+        // ];
+        // _widgetOptions.elementAt(selectedIndex);
+        if (index == 0) {
+
+        } else if (selectedIndex == 1) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          );
+        } else if (selectedIndex == 2) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          );
+        } else if (selectedIndex == 3) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          );
+        }
+      } else if (currentUser.staff_type == "Restaurant Manager") {
+        // List<Widget> _widgetOptions = <Widget>[
+        //   HomePage(user: currentUser,),
+        //   ViewPersonalProfilePage(user: currentUser,),
+        // ];
+        // _widgetOptions.elementAt(selectedIndex);
+        // Regular user-specific logic
+        if (index == 0) {
+          Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomePage(user: currentUser)),
+          );
+        } else if (index == 1) {
+          Navigator.push(context,
+            MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser)),
+          );
+        } else if (index == 2) {
+          // Navigator.of(context).push(
+          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          // );
+        } else if (index == 3) {
+          // Navigator.of(context).push(
+          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          // );
+        } else if (index == 4) {
+          // Navigator.of(context).push(
+          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          // );
+        } else if (index == 5) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          );
+        }
+    } else if (currentUser.staff_type == "Restaurant Worker") {
+
+        if (index == 0) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
+          );
+        } else if (index == 1) {
+          // Navigator.of(context).push(
+          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          // );
+        } else if (index == 2) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser))
+          );
+        } else if (index == 3) {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          );
+        }
+      }
+      setState(() {
+        selectedIndex = index;
+      });
+    }
+
+
+    List<BottomNavigationBarItem> bottomNavBarItems = [];
+    if (currentUser.staff_type == "Restaurant Owner") {
+      bottomNavBarItems = const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people_outline_outlined),
+          label: 'Staff',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.local_shipping_outlined),
+          label: 'Supplier',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle_rounded),
+          label: 'Profile',
+        ),
+      ];
+    } else if (currentUser.staff_type == "Restaurant Manager") {
+      bottomNavBarItems = const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people_outline_outlined),
+          label: 'Staff',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.local_shipping_outlined),
+          label: 'Supplier',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.restaurant_menu),
+          label: 'Menu',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.receipt_long),
+          label: 'Bills',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle_rounded),
+          label: 'Profile',
+        ),
+      ];
+    } else if (currentUser.staff_type == "Restaurant Worker") {
+      bottomNavBarItems = const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_cart),
+          label: 'Order',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calendar_month),
+          label: 'Attendance',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle_rounded),
+          label: 'Profile',
+        ),
+      ];
+    }
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: BottomNavigationBar(
+        currentIndex: selectedIndex, // Set the current selected index
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
+        items: bottomNavBarItems, // Use the dynamically defined bottomNavBarItems
+        onTap: _onItemTapped,
+        showSelectedLabels: true, // Add this line to show the selected labels
+        showUnselectedLabels: true, // Add this line to show the unselected labels
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold), // Customize the style of the selected label
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
