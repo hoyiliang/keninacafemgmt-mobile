@@ -83,6 +83,7 @@ flutter:
     - images/attendance.png
     - images/status.png
     - images/profile.png
+    - images/supplierManagement.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

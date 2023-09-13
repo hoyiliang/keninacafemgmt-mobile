@@ -7,6 +7,7 @@ import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 
 import 'StaffManagement/staffDashboard.dart';
+import 'SupplierManagement/supplierDashboard.dart';
 import 'home.dart';
 
 void main() {
@@ -175,14 +176,16 @@ class AppsBarState extends State<AppsBar> {
         // ];
         // _widgetOptions.elementAt(selectedIndex);
         if (index == 0) {
-
+          Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomePage(user: currentUser)),
+          );
         } else if (selectedIndex == 1) {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser))
           );
         } else if (selectedIndex == 2) {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
           );
         } else if (selectedIndex == 3) {
           Navigator.of(context).push(
