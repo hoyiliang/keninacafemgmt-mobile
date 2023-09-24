@@ -25,5 +25,9 @@ class ErrorCodes {
   static final String REGISTER_FAIL_SUPPLIER_API_CONNECTION = 'E-023';
   static final String SUPPLIER_CREATE_FAIL_BACKEND = 'E-024';
   static final String SUPPLIER_CREATE_FAIL_API_CONNECTION = 'E-025';
+  static final String DELETE_SUPPLIER_FAIL_BACKEND = 'E-026';
+  static final String DELETE_SUPPLIER_FAIL_API_CONNECTION = 'E-027';
+  static final String UPDATE_SUPPLIER_FAIL_BACKEND = 'E-028';
+  static final String UPDATE_SUPPLIER_FAIL_API_CONNECTION = 'E-029';
 
 }

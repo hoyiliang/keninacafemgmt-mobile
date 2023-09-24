@@ -79,6 +79,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
   bool securePasswordText = true;
   bool secureConfirmPasswordText = true;
   ImagePicker picker = ImagePicker();
+  Widget? image;
   String base64Image = "";
 
   User? getUser() {
@@ -207,8 +208,17 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     addressController.text = currentUser.address;
     staffTypeController.text = currentUser.staff_type;
     dobController.text = currentUser.dob.toString().substring(0,10);
-    base64Image = widget.user!.image;
-    Widget image = Image.memory(base64Decode(base64Image));
+    if (base64Image == "") {
+      base64Image = widget.user!.image;
+      if (base64Image == "") {
+        image = Image.asset("images/profile.png");
+        print("nothing in base64");
+      } else {
+        image = Image.memory(base64Decode(base64Image));
+      }
+    } else {
+      image = Image.memory(base64Decode(base64Image));
+    }
 
     // reqPermission();
     return Scaffold(
@@ -252,9 +262,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                               final File imageFile = File(imageRaw!.path);
                               final Image imageImage = Image.file(imageFile);
                               final imageBytes = await imageFile.readAsBytes();
-                              base64Image = base64Encode(imageBytes);
                               setState(() {
-                                image = Image.memory(imageBytes);
+                                base64Image = base64Encode(imageBytes);
+                                if(kDebugMode) {
+                                  print(base64Image);
+                                }
+                                image = imageImage;
                               });
                             },
                             child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
