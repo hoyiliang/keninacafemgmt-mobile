@@ -4,7 +4,7 @@ import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
 import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
 import 'package:keninacafe/StaffManagement/staffList.dart';
-import 'package:keninacafe/SupplierManagement/supplierList.dart';
+import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
 
 import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
@@ -91,7 +91,7 @@ class _SupplierDashboardState extends State<SupplierDashboardPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => SupplierListPage(user: currentUser)));
+                                MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)));
                           },
                           child: Column(
                             children: [

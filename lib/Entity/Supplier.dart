@@ -2,24 +2,33 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
+import 'Stock.dart';
+import 'User.dart';
+
 @JsonSerializable()
 class Supplier {
+  final int id;
   final String image;
   final bool is_active;
   final String name;
-  final String pic;
+  final String PIC;
   final String contact;
   final String email;
   final String address;
+  final String user_created_name;
+  final String user_updated_name;
 
   const Supplier({
+    required this.id,
     required this.image,
     required this.is_active,
     required this.name,
-    required this.pic,
+    required this.PIC,
     required this.contact,
     required this.email,
     required this.address,
+    required this.user_created_name,
+    required this.user_updated_name,
   });
 
   factory Supplier.fromJson(Map<String, dynamic> json) {
@@ -27,38 +36,26 @@ class Supplier {
       print('Supplier.fromJson: $json');
     }
     return Supplier(
-      image: json['image'],
+      id: json['id'],
+      image: json['image'] ?? '',
       is_active: json['is_active'],
       name: json['name'],
-      pic: json['pic'],
+      PIC: json['PIC'],
       contact: json['contact'],
       email: json['email'],
       address: json['address'],
+      user_created_name: json['user_created_name'] != null ? json['user_created_name'] : '',
+      user_updated_name: json['user_updated_name'] != null ? json['user_updated_name'] : '',
     );
   }
 
-  factory Supplier.fromJWT(String jwtToken) {
-    final jwt = JWT.verify(jwtToken, SecretKey('authsecret')); // Verify token from legit source
-    Map<String, dynamic> jwtDecodedToken = jwt.payload;
-    print(jwtDecodedToken['points'].runtimeType);
-    return Supplier(
-        image: jwtDecodedToken['image'],
-        is_active: jwtDecodedToken['is_active'],
-        name: jwtDecodedToken['name'],
-        pic: jwtDecodedToken['pic'],
-        contact: jwtDecodedToken['contact'],
-        email: jwtDecodedToken['email'],
-        address: jwtDecodedToken['address'],
-    );
-  }
-
-  static List<Supplier> getSupplierDataList(String jwtToken) {
-    final jwt = JWT.verify(jwtToken, SecretKey('authsecret')); // Verify token from legit source
-    Map<String,dynamic> jwtDecodedToken = jwt.payload;
+  static List<Supplier> getSupplierDataList(Map<String, dynamic> json) {
     List<Supplier> supplierDataList = [];
-    for (Map<String,dynamic> supplierData in jwtDecodedToken['data']) {
-      Supplier oneStaffData = Supplier.fromJson(supplierData);
-      supplierDataList.add(oneStaffData);
+    for (Map<String,dynamic> supplierData in json['data']) {
+      Supplier oneSupplierData = Supplier.fromJson(supplierData);
+      if (oneSupplierData.is_active == true) {
+        supplierDataList.add(oneSupplierData);
+      }
     }
     return supplierDataList;
   }
