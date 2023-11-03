@@ -63,8 +63,6 @@ class _HomePageState extends State<HomePage> {
     enterFullScreen();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
-    print(currentUser?.staff_type);
 
     return Scaffold(
       backgroundColor: Colors.white,

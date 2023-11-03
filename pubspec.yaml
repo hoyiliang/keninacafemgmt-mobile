@@ -36,7 +36,7 @@ dependencies:
   file_picker:
   table_calendar: ^3.0.2
   multiselect_formfield: ^0.1.7
-  dropdown_search: ^3.0.0
+  dropdown_search: 5.0.6
   tuple: ^2.0.2
 
 
@@ -88,6 +88,60 @@ flutter:
     - images/profile.png
     - images/supplierManagement.png
     - images/supplierLogo.jpg
+
+  fonts:
+    - family: AsapCondensed
+      fonts:
+        - asset: fonts/AsapCondensed-Black.ttf
+        - asset: fonts/AsapCondensed-BlackItalic.ttf
+        - asset: fonts/AsapCondensed-Bold.ttf
+        - asset: fonts/AsapCondensed-BoldItalic.ttf
+        - asset: fonts/AsapCondensed-ExtraBold.ttf
+        - asset: fonts/AsapCondensed-ExtraBoldItalic.ttf
+        - asset: fonts/AsapCondensed-ExtraLight.ttf
+        - asset: fonts/AsapCondensed-ExtraLightItalic.ttf
+        - asset: fonts/AsapCondensed-Italic.ttf
+        - asset: fonts/AsapCondensed-Light.ttf
+        - asset: fonts/AsapCondensed-LightItalic.ttf
+        - asset: fonts/AsapCondensed-Medium.ttf
+        - asset: fonts/AsapCondensed-MediumItalic.ttf
+        - asset: fonts/AsapCondensed-Regular.ttf
+        - asset: fonts/AsapCondensed-SemiBold.ttf
+        - asset: fonts/AsapCondensed-SemiBoldItalic.ttf
+    - family: BebasNeue
+      fonts:
+        - asset: fonts/BebasNeue-Regular.ttf
+    - family: FjallaOne
+      fonts:
+        - asset: fonts/FjallaOne-Regular.ttf
+    - family: Gabarito
+      fonts:
+        - asset: fonts/Gabarito-VariableFont_wght.ttf
+    - family: Itim
+      fonts:
+        - asset: fonts/Itim-Regular.ttf
+    - family: LilitaOne
+      fonts:
+        - asset: fonts/LilitaOne-Regular.ttf
+    - family: Oswald
+      fonts:
+        - asset: fonts/Oswald-VariableFont_wght.ttf
+    - family: Rajdhani
+      fonts:
+        - asset: fonts/Rajdhani-Bold.ttf
+        - asset: fonts/Rajdhani-Light.ttf
+        - asset: fonts/Rajdhani-Medium.ttf
+        - asset: fonts/Rajdhani-Regular.ttf
+        - asset: fonts/Rajdhani-SemiBold.ttf
+    - family: YanoneKaffeesatz
+      fonts:
+        - asset: fonts/YanoneKaffeesatz-VariableFont_wght.ttf
+    - family: BreeSerif
+      fonts:
+        - asset: fonts/BreeSerif-Regular.ttf
+    - family: YoungSerif
+      fonts:
+        - asset: fonts/YoungSerif-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
