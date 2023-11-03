@@ -80,8 +80,8 @@ class _DeleteStaffPageState extends State<DeleteStaffPage> {
   bool profileUpdated = false;
   bool securePasswordText = true;
   bool secureConfirmPasswordText = true;
-  ImagePicker picker = ImagePicker();
-  XFile? image;
+  Widget? image;
+  String base64Image = "";
 
   User? getUser() {
     return widget.user;
@@ -214,7 +214,17 @@ class _DeleteStaffPageState extends State<DeleteStaffPage> {
     addressController.text = staffData.address;
     staffTypeController.text = staffData.staff_type;
     dobController.text = staffData.dob.toString().substring(0,10);
-
+    if (base64Image == "") {
+      base64Image = staffData.image;
+      if (base64Image == "") {
+        image = Image.asset("images/profile.png");
+        print("nothing in base64");
+      } else {
+        image = Image.memory(base64Decode(base64Image));
+      }
+    } else {
+      image = Image.memory(base64Decode(base64Image));
+    }
 
     // reqPermission();
     return Scaffold(
@@ -237,63 +247,8 @@ class _DeleteStaffPageState extends State<DeleteStaffPage> {
                         height: 120,
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
-                            child: const Image(image: AssetImage('images/KE_Nina_Cafe_appsbar.jpg'))),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: SizedBox(
-                          width: 40,
-                          height: 35,
-                          child: ElevatedButton(
-                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                            onPressed: () async {
-                              // image = await picker.pickImage(source: ImageSource.gallery);
-                              // setState(() {
-                              //   //update UI
-                              // });
-                              image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                            },
-                            child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
-
-                            // child: const Text("Upload Image")
-                          ),
-                          // decoration:
-                          // BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                          // child: const Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
-                        ),
-                        // child: SizedBox(
-                        //   width: 35,
-                        //   height: 35,
-                        //   child: ElevatedButton(
-                        //       // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                        //     onPressed: () async {
-                        //       // image = await picker.pickImage(source: ImageSource.gallery);
-                        //       // setState(() {
-                        //       //   //update UI
-                        //       // });
-                        //       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                        //     },
-                        //     child: const Padding(
-                        //       padding: EdgeInsets.fromLTRB(0,0,100,0),
-                        //       child: Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
-                        //     ),
-                        //       // child: const Text("Upload Image")
-                        //   ),
-                        //   // decoration:
-                        //   // BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                        //   // child: const Icon(LineAwesomeIcons.camera, color: Colors.black, size: 20),
-                        // ),
-                        // ElevatedButton(
-                        //   onPressed: () async {
-                        //     // image = await picker.pickImage(source: ImageSource.gallery);
-                        //     // setState(() {
-                        //     //   //update UI
-                        //     // });
-                        //     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                        //   },
-                        //   child: const Text("Upload Image")
-                        // ),
+                            child: image,
+                        )
                       ),
                     ],
                   ),

@@ -325,7 +325,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                     }
                   }
                 )
-              ),
+                ),
               ],
             ),
           ),

@@ -6,6 +6,7 @@ import 'package:keninacafe/Attendance/attendanceDashboard.dart';
 import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 
+import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
 import 'home.dart';
@@ -157,6 +158,107 @@ class AppsBarState extends State<AppsBar> {
     );
   }
 
+  @override
+  PreferredSizeWidget buildDetailsAppBar(BuildContext context, String title, User currentUser) {
+
+    return PreferredSize( //wrap with PreferredSize
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  PreferredSizeWidget buildOrderAppBar(BuildContext context, String title, User currentUser) {
+
+    return PreferredSize( //wrap with PreferredSize
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        // leading: Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 20),
+        //   child: IconButton(
+        //     icon: const Icon(Icons.arrow_back_ios_outlined),
+        //     onPressed: () {
+        //       // Handle back button press
+        //       Navigator.pop(context);
+        //     },
+        //   ),
+        // ),
+        bottom: const TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.directions_car)),
+            Tab(icon: Icon(Icons.directions_transit)),
+            Tab(icon: Icon(Icons.directions_bike)),
+          ],
+        ),
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
 
   PreferredSize buildBottomNavigationBar(User currentUser, BuildContext context) {
     int selectedIndex = 0;
@@ -208,9 +310,9 @@ class AppsBarState extends State<AppsBar> {
             MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser)),
           );
         } else if (index == 2) {
-          // Navigator.of(context).push(
-          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
-          // );
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+          );
         } else if (index == 3) {
           // Navigator.of(context).push(
           //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
@@ -231,9 +333,9 @@ class AppsBarState extends State<AppsBar> {
               MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
           );
         } else if (index == 1) {
-          // Navigator.of(context).push(
-          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
-          // );
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser))
+          );
         } else if (index == 2) {
           Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser))

@@ -60,6 +60,8 @@ class ViewPersonalProfilePage extends StatefulWidget {
 
 class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
   var iconColor = true ? Colors.blue : Colors.red;
+  String base64Image = "";
+  Widget? image;
 
   User? getUser() {
     return widget.user;
@@ -69,6 +71,17 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
   Widget build(BuildContext context) {
     enterFullScreen();
 
+    if (base64Image == "") {
+      base64Image = widget.user!.image;
+      if (base64Image == "") {
+        image = Image.asset("images/profile.png");
+        print("nothing in base64");
+      } else {
+        image = Image.memory(base64Decode(base64Image));
+      }
+    } else {
+      image = Image.memory(base64Decode(base64Image));
+    }
     User? currentUser = getUser();
     print(currentUser?.name);
 
@@ -92,7 +105,8 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                         height: 120,
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
-                            child: Image.memory(base64Decode(widget.user!.image))),
+                            child: image,
+                        )
                       ),
                       Positioned(
                         bottom: 0,

@@ -464,7 +464,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (false, ErrorCodes.CUPDATE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION);
+      return (false, ErrorCodes.UPDATE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION);
     }
   }
 
@@ -498,7 +498,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (false, ErrorCodes.CUPDATE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION);
+      return (false, ErrorCodes.UPDATE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION);
     }
   }
 

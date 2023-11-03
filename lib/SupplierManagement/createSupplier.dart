@@ -69,7 +69,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
   double containerHeight = 120;
   ImagePicker picker = ImagePicker();
   String base64Image = "";
-  Widget image = Image(image: AssetImage('images/supplierLogo.jpg'));
+  Widget image = const Image(image: AssetImage('images/supplierLogo.jpg'));
 
   User? getUser() {
     return widget.user;
