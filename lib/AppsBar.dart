@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Attendance/attendanceDashboard.dart';
+import 'package:keninacafe/MenuManagement/menuList.dart';
 import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 
@@ -161,7 +162,7 @@ class AppsBarState extends State<AppsBar> {
   @override
   PreferredSizeWidget buildDetailsAppBar(BuildContext context, String title, User currentUser) {
 
-    return PreferredSize( //wrap with PreferredSize
+    return PreferredSize(
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
         leading: IconButton(
@@ -314,9 +315,9 @@ class AppsBarState extends State<AppsBar> {
               MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
           );
         } else if (index == 3) {
-          // Navigator.of(context).push(
-          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
-          // );
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser))
+          );
         } else if (index == 4) {
           // Navigator.of(context).push(
           //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))

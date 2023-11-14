@@ -88,6 +88,8 @@ flutter:
     - images/profile.png
     - images/supplierManagement.png
     - images/supplierLogo.jpg
+    - images/menuItem.png
+    - images/createMenuItem.png
 
   fonts:
     - family: AsapCondensed
