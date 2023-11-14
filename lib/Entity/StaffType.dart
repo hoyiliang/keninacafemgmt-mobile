@@ -10,9 +10,6 @@ class StaffType {
   });
 
   factory StaffType.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('StaffType.fromJson: $json');
-    }
     return StaffType(
       name: json['name'],
     );

@@ -601,7 +601,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (false, (ErrorCodes.UPDATE_ORDER_FOOD_ITEM_STATUS_API_CONNECTION));
+      return (false, (ErrorCodes.UPDATE_ORDER_FOOD_ITEM_STATUS_FAIL_API_CONNECTION));
     }
   }
 
@@ -629,7 +629,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (false, (ErrorCodes.UPDATE_ORDER_STATUS_API_CONNECTION));
+      return (false, (ErrorCodes.UPDATE_ORDER_STATUS_FAIL_API_CONNECTION));
     }
   }
 }
