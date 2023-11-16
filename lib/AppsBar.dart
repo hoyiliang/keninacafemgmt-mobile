@@ -7,9 +7,11 @@ import 'package:keninacafe/MenuManagement/menuList.dart';
 import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 
+
 import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
+import 'VoucherManagement/voucherAvailableList.dart';
 import 'home.dart';
 
 void main() {
@@ -263,7 +265,6 @@ class AppsBarState extends State<AppsBar> {
 
   PreferredSize buildBottomNavigationBar(User currentUser, BuildContext context) {
     int selectedIndex = 0;
-    print(currentUser.staff_type);
 
     void _onItemTapped(int index) {
       // setState(() {
@@ -319,9 +320,9 @@ class AppsBarState extends State<AppsBar> {
               MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser))
           );
         } else if (index == 4) {
-          // Navigator.of(context).push(
-          //     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
-          // );
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser))
+          );
         } else if (index == 5) {
           Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
@@ -392,8 +393,8 @@ class AppsBarState extends State<AppsBar> {
           label: 'Menu',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.receipt_long),
-          label: 'Bills',
+          icon: Icon(Icons.discount_rounded),
+          label: 'Voucher',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_circle_rounded),
@@ -424,8 +425,10 @@ class AppsBarState extends State<AppsBar> {
     return PreferredSize(
       preferredSize: const Size.fromHeight(80),
       child: BottomNavigationBar(
+        type: BottomNavigationBarType.shifting,
+        selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.inversePrimary),
+        selectedItemColor: Theme.of(context).colorScheme.inversePrimary,
         currentIndex: selectedIndex, // Set the current selected index
-        selectedItemColor: Colors.amber[800],
         unselectedItemColor: Colors.grey,
         items: bottomNavBarItems, // Use the dynamically defined bottomNavBarItems
         onTap: _onItemTapped,

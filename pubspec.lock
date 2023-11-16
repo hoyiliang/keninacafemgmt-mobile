@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  autocomplete_textfield:
+    dependency: "direct main"
+    description:
+      name: autocomplete_textfield
+      sha256: "8170e66d381c21623f1cfbb957ab9c6b5a45d9c50a6daac7fc57dbc3ba94abb4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -57,6 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  coupon_uikit:
+    dependency: "direct main"
+    description:
+      name: coupon_uikit
+      sha256: b9687e24b2878f7763f4afea4148fe85458025455e3fe5a9738ccffde4bbb1ba
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   cross_file:
     dependency: transitive
     description:
@@ -85,10 +101,10 @@ packages:
     dependency: "direct main"
     description:
       name: dart_jsonwebtoken
-      sha256: bb4203ac7a4d4b675facc1c569487cb5650648a4ee68da19b6b431d9e9221b3f
+      sha256: "6703695f581fc54d0a7e5f281c5538735167605bb9e5abd208c8b330625a92b1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.12.1"
   dropdown_search:
     dependency: "direct main"
     description:
@@ -208,6 +224,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: "52671aea66da73b58d42ec6d0912b727a42248dd9a7c76d6c20f275783c48c08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.6.0"
   http:
     dependency: "direct main"
     description:

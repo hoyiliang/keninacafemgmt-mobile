@@ -67,8 +67,8 @@ class MenuItem {
       hasSize: json['hasSize'],
       sizes: json['sizes'] ?? '',
       category_name: json['category_name'],
-      user_created_name: json['user_created_name'] != null ? json['user_created_name'] : '',
-      user_updated_name: json['user_updated_name'] != null ? json['user_updated_name'] : '',
+      user_created_name: json['user_created_name'] ?? '',
+      user_updated_name: json['user_updated_name'] ?? '',
       numOrder: 0, // Cart and Order purpose
       // priceNumOrder: 0, // Cart and Order purpose
       sizeChosen: "", // Cart and Order purpose
@@ -125,6 +125,15 @@ class MenuItem {
       menuItemDataList.add(oneMenuItemData);
     }
     return menuItemDataList;
+  }
+
+  static List<String> getMenuItemList(Map<String, dynamic> json) {
+    List<String> menuItemList = [];
+    for (Map<String,dynamic> menuItem in json['data']) {
+      String oneMenuItem = MenuItem.fromJson(menuItem).name;
+      menuItemList.add(oneMenuItem);
+    }
+    return menuItemList;
   }
 
   static List<MenuItem> getItemCategoryExistMenuItemList(Map<String, dynamic> json) {
