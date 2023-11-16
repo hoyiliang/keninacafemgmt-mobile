@@ -350,12 +350,12 @@ class _MenuListPageState extends State<MenuListPage>{
                                               height: 20.0, // Adjust the height as needed for your size preference
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(5.0), // Adjust the border radius for rounded corners
-                                                color: menuItemList[j].isOutOfStock ? Colors.green : Colors.red, // Customize colors for active and inactive states
+                                                color: !menuItemList[j].isOutOfStock ? Colors.green : Colors.red, // Customize colors for active and inactive states
                                               ),
                                               child: Center(
                                                 child: Transform.scale(
                                                   scale: 0.8, // Adjust the scale as needed to fit inside the container
-                                                  child: menuItemList[j].isOutOfStock
+                                                  child: !menuItemList[j].isOutOfStock
                                                       ? const Icon(
                                                     Icons.check,
                                                     color: Colors.white,
@@ -593,7 +593,7 @@ class _MenuListPageState extends State<MenuListPage>{
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: currentMenuItem.isOutOfStock ? Text('Are you sure you want to disable this menu item (${currentMenuItem.name})?') : Text('Are you sure you want to enable this menu item (${currentMenuItem.name})?'),
+          content: !currentMenuItem.isOutOfStock ? Text('Are you sure you want to disable this menu item (${currentMenuItem.name})?') : Text('Are you sure you want to enable this menu item (${currentMenuItem.name})?'),
           actions: [
             ElevatedButton(
               onPressed: () async {
@@ -631,7 +631,7 @@ class _MenuListPageState extends State<MenuListPage>{
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: currentMenuItem.isOutOfStock ? Text('Disable the Menu Item (${currentMenuItem.name}) Successful') : Text('Enable the Menu Item (${currentMenuItem.name}) Successful'),
+                          title: !currentMenuItem.isOutOfStock ? Text('Disable the Menu Item (${currentMenuItem.name}) Successful') : Text('Enable the Menu Item (${currentMenuItem.name}) Successful'),
                           // content: const Text(''),
                           actions: <Widget>[
                             TextButton(
