@@ -66,6 +66,8 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
   bool isImageUploaded = false;
   bool? hasSize;
   bool? hasVariant;
+  bool hasSizeSelected = true;
+  bool hasVariantSelected = true;
   List? category;
   String? categorySelected;
   String? itemClassSelected;
@@ -94,7 +96,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Create Item', currentUser!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Create Menu Item', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -128,7 +130,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                         height: 35,
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(1, 1, 0, 0)),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
                           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                           onPressed: () async {
                             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -141,547 +143,469 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                               isImageUploaded = true;
                             });
                           },
-                          child: Icon(LineAwesomeIcons.camera, color: Colors.grey.shade700),
+                          child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
                         ),
                       ),
                     )
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10,),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10,),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade700,
-                                width: 2.0,
-                              )
-                            ),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex:1,
-                                  child: Container(
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      // color: Colors.white,
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: Colors.grey.shade700,
-                                          width: 2.0,
-                                        ),
-                                      )
-                                    ),
-                                    child: Center(child: Icon(Icons.fastfood, size: 35,color:Colors.grey.shade600)),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: TextFormField(
-                                    controller: nameController,
-                                    decoration: InputDecoration(
-                                      hintText: "Name",
-                                      contentPadding: const EdgeInsets.only(left:20),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500),
-                                    ),
-                                    style: TextStyle(
-                                      color: Colors.grey.shade700,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    validator: (nameController) {
-                                      if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
-                                      return null;
-                                    },
-                                  ),
-                                )
-                              ],
+                                children: [
+                                  Text('Menu Item Name', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
                             )
-                          ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade700,
-                                width: 2.0,
-                              )
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex:1,
-                                  child: Container(
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: Colors.grey.shade700,
-                                          width: 2.0,
-                                        )
-                                      )
-                                    ),
-                                    child: Center(child: Icon(Icons.attach_money, size: 35,color:Colors.grey.shade600)),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: TextFormField(
-                                    controller: priceStandardController,
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                                    ],
-                                    decoration: InputDecoration(
-                                        hintText: "Price",
-                                        contentPadding: const EdgeInsets.only(left:20),
-                                        border: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                        errorBorder: InputBorder.none,
-                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500 )
-                                    ),
-                                    style: TextStyle(
-                                      color: Colors.grey.shade700,
 
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    validator: (priceStandardController) {
-                                      if (priceStandardController == null || priceStandardController.isEmpty) return 'Please fill in the PIC !';
-                                      return null;
-                                    },
-                                  ),
-                                )
-                              ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          child: TextFormField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              hintText: 'e.g. Chicken Rice',
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                            ),
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Gabarito",
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Please fill in the menu item name !';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 13,),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Price (MYR)', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
                             )
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          child:
+                          TextFormField(
+                            controller: priceStandardController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'e.g. 10.90',
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                            ),
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Gabarito",
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Please fill in the standard price of menu item !';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 13,),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                          child: Row(
+                            children: [
+                              Text("Class", style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                              // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                            ],
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade700,
-                                width: 2.0,
-                              )
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          child: DropdownButtonFormField(
+                            decoration: InputDecoration(
+                              hintText: 'e.g. Food / Drink',
+                              hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Gabarito"),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                              filled: true,
+                              fillColor: Colors.white,
                             ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: Colors.grey.shade700,
-                                          width: 2.0,
-                                        )
-                                      )
-                                    ),
-                                    child: Center(child: Icon(Icons.local_pizza_outlined, size: 35,color:Colors.grey.shade600)),
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Gabarito",
+                            ),
+                            validator: (value) {
+                              if (value == null || value.toString().isEmpty) return 'Please choose the menu item class !';
+                              return null;
+                            },
+                            // value: selectedValue,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                itemClassSelected = newValue;
+                              });
+                            },
+                            items: itemClass!.map((itemClass) {
+                              return DropdownMenuItem<String>(
+                                value: itemClass,
+                                child: Text(
+                                  itemClass,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 16.0,
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 4,
-                                  // child: Container(
-                                  //   constraints: const BoxConstraints(maxHeight: 120),
-                                  child: DropdownButtonFormField<String>(
-                                    decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.only(left:20),
-                                      border: const OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      errorBorder: InputBorder.none,
-                                      hintText: "Item Class",
-                                      hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500),
-                                    ),
-                                    // value: typeSelected,
-                                    items: itemClass!.map((itemClass) {
-                                      return DropdownMenuItem<String>(
-                                        value: itemClass,
-                                        child: Text(
-                                          itemClass,
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontSize: 16.0,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        itemClassSelected = value;
-                                        // stockSelected = value;
-                                        // stockUpdate = value;
-                                      });
-                                    },
-                                  ),
-                                  // ),
-                                ),
-                              ],
-                            ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                        FutureBuilder<List<String>>(
-                            future: getItemCategoryList(),
-                            builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                              if (snapshot.hasData) {
-                                return Column(
-                                  children: buildItemCategoryList(snapshot.data, currentUser),
-                                );
-                              } else {
-                                if (snapshot.hasError) {
-                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                } else {
-                                  return const Center(child: Text('Error: invalid state'));
+                        const SizedBox(height: 13.0,),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Category', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child: FutureBuilder<List<String>>(
+                                future: getItemCategoryList(),
+                                builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [buildItemCategoryList(snapshot.data, currentUser)]
+                                    );
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return const Center(child: Text('Error: invalid state'));
+                                    }
+                                  }
                                 }
-                              }
-                            }
+                            )
+                        ),
+                        const SizedBox(height: 13,),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Description', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          child:
+                          TextFormField(
+                            controller: descriptionController,
+                            maxLines: null,
+                            decoration: InputDecoration(
+                              hintText: 'e.g Contains Onion, fish oil....',
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(color: Colors.grey.shade500, width: 2.0,),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade500,
+                                  width: 2.0,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20), // Set border radius here
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 2.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                            ),
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Gabarito",
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Please fill in the menu item description !';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 13,),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                          child: Row(
+                            children: [
+                              Text("Size", style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                              // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           child: Container(
-                            height: 50,
                             decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.grey.shade700,
+                                color: hasSizeSelected == false ? Colors.red : Colors.grey.shade500,
                                 width: 2.0,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Radio(
+                                        visualDensity: const VisualDensity(horizontal: -2.0),
+                                        value: true,
+                                        groupValue: hasSize,
+                                        activeColor: Colors.red,
+                                        fillColor: MaterialStateProperty.resolveWith<Color>(
+                                              (Set<MaterialState> states) {
+                                            if (states.contains(MaterialState.selected)) {
+                                              return Colors.red; // Set border color when selected
+                                            }
+                                            return Colors.grey.shade700;
+                                          },
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            hasSize = value;
+                                            hasSizeSelected = true;
+                                          });
+                                        },
+                                      ),
+                                      Text(
+                                        'Yes',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.grey.shade700,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "Gabarito"
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10.0,),
+                                      Radio(
+                                        // contentPadding: EdgeInsets.zero,
+                                        visualDensity: const VisualDensity(horizontal: -2.0),
+                                        value: false,
+                                        groupValue: hasSize,
+                                        activeColor: Colors.red,
+                                        fillColor: MaterialStateProperty.resolveWith<Color>(
+                                              (Set<MaterialState> states) {
+                                            if (states.contains(MaterialState.selected)) {
+                                              return Colors.red; // Set border color when selected
+                                            }
+                                            return Colors.grey.shade700; // No border color when unselected
+                                          },
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            hasSize = value;
+                                            hasSizeSelected = true;
+                                          });
+                                        },
+                                      ),
+                                      Text(
+                                        'No',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.grey.shade700,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "Gabarito"
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (hasSize == true)
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
+                                      child: TextFormField(
+                                        controller: priceLargeController,
+                                        maxLines: null,
+                                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                                        ],
+                                        decoration: InputDecoration(
+                                            hintText: 'Enter price (MYR) for large size',
+                                            border: InputBorder.none,
+                                            contentPadding: const EdgeInsets.only(bottom: 3),
+                                            enabledBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade500,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            focusedBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.blue, // You can change this color
+                                                width: 2, // You can change this thickness
+                                              ),
+                                            ),
+                                            errorBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.red, // You can change this color
+                                                width: 2, // You can change this thickness
+                                              ),
+                                            ),
+                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
+                                        ),
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: "Gabarito"
+                                        ),
+                                        validator: (priceLargeController) {
+                                          if (priceLargeController == null || priceLargeController.isEmpty) return 'Please fill in the price large of menu item !';
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                ],
                               )
                             ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex:1,
-                                  child: Container(
-                                    width: 20,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: Colors.grey.shade700,
-                                          width: 2.0,
-                                        )
-                                      )
-                                    ),
-                                    child: Center(child: Icon(Icons.info_outline, size: 35,color:Colors.grey.shade600)),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: TextFormField(
-                                    maxLines: null,
-                                    controller: descriptionController,
-                                    decoration: InputDecoration(
-                                        hintText: "Description",
-                                        contentPadding: const EdgeInsets.only(left:20),
-                                        border: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                        errorBorder: InputBorder.none,
-                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500 )
-                                    ),
-                                    style: TextStyle(
-                                      color: Colors.grey.shade700,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    validator: (descriptionController) {
-                                      if (descriptionController == null || descriptionController.isEmpty) return 'Please fill in the contact of PIC !';
-                                      return null;
-                                    },
-                                  ),
-                                )
-                              ],
-                            )
+                          ),
+                        ),
+                        const SizedBox(height: 13,),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                          child: Row(
+                            children: [
+                              Text("Variant", style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                              // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                            ],
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           child: Container(
                             decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.grey.shade700,
+                                color: hasVariantSelected == false ? Colors.red : Colors.grey.shade500,
                                 width: 2.0,
                               ),
                             ),
                             child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                                 child: Column(
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-                                      child: Row(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.topLeft,
-                                            child: Text(
-                                              'Size',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.grey.shade700,
-                                                // fontFamily: 'Rajdhani',
-                                              ),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          if (hasSize == true || hasSize == false)
-                                            SizedBox(
-                                              height: 18,
-                                              width: 65,
-                                              child: Material(
-                                                // elevation: 3.0, // Add elevation to simulate a border
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Colors.grey.shade600, // Border color
-                                                      width: 2.0, // Border width
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                  ),
-                                                  child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      "Completed",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 8.0,
-                                                        color: Colors.grey.shade700,
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            )
-                                          else
-                                            SizedBox(
-                                              height: 18,
-                                              width: 65,
-                                              child: Material(
-                                                  elevation: 3.0, // Add elevation to simulate a border
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Colors.red.shade200, // Border color
-                                                      width: 2.0, // Border width
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                  ),
-                                                  child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      "Required",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 8.0,
-                                                        color: Colors.red.shade300,
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            )
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Radio(
-                                          visualDensity: const VisualDensity(horizontal: -2.0),
-                                          value: true,
-                                          groupValue: hasSize,
-                                          activeColor: Colors.red,
-                                          fillColor: MaterialStateProperty.resolveWith<Color>(
-                                                (Set<MaterialState> states) {
-                                              if (states.contains(MaterialState.selected)) {
-                                                return Colors.red; // Set border color when selected
-                                              }
-                                              return Colors.grey.shade700;
-                                            },
-                                          ),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              hasSize = value;
-                                            });
-                                          },
-                                        ),
-                                        Text(
-                                          'Yes',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10.0,),
-                                        Radio(
-                                          // contentPadding: EdgeInsets.zero,
-                                          visualDensity: const VisualDensity(horizontal: -2.0),
-                                          value: false,
-                                          groupValue: hasSize,
-                                          activeColor: Colors.red,
-                                          fillColor: MaterialStateProperty.resolveWith<Color>(
-                                                (Set<MaterialState> states) {
-                                              if (states.contains(MaterialState.selected)) {
-                                                return Colors.red; // Set border color when selected
-                                              }
-                                              return Colors.grey.shade700; // No border color when unselected
-                                            },
-                                          ),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              hasSize = value;
-                                            });
-                                          },
-                                        ),
-                                        Text(
-                                          'No',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    if (hasSize == true)
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
-                                        child: TextFormField(
-                                          controller: priceLargeController,
-                                          maxLines: null,
-                                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                                          ],
-                                          decoration: InputDecoration(
-                                              hintText: 'Enter price for large size',
-                                              border: InputBorder.none,
-                                              contentPadding: const EdgeInsets.only(bottom: 3),
-                                              enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Colors.grey.shade500,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              focusedBorder: const UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Colors.blue, // You can change this color
-                                                  width: 2, // You can change this thickness
-                                                ),
-                                              ),
-                                              hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 13.5, fontWeight: FontWeight.w500)
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          validator: (priceLargeController) {
-                                            if (priceLargeController == null || priceLargeController.isEmpty) return 'Please fill in the contact of PIC !';
-                                            return null;
-                                          },
-                                        ),
-                                      ),
-                                  ],
-                                )
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade700,
-                                width: 2.0,
-                              ),
-                            ),
-                            child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-                                      child: Row(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.topLeft,
-                                            child: Text(
-                                              'Variant',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.grey.shade700,
-                                                // fontFamily: 'Rajdhani',
-                                              ),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          if (hasVariant == true || hasVariant == false)
-                                            SizedBox(
-                                              height: 18,
-                                              width: 65,
-                                              child: Material(
-                                                // elevation: 3.0, // Add elevation to simulate a border
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Colors.grey.shade600, // Border color
-                                                      width: 2.0, // Border width
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                  ),
-                                                  child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      "Completed",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 8.0,
-                                                        color: Colors.grey.shade700,
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            )
-                                          else
-                                            SizedBox(
-                                              height: 18,
-                                              width: 65,
-                                              child: Material(
-                                                  elevation: 3.0, // Add elevation to simulate a border
-                                                  shape: RoundedRectangleBorder(
-                                                    side: BorderSide(
-                                                      color: Colors.red.shade200, // Border color
-                                                      width: 2.0, // Border width
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                  ),
-                                                  child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      "Required",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 8.0,
-                                                        color: Colors.red.shade300,
-                                                      ),
-                                                    ),
-                                                  )
-                                              ),
-                                            )
-                                        ],
-                                      ),
-                                    ),
                                     Row(
                                       children: [
                                         Radio(
@@ -701,14 +625,17 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                                           onChanged: (value) {
                                             setState(() {
                                               hasVariant = value;
+                                              hasVariantSelected = true;
                                             });
                                           },
                                         ),
                                         Text(
                                           'Yes',
                                           style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              color: Colors.grey.shade700,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: "Gabarito"
                                           ),
                                         ),
                                         const SizedBox(width: 10.0,),
@@ -729,14 +656,17 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                                           onChanged: (value) {
                                             setState(() {
                                               hasVariant = value;
+                                              hasVariantSelected = true;
                                             });
                                           },
                                         ),
                                         Text(
                                           'No',
                                           style: TextStyle(
+                                            fontSize: 18,
                                             color: Colors.grey.shade700,
                                             fontWeight: FontWeight.bold,
+                                            fontFamily: "Gabarito"
                                           ),
                                         ),
                                       ],
@@ -763,15 +693,22 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                                                 width: 2, // You can change this thickness
                                               ),
                                             ),
-                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 13.5, fontWeight: FontWeight.w500)
+                                            errorBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.red, // You can change this color
+                                                width: 2, // You can change this thickness
+                                              ),
+                                            ),
+                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
                                           ),
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
                                             fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "Gabarito"
                                           ),
                                           validator: (variantController) {
-                                            if (variantController == null || variantController.isEmpty) return 'Please fill in the contact of PIC !';
+                                            if (variantController == null || variantController.isEmpty) return 'Please fill in the variant of menu item !';
                                             return null;
                                           },
                                         ),
@@ -785,35 +722,41 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                     ),
                   ),
                 ),
-
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 10.0,),
+                  padding: const EdgeInsets.symmetric(horizontal: 120),
                   child: Container(
-                    padding: const EdgeInsets.only(top: 3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.lightBlueAccent,
-                      borderRadius: BorderRadius.circular(40.0), // Adjust the radius as needed
-                    ),
+                    padding: const EdgeInsets.only(top: 3,left: 3),
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height:40,
                       onPressed: (){
-                        if (_formKey.currentState!.validate() && hasSize != null && hasVariant != null) {
-                          showConfirmationCreateDialog(currentUser);
-                        }
+                        setState(() {
+                          if (hasSize == null) {
+                            hasSizeSelected = false;
+                          }
+                          if (hasVariant == null) {
+                            hasVariantSelected = false;
+                          }
+                          if (base64Image == "") {
+                            isImageUploaded = false;
+                            showImageNotSelectedDialog();
+                          }
+                          if (_formKey.currentState!.validate() && isImageUploaded && hasSizeSelected && hasVariantSelected) {
+                            showConfirmationCreateDialog(currentUser);
+                          }
+                        });
                       },
-                      // color: Colors.lightBlueAccent,
+                      color: Colors.lightBlueAccent.shade400,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40)
                       ),
                       child: const Text("Create",style: TextStyle(
-                        fontWeight: FontWeight.w600,fontSize: 16,
+                          fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white
                       ),),
                     ),
                   ),
                 ),
-                const SizedBox(height: 5.0),
+                const SizedBox(height: 13.0,),
               ],
             ),
           ),
@@ -823,84 +766,91 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
     );
   }
 
-  List<Widget> buildItemCategoryList(List<String>? itemCategoryList, User? currentUser) {
-    List<Widget> field = [];
-    // if (listStock != []) {
-    field.add(
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-        child: Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey.shade700,
-              width: 2.0,
-            )
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  width: 20,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      right: BorderSide(
-                        color: Colors.grey.shade700,
-                        width: 2.0,
-                      )
-                    )
-                  ),
-                  child: Center(child: Icon(Icons.category_outlined, size: 35,color:Colors.grey.shade600)),
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                // child: Container(
-                //   constraints: const BoxConstraints(maxHeight: 120),
-                child: DropdownButtonFormField<String>(
-                  borderRadius: BorderRadius.circular(20.0),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(left:20),
-                    border: const OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                    ),
-                    // focusedBorder: const OutlineInputBorder(
-                    //   borderSide: BorderSide(color: Colors.blue),
-                    // ),
-                    errorBorder: InputBorder.none,
-                    hintText: "Category",
-                    hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500),
-                  ),
-                  // value: categorySelected,
-                  items: itemCategoryList!.map((category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(
-                        category,
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      categorySelected = value;
-                    });
-                  },
-                ),
-                // ),
-              ),
-            ],
+  void showImageNotSelectedDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Image Not Selected', style: TextStyle(fontWeight: FontWeight.bold,)),
+          content: const Text('Please select the menu item image !'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Ok'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildItemCategoryList(List<String>? itemCategoryList, User? currentUser) {
+    return DropdownButtonFormField(
+      decoration: InputDecoration(
+        // hintText: 'e.g. Restaurant Worker',
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: BorderSide(
+            color: Colors.grey.shade500,
+            width: 2.0,
           ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: BorderSide(
+            color: Colors.grey.shade500,
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+        filled: true,
+        fillColor: Colors.white,
       ),
+      style: TextStyle(
+        fontSize: 18.0,
+        color: Colors.grey.shade700,
+        fontWeight: FontWeight.bold,
+        fontFamily: "Gabarito",
+      ),
+      validator: (value) {
+        if (value == null || value.toString().isEmpty) return 'Please choose the menu item category !';
+        return null;
+      },
+      // value: selectedValue,
+      onChanged: (String? newValue) {
+        setState(() {
+          categorySelected = newValue;
+        });
+      },
+      items: itemCategoryList!.map((category) {
+        return DropdownMenuItem<String>(
+          value: category,
+          child: Text(
+            category,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 16.0,
+            ),
+          ),
+        );
+      }).toList(),
     );
-    // }
-    return field;
   }
 
   Future<(bool, String)> _submitCreateMenuItemDetails(User currentUser) async {

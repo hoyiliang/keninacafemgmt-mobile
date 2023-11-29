@@ -32,9 +32,9 @@ class Supplier {
   });
 
   factory Supplier.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('Supplier.fromJson: $json');
-    }
+    // if (kDebugMode) {
+    //   print('Supplier.fromJson: $json');
+    // }
     return Supplier(
       id: json['id'],
       image: json['image'] ?? '',
@@ -44,8 +44,8 @@ class Supplier {
       contact: json['contact'],
       email: json['email'],
       address: json['address'],
-      user_created_name: json['user_created_name'] != null ? json['user_created_name'] : '',
-      user_updated_name: json['user_updated_name'] != null ? json['user_updated_name'] : '',
+      user_created_name: json['user_created_name'] ?? '',
+      user_updated_name: json['user_updated_name'] ?? '',
     );
   }
 
@@ -53,9 +53,7 @@ class Supplier {
     List<Supplier> supplierDataList = [];
     for (Map<String,dynamic> supplierData in json['data']) {
       Supplier oneSupplierData = Supplier.fromJson(supplierData);
-      if (oneSupplierData.is_active == true) {
-        supplierDataList.add(oneSupplierData);
-      }
+      supplierDataList.add(oneSupplierData);
     }
     return supplierDataList;
   }

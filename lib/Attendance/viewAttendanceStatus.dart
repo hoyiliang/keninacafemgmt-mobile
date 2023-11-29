@@ -52,6 +52,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
   String text = '';
   final _formKey = GlobalKey<FormState>();
   List<Attendance> listAttendanceData = [];
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -72,7 +73,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
       appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

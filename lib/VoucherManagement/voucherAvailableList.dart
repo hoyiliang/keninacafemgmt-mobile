@@ -54,6 +54,7 @@ class VoucherAvailableListPage extends StatefulWidget {
 }
 
 class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -67,8 +68,8 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Voucher', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView (
           child: Padding(
@@ -94,7 +95,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser))
           );
         },
@@ -147,7 +148,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       for (int i = 0; i < discountVoucherList.length; i++) {
         voucher.add(
           CouponCard(
-            height: 156,
+            height: 165,
             backgroundColor: Colors.transparent,
             clockwise: true,
             curvePosition: 65,
@@ -279,7 +280,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 3.0,),
+                    const SizedBox(height: 7.0,),
                     Row(
                       children: [
                         Text(
@@ -307,85 +308,60 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                           ),
                         ),
                         const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            showUpdateIsAvailableConfirmationDialog(discountVoucherList[i]);
-                          },
-                          child: Container(
-                            width: 30.0, // Adjust the width as needed for your size preference
-                            height: 30.0, // Adjust the height as needed for your size preference
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0), // Adjust the border radius for rounded corners
-                              color: discountVoucherList[i].is_available ? Colors.green : Colors.red, // Customize colors for active and inactive states
-                            ),
-                            child: Center(
-                              child: Transform.scale(
-                                  scale: 0.8, // Adjust the scale as needed to fit inside the container
-                                  child: discountVoucherList[i].is_available
-                                      ? const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  ) : const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  )
-                              ),
-                            ),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: discountVoucherList[i].is_available ? Colors.green : Colors.red,),
+                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                              onPressed: () async {
+                                showUpdateIsAvailableConfirmationDialog(discountVoucherList[i]);
+                              },
+                              child: discountVoucherList[i].is_available
+                                  ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 18.0,
+                              ) : const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18.0,
+                              )
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i])),
                               );
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.edit,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               showDeleteConfirmationDialog(discountVoucherList[i]);
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.delete,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
                         ),
+                        const SizedBox(width: 5.0,),
                       ],
                     ),
                   ],
@@ -416,7 +392,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       for (int i = 0; i < freeMenuItemVoucherList.length; i++) {
         voucher.add(
           CouponCard(
-            height: 156,
+            height: 165,
             backgroundColor: Colors.transparent,
             clockwise: true,
             curvePosition: 65,
@@ -548,7 +524,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 3.0,),
+                    const SizedBox(height: 7.0,),
                     Row(
                       children: [
                         Text(
@@ -576,85 +552,60 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                           ),
                         ),
                         const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            showUpdateIsAvailableConfirmationDialog(freeMenuItemVoucherList[i]);
-                          },
-                          child: Container(
-                            width: 30.0, // Adjust the width as needed for your size preference
-                            height: 30.0, // Adjust the height as needed for your size preference
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0), // Adjust the border radius for rounded corners
-                              color: freeMenuItemVoucherList[i].is_available ? Colors.green : Colors.red, // Customize colors for active and inactive states
-                            ),
-                            child: Center(
-                              child: Transform.scale(
-                                  scale: 0.8, // Adjust the scale as needed to fit inside the container
-                                  child: freeMenuItemVoucherList[i].is_available
-                                      ? const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  ) : const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  )
-                              ),
-                            ),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: freeMenuItemVoucherList[i].is_available ? Colors.green : Colors.red,),
+                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                              onPressed: () async {
+                                showUpdateIsAvailableConfirmationDialog(freeMenuItemVoucherList[i]);
+                              },
+                              child: freeMenuItemVoucherList[i].is_available
+                                  ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 18.0,
+                              ) : const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18.0,
+                              )
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i])),
                               );
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.edit,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               showDeleteConfirmationDialog(freeMenuItemVoucherList[i]);
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.delete,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
                         ),
+                        const SizedBox(width: 5.0,),
                       ],
                     ),
                   ],
@@ -672,7 +623,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
         const Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Buy 1 Free One',
+            'Buy 1 Free 1',
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 25.0,
@@ -685,7 +636,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       for (int i = 0; i < buyOneFreeOneVoucherList.length; i++) {
         voucher.add(
           CouponCard(
-            height: 156,
+            height: 165,
             backgroundColor: Colors.transparent,
             clockwise: true,
             curvePosition: 65,
@@ -817,7 +768,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 3.0,),
+                    const SizedBox(height: 7.0,),
                     Row(
                       children: [
                         Text(
@@ -845,85 +796,60 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                           ),
                         ),
                         const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            showUpdateIsAvailableConfirmationDialog(buyOneFreeOneVoucherList[i]);
-                          },
-                          child: Container(
-                            width: 30.0, // Adjust the width as needed for your size preference
-                            height: 30.0, // Adjust the height as needed for your size preference
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0), // Adjust the border radius for rounded corners
-                              color: buyOneFreeOneVoucherList[i].is_available ? Colors.green : Colors.red, // Customize colors for active and inactive states
-                            ),
-                            child: Center(
-                              child: Transform.scale(
-                                  scale: 0.8, // Adjust the scale as needed to fit inside the container
-                                  child: buyOneFreeOneVoucherList[i].is_available
-                                      ? const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  ) : const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 18.0,
-                                  )
-                              ),
-                            ),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: buyOneFreeOneVoucherList[i].is_available ? Colors.green : Colors.red,),
+                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                              onPressed: () async {
+                                showUpdateIsAvailableConfirmationDialog(buyOneFreeOneVoucherList[i]);
+                              },
+                              child: buyOneFreeOneVoucherList[i].is_available
+                                  ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 18.0,
+                              ) : const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18.0,
+                              )
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i])),
                               );
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.edit,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
+                        const SizedBox(width: 15.0),
+                        Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                            onPressed: () async {
                               showDeleteConfirmationDialog(buyOneFreeOneVoucherList[i]);
-                            });
-                          },
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.grey.shade300,
-                              // border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            // padding: const EdgeInsets.all(1),
-                            child: Icon(
-                              Icons.delete,
-                              size: 22.0,
-                              color: Colors.grey.shade800,
-                            ),
+                            },
+                            child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
                         ),
+                        const SizedBox(width: 5.0,),
                       ],
                     ),
                   ],
@@ -932,7 +858,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
             ),
           ),
         );
-        voucher.add(const SizedBox(height: 30.0));
+        voucher.add(const SizedBox(height: 20.0));
       }
     }
     return voucher;

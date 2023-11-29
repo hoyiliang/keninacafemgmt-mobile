@@ -64,6 +64,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
   DateTime _selectedDate = DateTime.now();
   final Map<DateTime, List> _events = {};
   bool eventsGet = false;
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -85,7 +86,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
       appBar: AppsBarState().buildAppBar(context, 'Manage Attendance', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -40,21 +40,22 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateStaffPage(user: null,),
+      home: const UpdateStaffPage(user: null,),
     );
   }
 }
 
-class CreateStaffPage extends StatefulWidget {
-  const CreateStaffPage({super.key, this.user});
+class UpdateStaffPage extends StatefulWidget {
+  const UpdateStaffPage({super.key, this.user, this.staff});
 
   final User? user;
+  final User? staff;
 
   @override
-  State<CreateStaffPage> createState() => _CreateStaffPageState();
+  State<UpdateStaffPage> createState() => _UpdateStaffPageState();
 }
 
-class _CreateStaffPageState extends State<CreateStaffPage> {
+class _UpdateStaffPageState extends State<UpdateStaffPage> {
   final staffNameController = TextEditingController();
   final icController = TextEditingController();
   final emailController = TextEditingController();
@@ -67,9 +68,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
   bool securePasswordText = true;
   bool secureConfirmPasswordText = true;
   bool staffCreated = false;
-  bool imageSelected = false;
   String gender = "";
-  bool genderSelected = true;
   String? selectedValue;
   ImagePicker picker = ImagePicker();
   String base64Image = "";
@@ -80,9 +79,33 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     return widget.user;
   }
 
+  User? getStaff() {
+    return widget.staff;
+  }
+
   @override
   void initState() {
     super.initState();
+    gender = getStaff()!.gender;
+    staffNameController.text = getStaff()!.name;
+    icController.text = getStaff()!.ic;
+    emailController.text = getStaff()!.email;
+    phoneController.text = getStaff()!.phone;
+    addressController.text = getStaff()!.address;
+    dobController.text = getStaff()!.dob.toString().substring(0,10);
+    selectedValue = getStaff()!.staff_type;
+    // gender = currentStaff.gender;
+    if (base64Image == "") {
+      base64Image = getStaff()!.image;
+      if (base64Image == "") {
+        image = Image.asset("images/profile.png");
+        print("nothing in base64");
+      } else {
+        image = Image.memory(base64Decode(base64Image));
+      }
+    } else {
+      image = Image.memory(base64Decode(base64Image));
+    }
   }
 
   void _togglePasswordView() {
@@ -102,10 +125,11 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     enterFullScreen();
 
     User? currentUser = getUser();
+    User? currentStaff = getStaff();
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildAppBarDetails(context, 'Create Staff', currentUser!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Staff', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -127,25 +151,24 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                       bottom: 0,
                       right: 0,
                       child: Container(
-                          width: 35,
-                          height: 35,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                          child:
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
-                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                            onPressed: () async {
-                              XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
-                              final File imageFile = File(imageRaw!.path);
-                              final Image imageImage = Image.file(imageFile);
-                              final imageBytes = await imageFile.readAsBytes();
-                              base64Image = base64Encode(imageBytes);
-                              setState(() {
-                                imageSelected = true;
-                                image = Image.memory(imageBytes);
-                              });
-                            },
-                            child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                        child:
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                          // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                          onPressed: () async {
+                            XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
+                            final File imageFile = File(imageRaw!.path);
+                            final Image imageImage = Image.file(imageFile);
+                            final imageBytes = await imageFile.readAsBytes();
+                            base64Image = base64Encode(imageBytes);
+                            setState(() {
+                              image = Image.memory(imageBytes);
+                            });
+                          },
+                          child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
                         ),
                       ),
                     )
@@ -487,149 +510,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                         ),
                         const SizedBox(height: 13,),
                         const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                            child: Row(
-                                children: [
-                                  Text('Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                                ]
-                            )
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          child:
-                          TextFormField(
-                            obscureText: securePasswordText,
-                            controller: passwordController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#&*~]).{8,}$');
-                              if (!passwordRegex.hasMatch(value)) {
-                                return 'Please enter a valid password with at least:\nOne capital letter\nOne small letter\nOne number\nOne symbol from !, @, #, &, * or ~';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              suffix: InkWell(
-                                onTap: _togglePasswordView,
-                                child: Icon(
-                                  securePasswordText ? Icons.visibility : Icons.visibility_off,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade500,
-                                  width: 2.0,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade500,
-                                  width: 2.0,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2.0,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                              // hintText: 'Please enter your password',
-                            ),
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Gabarito",
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 13,),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                          child: Row(
-                            children: [
-                              Text('Confirm Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                              // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                            ]
-                          )
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          child: TextFormField(
-                            obscureText: secureConfirmPasswordText,
-                            controller: confirmPasswordController,
-                            validator: (value) {
-                              if (value != passwordController.text) {
-                                return 'Passwords do not match with the new password!';
-                              } else if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
-                              }
-                              return null;
-                            },
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Gabarito",
-                            ),
-                            decoration: InputDecoration(
-                              suffix: InkWell(
-                                onTap: _toggleConfirmPasswordView,
-                                child: Icon(
-                                  secureConfirmPasswordText ? Icons.visibility : Icons.visibility_off,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade500,
-                                  width: 2.0,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade500,
-                                  width: 2.0,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2.0,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20), // Set border radius here
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                              // hintText: 'Please enter the password again',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 13,),
-                        const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
                           child: Row(
                             children: [
@@ -645,7 +525,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: genderSelected == false ? Colors.red : Colors.grey.shade500,
+                                color: Colors.grey.shade500,
                                 width: 2.0,
                               ),
                             ),
@@ -688,7 +568,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                                   Row(
                                     children: [
                                       Radio(
-                                        // contentPadding: EdgeInsets.zero,
                                         visualDensity: const VisualDensity(horizontal: -2.0),
                                         value: "Female",
                                         groupValue: gender,
@@ -734,40 +613,40 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                             )
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(15, 0, 15, 6),
-                          child:TextFormField(
-                            controller: dobController,
-                            decoration: const InputDecoration(
+                            padding: const EdgeInsets.fromLTRB(15, 0, 15, 6),
+                            child:TextFormField(
+                              controller: dobController,
+                              decoration: const InputDecoration(
                                 icon: Icon(Icons.calendar_month),
                                 // labelText: "Date Of Birth"
-                            ),
-                            validator: (dateToController) {
-                              if (dateToController == null || dateToController.isEmpty) return 'Please choose the date to !';
-                              return null;
-                            },
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Gabarito",
-                            ),
-                            readOnly: true,
-                            onTap: () async {
-                              var pickedDate = await showDatePicker(
-                                  context: context, initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2101)
-                              );
-                              if(pickedDate != null ){
-                                String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                setState(() {
-                                  dobController.text = formattedDate;
-                                });
-                              }else{
+                              ),
+                              validator: (dateToController) {
+                                if (dateToController == null || dateToController.isEmpty) return 'Please choose the date to !';
+                                return null;
+                              },
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Gabarito",
+                              ),
+                              readOnly: true,
+                              onTap: () async {
+                                var pickedDate = await showDatePicker(
+                                    context: context, initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2101)
+                                );
+                                if(pickedDate != null ){
+                                  String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                  setState(() {
+                                    dobController.text = formattedDate;
+                                  });
+                                }else{
 
-                              }
-                            },
-                          )
+                                }
+                              },
+                            )
                         ),
                       ],
                     ),
@@ -782,24 +661,17 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                       height:40,
                       onPressed: (){
                         setState(() {
-                          if (gender == "") {
-                            genderSelected = false;
-                          }
-                          if (base64Image == "") {
-                            imageSelected = false;
-                            showImageNotSelectedDialog();
-                          }
-                          if (_formKey.currentState!.validate() && imageSelected && genderSelected) {
-                            showConfirmationCreateDialog(currentUser);
+                          if (_formKey.currentState!.validate()) {
+                            showConfirmationUpdateDialog(currentStaff!, currentUser);
                           }
                         });
                       },
-                      color: Colors.lightBlueAccent.shade400,
+                      color: Colors.greenAccent.shade400,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40)
+                        borderRadius: BorderRadius.circular(40)
                       ),
-                      child: const Text("Create",style: TextStyle(
-                        fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white
+                      child: const Text("Update",style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white,
                       ),),
                     ),
                   ),
@@ -820,7 +692,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     return DropdownButtonFormField(
       decoration: InputDecoration(
         hintText: 'e.g. Restaurant Worker',
-        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Gabarito"),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20), // Set border radius here
           borderSide: BorderSide(
@@ -881,7 +752,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     return staffTypes;
   }
 
-  Future<(bool, String)> _submitCreateStaffDetails(User currentUser) async {
+  Future<(bool, String)> _submitRegisterDetails(User currentUser) async {
     String name = staffNameController.text;
     String ic = icController.text;
     String email = emailController.text;
@@ -909,7 +780,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     var (thisUser, err_code) = await createStaff(name, ic, email, staff_type!, phone, address, enc_pw, gender, dob);
     if (thisUser.uid == -1) {
       if (kDebugMode) {
-        print("Failed to create staff.");
+        print("Failed to retrieve User data.");
       }
       return (false, err_code);
     }
@@ -957,7 +828,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
       } else {
         if (kDebugMode) {
           print(response.body);
-          print('Staff exist in system.');
+          print('User exist in system.');
         }
         return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0), (ErrorCodes.REGISTER_FAIL_STAFF_EXISTS));
       }
@@ -990,61 +861,103 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     }
   }
 
-  void showConfirmationCreateDialog(User currentUser) {
+  Future<(String, User)> _submitUpdateStaffDetails(User currentStaff) async {
+    var (thisUser, err_code) = await updateStaff(currentStaff);
+    if (thisUser.uid == -1) {
+      if (kDebugMode) {
+        print("Failed to update Staff data.");
+      }
+      return (err_code, currentStaff);
+    }
+    currentStaff = thisUser;
+    return (err_code, currentStaff);
+  }
+
+  Future<(User, String)> updateStaff(User currentStaff) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/staffManagement/update_staff_details'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          'image': base64Image,
+          'current_staff_update_id': currentStaff.uid,
+          'name': staffNameController.text,
+          'ic': icController.text,
+          'email': emailController.text,
+          'phone': phoneController.text,
+          'address': addressController.text,
+          'staff_type': selectedValue,
+          'gender': gender,
+          'dob': DateTime.parse(dobController.text).toString(),
+        }),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        var jsonResp = jsonDecode(response.body);
+        var jwtToken = jsonResp['token'];
+        return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
+      } else {
+        if (kDebugMode) {
+          print('No Staff found.');
+        }
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.UPDATE_STAFF_FAIL_BACKEND));
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.UPDATE_STAFF_FAIL_API_CONNECTION));
+    }
+  }
+
+  void showConfirmationUpdateDialog(User currentStaff, User currentUser) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: const Text('Are you sure you want to create the staff?'),
+          content: Text('Are you sure you want to update this staff (${currentStaff.name}) ?'),
           actions: [
             ElevatedButton(
               onPressed: () async {
-                // Perform save logic here
-                // Navigator.of(context).pop();
-                // Navigator.of(context).pop();
                 if (_formKey.currentState!.validate()) {
-                  var (staffCreatedAsync, err_code) = await _submitCreateStaffDetails(currentUser);
+                  var (err_code, currentStaffUpdated) = await _submitUpdateStaffDetails(currentStaff);
                   setState(() {
-                    staffCreated = staffCreatedAsync;
-                    if (!staffCreated) {
-                      if (err_code == ErrorCodes.LEAVE_FORM_DATA_CREATE_FAIL_BACKEND) {
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
-                            AlertDialog(
-                              title: const Text('Error'),
-                              content: Text('An Error occurred while trying to create a new staff.\n\nError Code: $err_code'),
-                              actions: <Widget>[
-                                TextButton(onPressed: () =>
-                                    Navigator.pop(context, 'Ok'),
-                                    child: const Text('Ok')),
-                              ],
-                            ),
-                        );
-                      } else {
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
-                            AlertDialog(
-                              title: const Text('Connection Error'),
-                              content: Text(
-                                  'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
-                              actions: <Widget>[
-                                TextButton(onPressed: () =>
-                                    Navigator.pop(context, 'Ok'),
-                                    child: const Text('Ok')),
-                              ],
-                            ),
-                        );
-                      }
+                    if (err_code == ErrorCodes.UPDATE_STAFF_FAIL_BACKEND) {
+                      showDialog(context: context, builder: (
+                          BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Error'),
+                            content: Text('An Error occurred while trying to update this staff (${currentStaff.name}).\n\nError Code: $err_code'),
+                            actions: <Widget>[
+                              TextButton(onPressed: () =>
+                                  Navigator.pop(context, 'Ok'),
+                                  child: const Text('Ok')),
+                            ],
+                          ),
+                      );
+                    } else if (err_code == ErrorCodes.UPDATE_STAFF_FAIL_API_CONNECTION) {
+                      showDialog(context: context, builder: (
+                          BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Connection Error'),
+                            content: Text(
+                                'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                            actions: <Widget>[
+                              TextButton(onPressed: () =>
+                                  Navigator.pop(context, 'Ok'),
+                                  child: const Text('Ok')),
+                            ],
+                          ),
+                      );
                     } else {
-                      // If Leave Form Data success created
-
                       Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Staff Successful'),
-                            content: const Text('The Staff can be viewed in the Staff List page.'),
+                            title: const Text('Update Staff Successful'),
+                            content: Text('The Updated Staff (${staffNameController.text}) details can be viewed in the Staff List page.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -1057,18 +970,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                             ],
                           ),
                       );
-                      _formKey.currentState?.reset();
                       setState(() {
-                        selectedValue = null;
-                        staffNameController.text = '';
-                        icController.text = '';
-                        emailController.text = '';
-                        addressController.text = '';
-                        phoneController.text = '';
-                        passwordController.text = '';
-                        confirmPasswordController.text = '';
-                        dobController.text = '';
-                        gender = "";
                       });
                     }
                   });
@@ -1089,29 +991,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                 backgroundColor: Colors.red,
               ),
               child: const Text('No'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void showImageNotSelectedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Image Not Selected', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: const Text('Please select the staff profile image !'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              // style: ElevatedButton.styleFrom(
-              //   backgroundColor: Colors.red,
-              // ),
-              child: const Text('Ok'),
             ),
           ],
         );

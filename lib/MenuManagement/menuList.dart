@@ -57,6 +57,7 @@ class _MenuListPageState extends State<MenuListPage>{
   String? tempCategoryName;
   final descriptionController = TextEditingController();
   bool deleteUser = false;
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -143,7 +144,7 @@ class _MenuListPageState extends State<MenuListPage>{
                   ],
                 ),
               ),
-              drawer: AppsBarState().buildDrawer(context),
+              drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
               body: SafeArea(
                 child: FutureBuilder<List<MenuItem>>(
                   future: getMenuItemList(),
@@ -166,28 +167,25 @@ class _MenuListPageState extends State<MenuListPage>{
                   }
                 ),
               ),
-              floatingActionButton: Stack(
-                children: [
-                  Positioned(
-                    bottom: 5.0,
-                    right: 16.0,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser))
-                        );
-                      },
-                      child: const Icon(
-                        Icons.add,
-                      ),
-                    ),
-                  ),
-                ],
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser))
+                  );
+                },
+                child: const Icon(
+                  Icons.add,
+                  size: 27.0,
+                ),
               ),
-              bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser!, context),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              bottomNavigationBar: BottomAppBar(
+                height: 20.0,
+                color: Theme.of(context).colorScheme.inversePrimary,
+                shape: const CircularNotchedRectangle(),
+              ),
             ),
           );
-
         } else {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -216,7 +214,7 @@ class _MenuListPageState extends State<MenuListPage>{
                       Column(
                         children: [
                           SizedBox(
-                            height: 132.0,
+                            height: 175.0,
                             child: Row(
                               children: [
                                 Expanded(
@@ -274,6 +272,29 @@ class _MenuListPageState extends State<MenuListPage>{
                                               ),
                                             ],
                                           ),
+                                        if (!menuItemList[j].hasVariant)
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Variant : ',
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                  color: Colors.grey.shade700,
+                                                  fontFamily: "Oswald",
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                'No variant assigned.',
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                  color: Colors.grey.shade700,
+                                                  fontFamily: "Oswald",
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         if (menuItemList[j].hasSize)
                                           Row(
                                             children: [
@@ -306,6 +327,103 @@ class _MenuListPageState extends State<MenuListPage>{
                                               ),
                                             ],
                                           ),
+                                        if (!menuItemList[j].hasSize)
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Size : ',
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                  color: Colors.grey.shade700,
+                                                  fontFamily: "Oswald",
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                'No size assigned.',
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                  color: Colors.grey.shade700,
+                                                  fontFamily: "Oswald",
+                                                  // fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        const SizedBox(height: 8.0,),
+                                        Row(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Container(
+                                                width: 120.0,
+                                                height: 30.0,
+                                                padding: const EdgeInsets.only(top: 3),
+                                                child: MaterialButton(
+                                                  minWidth: double.infinity,
+                                                  height: 20,
+                                                  onPressed: () {
+                                                    descriptionController.text = menuItemList[j].description;
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext context) {
+                                                        return AlertDialog(
+                                                          content: Column(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  const Text(
+                                                                    'Description',
+                                                                    style: TextStyle(fontSize: 21.5, fontWeight: FontWeight.bold),
+                                                                  ),
+                                                                  const Spacer(),
+                                                                  IconButton(
+                                                                    icon: const Icon(Icons.close),
+                                                                    onPressed: () {
+                                                                      descriptionController.text = '';
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Form(
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                                  mainAxisSize: MainAxisSize.min,
+                                                                  children: [
+                                                                    TextFormField(
+                                                                      maxLines: null,
+                                                                      controller: descriptionController,
+                                                                      readOnly: true,
+                                                                      decoration: const InputDecoration(
+                                                                        labelStyle: TextStyle(color: Colors.black, fontSize: 15.0),
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(height: 5.0),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  color: Colors.grey.shade200,
+                                                  child: Text(
+                                                    "Description",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 15,
+                                                        color: Colors.orangeAccent.shade400
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         const SizedBox(height: 6.0,),
                                         const Spacer(),
                                         Row(
@@ -341,107 +459,58 @@ class _MenuListPageState extends State<MenuListPage>{
                                     children: [
                                       Row(
                                         children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              showUpdateIsOutOfStockConfirmationDialog(menuItemList[j]);
-                                            },
-                                            child: Container(
-                                              width: 28.0, // Adjust the width as needed for your size preference
-                                              height: 20.0, // Adjust the height as needed for your size preference
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(5.0), // Adjust the border radius for rounded corners
-                                                color: !menuItemList[j].isOutOfStock ? Colors.green : Colors.red, // Customize colors for active and inactive states
-                                              ),
-                                              child: Center(
-                                                child: Transform.scale(
-                                                  scale: 0.8, // Adjust the scale as needed to fit inside the container
-                                                  child: !menuItemList[j].isOutOfStock
-                                                      ? const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 18.0,
-                                                  ) : const Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 18.0,
-                                                  )
-                                                ),
-                                              ),
+                                          Container(
+                                            width: 35,
+                                            height: 35,
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: !menuItemList[j].isOutOfStock! ? Colors.green : Colors.red),
+                                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                              onPressed: () async {
+                                                showUpdateIsOutOfStockConfirmationDialog(menuItemList[j]);
+                                              },
+                                              child: !menuItemList[j].isOutOfStock
+                                                  ? const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 18.0,
+                                              ) : const Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 18.0,
+                                              )
                                             ),
                                           ),
                                           const SizedBox(width: 20.0),
-                                          GestureDetector(
-                                            onTap: () {
-                                              descriptionController.text = menuItemList[j].description;
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    content: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            const Text(
-                                                              'Description',
-                                                              style: TextStyle(fontSize: 21.5, fontWeight: FontWeight.bold),
-                                                            ),
-                                                            const Spacer(),
-                                                            IconButton(
-                                                              icon: const Icon(Icons.close),
-                                                              onPressed: () {
-                                                                descriptionController.text = '';
-                                                                Navigator.of(context).pop();
-                                                              },
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Form(
-                                                          child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              TextFormField(
-                                                                maxLines: null,
-                                                                controller: descriptionController,
-                                                                readOnly: true,
-                                                                decoration: const InputDecoration(
-                                                                  labelStyle: TextStyle(color: Colors.black, fontSize: 15.0),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(height: 5.0),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: const Icon(
-                                              Icons.remove_red_eye,
+                                          Container(
+                                            width: 35,
+                                            height: 35,
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                              onPressed: () async {
+                                                Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j],));
+                                                Navigator.push(context, route).then(onGoBack);
+                                              },
+                                              child: Icon(Icons.edit, color: Colors.grey.shade800),
                                             ),
                                           ),
-                                          const SizedBox(width: 20.0),
-                                          GestureDetector(
-                                            onTap: () {
-                                              Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j],));
-                                              Navigator.push(context, route).then(onGoBack);
-                                            },
-                                            child: const Icon(
-                                              Icons.edit,
+                                          const SizedBox(width: 15.0),
+                                          Container(
+                                            width: 35,
+                                            height: 35,
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                                              // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                              onPressed: () async {
+                                                showDeleteConfirmationDialog(menuItemList[j]);
+                                              },
+                                              child: Icon(Icons.delete, color: Colors.grey.shade800),
                                             ),
                                           ),
-                                          const SizedBox(width: 20.0),
-                                          GestureDetector(
-                                            onTap: () {
-                                              showDeleteConfirmationDialog(menuItemList[j]);
-                                            },
-                                            child: const Icon(
-                                              Icons.delete,
-                                            ),
-                                          ),
+                                          const SizedBox(width: 5.0,),
                                         ],
                                       ),
                                       const Spacer(),
@@ -458,7 +527,6 @@ class _MenuListPageState extends State<MenuListPage>{
                           const Divider(height: 30.0,),
                         ],
                       )
-
                 ],
               ),
             ),

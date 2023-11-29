@@ -62,18 +62,25 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
   final contactController = TextEditingController();
   final emailController = TextEditingController();
   final addressController = TextEditingController();
+  final stockController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String name = "";
   String PIC = "";
   String contact = "";
   String email = "";
   String address = "";
+  bool isNameFill = true;
+  bool isPICFill = true;
+  bool isContactFill = true;
+  bool isEmailFill = true;
+  bool isAddressFill = true;
   List stockSelected = [];
   List stockBefore = [];
   List stockUpdated = [];
   ImagePicker picker = ImagePicker();
   Widget? image;
   String base64Image = "";
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -203,12 +210,6 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     User? currentUser = getUser();
     Supplier? currentSupplier = getSupplier();
 
-    // nameController.text = currentSupplier!.name;
-    // PICController.text = currentSupplier.PIC;
-    // contactController.text = currentSupplier.contact;
-    // emailController.text = currentSupplier.email;
-    // addressController.text = currentSupplier.address;
-
     if (base64Image == "") {
       base64Image = widget.supplier_data!.image;
       if (base64Image == "") {
@@ -223,8 +224,8 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Update Supplier', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Supplier', currentUser!),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -235,7 +236,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                  padding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 0),
                     child: Stack(
                       children: [
                         SizedBox(
@@ -254,7 +255,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                             height: 35,
                             // decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 0, 0, 0)),
+                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                               onPressed: () async {
                                 XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -278,15 +279,14 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                   ),
                   Form(
                     key: _formKey,
-                    // autovalidateMode: AutovalidateMode.always,
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isNameFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,32 +297,34 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isNameFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.business, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.business, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: nameController,
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                           hintText: "Name",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (nameController) {
-                                        if (nameController == null || nameController.isEmpty) {
-                                          return 'Please fill in the supplier name !';
-                                        }
-                                        else {
-                                          return null;
-                                        }
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (nameController) {
+                                      //   if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -330,11 +332,11 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isPICFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,28 +347,34 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isPICFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: PICController,
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                           hintText: "PIC",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade600, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (PICController) {
-                                        if (PICController == null || PICController.isEmpty) return 'Please fill in the PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (PICController) {
+                                      //   if (PICController == null || PICController.isEmpty) return 'Please fill in the PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -375,11 +383,11 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isContactFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,28 +398,34 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isContactFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: contactController,
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                           hintText: "Contact",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (contactController) {
-                                        if (contactController == null || contactController.isEmpty) return 'Please fill in the contact of PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (contactController) {
+                                      //   if (contactController == null || contactController.isEmpty) return 'Please fill in the contact of PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -420,11 +434,11 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isEmailFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,28 +449,34 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isEmailFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: emailController,
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                           hintText: "Email",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (emailController) {
-                                        if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (emailController) {
+                                      //   if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -465,11 +485,11 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
-                              height: 50,
+                              height: 120,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isAddressFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,32 +500,35 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isAddressFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.location_city, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.location_city, size: 35,color: Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: addressController,
-                                      decoration: const InputDecoration(
+                                      maxLines: null,
+                                      decoration: InputDecoration(
                                           hintText: "Address",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20, top: 10, bottom: 10),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (addressController) {
-                                        if (addressController == null || addressController.isEmpty) {
-                                          return 'Please fill in the company address !';
-                                        }
-                                        else {
-                                          return null;
-                                        }
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (addressController) {
+                                      //   if (addressController == null || addressController.isEmpty) return 'Please fill in the company address !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -513,14 +536,14 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: Border.all(color: Colors.grey.shade600, width: 2.0)
                               ),
-                              child: FutureBuilder<Tuple2<List<String>, List<String>>>(
-                                  future: getSupplierStockList(currentSupplier!),
-                                  builder: (BuildContext context, AsyncSnapshot<Tuple2<List<String>, List<String>>> snapshot) {
+                              child: FutureBuilder<List<String>>(
+                                  future: getStockUnderSupplierList(currentSupplier!),
+                                  builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
                                     if (snapshot.hasData) {
                                       return Column(
                                         children: buildStockList(snapshot.data, currentUser),
@@ -536,42 +559,59 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                               )
                           ),
                         ),
+                        const SizedBox(height: 10,),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(120.0, 20.0, 120.0, 20.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 100),
                           child: Container(
-                            padding: const EdgeInsets.only(top: 3, left: 3),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0xffc9880b),
-                                  Color(0xfff77f00),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(40), // Apply border radius here
-                            ),
+                            padding: const EdgeInsets.only(top: 3,left: 3),
                             child: MaterialButton(
                               minWidth: double.infinity,
-                              height: 40,
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  showConfirmationDialog(currentSupplier!, currentUser);
-                                }
+                              height:40,
+                              onPressed: (){
+                                setState(() {
+                                  setState(() {
+                                    if (nameController.text == "") {
+                                      isNameFill = false;
+                                    } else {
+                                      isNameFill = true;
+                                    }
+                                    if (PICController.text == "") {
+                                      isPICFill = false;
+                                    } else {
+                                      isPICFill = true;
+                                    }
+                                    if (contactController.text == "") {
+                                      isContactFill = false;
+                                    } else {
+                                      isContactFill = true;
+                                    }
+                                    if (emailController.text == "") {
+                                      isEmailFill = false;
+                                    } else {
+                                      isEmailFill = true;
+                                    }
+                                    if (addressController.text == "") {
+                                      isAddressFill = false;
+                                    } else {
+                                      isAddressFill = true;
+                                    }
+                                    if (_formKey.currentState!.validate() && isNameFill && isContactFill && isPICFill && isEmailFill && isAddressFill) {
+                                      showConfirmationDialog(currentSupplier!, currentUser);
+                                    }
+                                  });
+                                });
                               },
+                              color: Colors.greenAccent.shade400,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40), // Apply border radius here
+                                  borderRadius: BorderRadius.circular(40)
                               ),
-                              child: const Text(
-                                "Confirm",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
+                              child: const Text("Update",style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white,
+                              ),),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 13.0,),
                       ]
                     ),
                   ),
@@ -585,8 +625,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     );
   }
 
-  List<Widget> buildStockList(Tuple2<List<String>, List<String>>? listStock, User? currentUser) {
-
+  List<Widget> buildStockList(List<String>? listStock, User? currentUser) {
     if (stockUpdated.isNotEmpty) {
       stockSelected = stockUpdated;
     }
@@ -600,87 +639,127 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     }
 
     List<Widget> field = [];
-    // if (listStock != []) {
-    field.add(
-      Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  width: 20,
-                  decoration: BoxDecoration(
+    if (listStock!.isEmpty) {
+      stockController.text = "No stock supplied";
+      field.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex:1,
+              child: Container(
+                height: 50,
+                width: 20,
+                decoration: BoxDecoration(
                     border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.inventory,
-                      size: 35,
-                      color: Colors.grey.withOpacity(0.4),
-                    ),
-                  ),
+                        right: BorderSide(color: Colors.grey.shade600, width: 2.0)
+                    )
+                ),
+                child: Center(child: Icon(Icons.inventory, size: 35,color: Colors.grey.shade700)),
+              ),
+            ),
+            Expanded(
+              flex: 4,
+              child: TextFormField(
+                controller: stockController,
+                enabled: false,
+                maxLines: null,
+                decoration: InputDecoration(
+                    hintText: "Stock",
+                    contentPadding: const EdgeInsets.only(left:20, right: 20, top: 10, bottom: 10),
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
+                ),
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Gabarito",
                 ),
               ),
-              Expanded(
-                flex: 4,
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.withOpacity(0.2)), // Add your decoration here
-                  ),
-                  child: ListView(
-                    shrinkWrap: true, // Allow ListView to take up only as much height as needed
-                    children: [
-                      MultiSelectFormField(
-                        autovalidate: AutovalidateMode.disabled,
-                        chipBackGroundColor: Colors.grey,
-                        chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 12),
-                        dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-                        checkBoxActiveColor: Colors.blue,
-                        checkBoxCheckColor: Colors.white,
-                        dialogShapeBorder: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                        title: const Text(
-                          "Stock",
-                          style: TextStyle(fontSize: 17, color:Colors.black26, fontWeight: FontWeight.w500),
-                        ),
-                        // validator: (value) {
-                        //   if (value == null || value.length == 0) {
-                        //     return 'Please select one or more options';
-                        //   }
-                        //   return null;
-                        // },
-                        dataSource: [for (String i in listStock!.item1) {'value': i}],
-                        // dataSource: [],
-                        textField: 'value',
-                        valueField: 'value',
-                        okButtonLabel: 'OK',
-                        cancelButtonLabel: 'CANCEL',
-                        hintWidget: const Text('Please choose one or more stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black26)),
-                        initialValue: stockSelected,
-                        onSaved: (value) {
-                          if (value == null) return;
-                          setState(() {
-                            stockUpdated = value;
-                            stockSelected = value;
-                          });
-                        },
+            )
+          ],
+        )
+      );
+    } else {
+      field.add(
+        Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 50,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(color: Colors.grey.withOpacity(0.2)),
                       ),
-                    ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.inventory,
+                        size: 35,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-    // }
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    constraints: const BoxConstraints(maxHeight: 120),
+                    decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: Colors.grey.shade600, width: 2.0),
+                        )
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        MultiSelectFormField(
+                          autovalidate: AutovalidateMode.disabled,
+                          chipBackGroundColor: Colors.grey,
+                          chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 12),
+                          dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          checkBoxActiveColor: Colors.blue,
+                          checkBoxCheckColor: Colors.white,
+                          dialogShapeBorder: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                          title: Text(
+                            "Stock",
+                            style: TextStyle(fontSize: 17, color:Colors.grey.shade700, fontWeight: FontWeight.bold),
+                          ),
+                          dataSource: [for (String i in listStock!) {'value': i}],
+                          textField: 'value',
+                          valueField: 'value',
+                          okButtonLabel: 'OK',
+                          cancelButtonLabel: 'CANCEL',
+                          hintWidget: Text('Please choose one or more stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade700)),
+                          initialValue: stockSelected,
+                          onSaved: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              stockUpdated = value;
+                              stockSelected = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     return field;
   }
 
@@ -731,21 +810,42 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     }
   }
 
-  Future<Tuple2<List<String>, List<String>>> getSupplierStockList(Supplier supplierData) async {
+  // Future<Tuple2<List<String>, List<String>>> getSupplierStockList(Supplier supplierData) async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 201 || response.statusCode == 200) {
+  //       stockSelected = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
+  //       stockBefore = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
+  //       return Stock.getStockDataListWithSupplier(jsonDecode(response.body));
+  //     } else {
+  //       throw Exception('Failed to load the stock list.');
+  //     }
+  //   } on Exception catch (e) {
+  //     throw Exception('API Connection Error. $e');
+  //   }
+  // }
+
+  Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
+        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        stockSelected = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
-        stockBefore = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
-        return Stock.getStockDataListWithSupplier(jsonDecode(response.body));
+        stockSelected = Stock.getStockUnderSupplierList(jsonDecode(response.body));
+        stockBefore = Stock.getStockUnderSupplierList(jsonDecode(response.body));
+        return Stock.getStockUnderSupplierList(jsonDecode(response.body));
       } else {
-        throw Exception('Failed to load the stock list.');
+        throw Exception('Failed to load the stock list under current supplier.');
       }
     } on Exception catch (e) {
       throw Exception('API Connection Error. $e');

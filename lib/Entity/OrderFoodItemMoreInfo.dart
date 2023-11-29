@@ -36,9 +36,8 @@ class OrderFoodItemMoreInfo {
       is_done: json['is_done'],
       food_order: json['food_order'],
       menu_item_name: json['menu_item_name'],
-      menu_item_price: json['menu_item_price'],
+      menu_item_price: json['menu_item_price'] ?? 0,
       numOrder: json['num_order'],
-
     );
   }
 
