@@ -101,127 +101,39 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, '${currentSupplier?.name} Supplier'),
+      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, 'Information'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
             child: Column(
               children: [
-                // Container(
-                //   height: 80,
-                //   width: MediaQuery.of(context).size.width,
-                //   decoration: BoxDecoration(
-                //     color: Colors.yellow.withOpacity(0.2),
-                //   ),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Padding(
-                //         padding: const EdgeInsets.only(left: 16.0),
-                //         child: SizedBox(
-                //           width: 298,
-                //           child: Text (
-                //             '${currentSupplier?.name} Supplier',
-                //             softWrap: true,
-                //             maxLines: 1,
-                //             style: const TextStyle(
-                //               fontSize: 25,
-                //               fontWeight: FontWeight.w700,
-                //               overflow: TextOverflow.ellipsis,
-                //               color: Colors.black54,
-                //               fontStyle: FontStyle.italic,
-                //               fontFamily: "Helvetica",
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //       IconButton(
-                //         icon: const Icon(Icons.close), // Add your close button icon
-                //         onPressed: () {
-                //           Navigator.of(context).pop();
-                //           setState(() {
-                //             base64Image = "";
-                //             if(kDebugMode) {
-                //               print(base64Image);
-                //             }
-                //             // image = imageImage;
-                //           });
-                //         },
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 Form(
                   key: _formKey,
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                      // Container(
-                      //   height: 80,
-                      //   width: MediaQuery.of(context).size.width,
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.yellow.withOpacity(0.2),
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Padding(
-                      //         padding: const EdgeInsets.only(left: 16.0),
-                      //         child: SizedBox(
-                      //           width: 298,
-                      //           child: Text (
-                      //             '${currentSupplier?.name} Supplier',
-                      //             softWrap: true,
-                      //             maxLines: 1,
-                      //             style: const TextStyle(
-                      //               fontSize: 25,
-                      //               fontWeight: FontWeight.w700,
-                      //               overflow: TextOverflow.ellipsis,
-                      //               color: Colors.black54,
-                      //               fontStyle: FontStyle.italic,
-                      //               fontFamily: "Helvetica",
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       IconButton(
-                      //         icon: const Icon(Icons.close), // Add your close button icon
-                      //         onPressed: () {
-                      //           Navigator.of(context).pop();
-                      //           setState(() {
-                      //             base64Image = "";
-                      //             if(kDebugMode) {
-                      //               print(base64Image);
-                      //             }
-                      //             // image = imageImage;
-                      //           });
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+                        // Padding(
+                        //   padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                        //   child: Stack(
+                        //     children: [
+                        //       SizedBox(
+                        //         width: 120,
+                        //         height: 120,
+                        //         child: ClipRRect(
+                        //           borderRadius: BorderRadius.circular(100),
+                        //           child: image
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Stack(
-                            children: [
-                              SizedBox(
-                                width: 120,
-                                height: 120,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: image
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                        child: Container(
+                          child: Container(
                             height: 50,
                             decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,10 +144,10 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                                     width: 20,
                                     decoration: BoxDecoration(
                                         border: Border(
-                                            right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                            right: BorderSide(color: Colors.grey.shade600, width: 2.0)
                                         )
                                     ),
-                                    child: Center(child: Icon(Icons.business, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                    child: Center(child: Icon(Icons.business, size: 35, color:Colors.grey.shade700)),
                                   ),
                                 ),
                                 Expanded(
@@ -243,14 +155,75 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                                   child: TextFormField(
                                     controller: nameController,
                                     enabled: false,
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                         hintText: "Name",
-                                        contentPadding: EdgeInsets.only(left:20),
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
                                         border: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                         errorBorder: InputBorder.none,
-                                        hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                     ),
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Gabarito",
+                                    ),
+                                    // validator: (nameController) {
+                                    //   if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
+                                    //   return null;
+                                    // },
+                                  ),
+                                )
+                              ],
+                            )
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex:1,
+                                  child: Container(
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            right: BorderSide(color: Colors.grey.shade600, width: 2.0)
+                                        )
+                                    ),
+                                    child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.shade700)),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 4,
+                                  child: TextFormField(
+                                    controller: PICController,
+                                    enabled: false,
+                                    decoration: InputDecoration(
+                                        hintText: "PIC",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade600, fontSize: 18, fontWeight: FontWeight.bold)
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Gabarito",
+                                    ),
+                                    // validator: (PICController) {
+                                    //   if (PICController == null || PICController.isEmpty) return 'Please fill in the PIC !';
+                                    //   return null;
+                                    // },
                                   ),
                                 )
                               ],
@@ -261,192 +234,181 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
                           child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex:1,
-                                    child: Container(
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
-                                      ),
-                                      child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.withOpacity(0.4))),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex:1,
+                                  child: Container(
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(color: Colors.grey.shade600, width: 2.0)
+                                      )
                                     ),
+                                    child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.shade700)),
                                   ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      controller: PICController,
-                                      enabled: false,
-                                      decoration: const InputDecoration(
-                                          hintText: "PIC",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
-                                      ),
+                                ),
+                                Expanded(
+                                  flex: 4,
+                                  child: TextFormField(
+                                    controller: contactController,
+                                    enabled: false,
+                                    decoration: InputDecoration(
+                                        hintText: "Contact",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                     ),
-                                  )
-                                ],
-                              )
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Gabarito",
+                                    ),
+                                    // validator: (contactController) {
+                                    //   if (contactController == null || contactController.isEmpty) return 'Please fill in the contact of PIC !';
+                                    //   return null;
+                                    // },
+                                  ),
+                                )
+                              ],
+                            )
                           ),
                         ),
 
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
                           child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex:1,
-                                    child: Container(
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
-                                      ),
-                                      child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.withOpacity(0.4))),
+                            height: 50,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex:1,
+                                  child: Container(
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            right: BorderSide(color: Colors.grey.shade600, width: 2.0)
+                                        )
                                     ),
+                                    child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.shade700)),
                                   ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      controller: contactController,
-                                      enabled: false,
-                                      decoration: const InputDecoration(
-                                          hintText: "Contact",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
-                                      ),
+                                ),
+                                Expanded(
+                                  flex: 4,
+                                  child: TextFormField(
+                                    controller: emailController,
+                                    enabled: false,
+                                    decoration: InputDecoration(
+                                        hintText: "Email",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                     ),
-                                  )
-                                ],
-                              )
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Gabarito",
+                                    ),
+                                    // validator: (emailController) {
+                                    //   if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
+                                    //   return null;
+                                    // },
+                                  ),
+                                )
+                              ],
+                            )
                           ),
                         ),
 
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
                           child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex:1,
-                                    child: Container(
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
+                            height: 120,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex:1,
+                                  child: Container(
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(color: Colors.grey.shade600, width: 2.0)
                                       ),
-                                      child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.withOpacity(0.4))),
                                     ),
+                                    child: Center(child: Icon(Icons.location_city, size: 35,color: Colors.grey.shade700)),
                                   ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      controller: emailController,
-                                      enabled: false,
-                                      decoration: const InputDecoration(
-                                          hintText: "Email",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
-                                      ),
+                                ),
+                                Expanded(
+                                  flex: 4,
+                                  child: TextFormField(
+                                    controller: addressController,
+                                    enabled: false,
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                        hintText: "Address",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20, top: 10, bottom: 10),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                     ),
-                                  )
-                                ],
-                              )
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex:1,
-                                    child: Container(
-                                      width: 20,
-                                      decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
-                                      ),
-                                      child: Center(child: Icon(Icons.location_city, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Gabarito",
                                     ),
+                                    // validator: (addressController) {
+                                    //   if (addressController == null || addressController.isEmpty) return 'Please fill in the company address !';
+                                    //   return null;
+                                    // },
                                   ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      controller: addressController,
-                                      enabled: false,
-                                      decoration: const InputDecoration(
-                                          hintText: "Address",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
+                                )
+                              ],
+                            )
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 20.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
                           child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: FutureBuilder<Tuple2<List<String>, List<String>>>(
-                                  future: getSupplierCurrentStockList(currentSupplier!),
-                                  builder: (BuildContext context, AsyncSnapshot<Tuple2<List<String>, List<String>>> snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Column(
-                                        children: buildStockList(snapshot.data, currentUser),
-                                      );
-                                    } else {
-                                      if (snapshot.hasError) {
-                                        return Center(child: Text('Error: ${snapshot.error}'));
-                                      } else {
-                                        return const Center(child: Text('Error: invalid state'));
-                                      }
-                                    }
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                            ),
+                            child: FutureBuilder<List<String>>(
+                              future: getStockUnderSupplierList(currentSupplier!),
+                              builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    children: buildStockList(snapshot.data, currentUser),
+                                  );
+                                } else {
+                                  if (snapshot.hasError) {
+                                    return Center(child: Text('Error: ${snapshot.error}'));
+                                  } else {
+                                    return const Center(child: Text('Error: invalid state'));
                                   }
-                              )
+                                }
+                              }
+                            )
                           ),
                         )
                       ],
@@ -459,11 +421,10 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser!, context),
     );
   }
 
-  List<Widget> buildStockList(Tuple2<List<String>, List<String>>? listStock, User? currentUser) {
+  List<Widget> buildStockList(List<String>? listStock, User? currentUser) {
     List<Widget> field = [];
     // if (listStock != []) {
     field.add(
@@ -484,7 +445,7 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                     child: Icon(
                       Icons.inventory,
                       size: 35,
-                      color: Colors.grey.withOpacity(0.4),
+                      color: Colors.grey.shade700,
                     ),
                   ),
                 ),
@@ -494,39 +455,37 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                 child: Container(
                   constraints: const BoxConstraints(maxHeight: 120),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.withOpacity(0.2)), // Add your decoration here
+                    border: Border(
+                      left: BorderSide(color: Colors.grey.shade600, width: 2.0),
+                    ),
                   ),
                   child: ListView(
-                    shrinkWrap: true, // Allow ListView to take up only as much height as needed
+                    shrinkWrap: true,
                     children: [
                       MultiSelectFormField(
                         autovalidate: AutovalidateMode.disabled,
                         enabled: false,
                         chipBackGroundColor: Colors.grey,
-                        chipLabelStyle: const TextStyle(fontWeight: FontWeight.w500,
-                            color: Colors.black26,
-                            fontSize: 12),
+                        chipLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
                         dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
                         checkBoxActiveColor: Colors.blue,
                         checkBoxCheckColor: Colors.white,
                         dialogShapeBorder: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                        title: const Text(
+                        title: Text(
                           "Stock",
-                          style: TextStyle(fontSize: 17, color:Colors.black26, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 17, color:Colors.grey.shade700, fontWeight: FontWeight.bold),
                         ),
-                        // validator: (value) {
-                        //   if (value == null || value.length == 0) {
-                        //     return 'Please select one or more options';
-                        //   }
-                        //   return null;
-                        // },
-                        dataSource: [for (String i in listStock!.item1) {'value': i}],
+                        dataSource: [for (String i in listStock!) {'value': i}],
                         textField: 'value',
                         valueField: 'value',
                         okButtonLabel: 'OK',
                         cancelButtonLabel: 'CANCEL',
-                        hintWidget: const Text('Do not supply any stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black26)),
+                        hintWidget: Text('Do not supply any stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade700)),
                         initialValue: stockSelected,
                         onSaved: (value) {
                           if (value == null) return;
@@ -548,20 +507,40 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
     return field;
   }
 
-  Future<Tuple2<List<String>, List<String>>> getSupplierCurrentStockList(Supplier supplierData) async {
+  // Future<Tuple2<List<String>, List<String>>> getSupplierCurrentStockList(Supplier supplierData) async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 201 || response.statusCode == 200) {
+  //       stockSelected = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
+  //       return Stock.getStockDataListWithSupplier(jsonDecode(response.body));
+  //     } else {
+  //       throw Exception('Failed to load the stock list.');
+  //     }
+  //   } on Exception catch (e) {
+  //     throw Exception('API Connection Error. $e');
+  //   }
+  // }
+
+  Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
+        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        stockSelected = Stock.getStockDataListWithSupplier(jsonDecode(response.body)).item2;
-        return Stock.getStockDataListWithSupplier(jsonDecode(response.body));
+        stockSelected = Stock.getStockUnderSupplierList(jsonDecode(response.body));
+        return Stock.getStockUnderSupplierList(jsonDecode(response.body));
       } else {
-        throw Exception('Failed to load the stock list.');
+        throw Exception('Failed to load the stock list under current supplier.');
       }
     } on Exception catch (e) {
       throw Exception('API Connection Error. $e');

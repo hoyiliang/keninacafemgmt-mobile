@@ -26,21 +26,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -62,6 +47,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
   var iconColor = true ? Colors.blue : Colors.red;
   String base64Image = "";
   Widget? image;
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -83,11 +69,10 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
       image = Image.memory(base64Decode(base64Image));
     }
     User? currentUser = getUser();
-    print(currentUser?.name);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
       appBar: AppsBarState().buildAppBar(context, 'Profile', currentUser!),
       body: SingleChildScrollView(
         child: SizedBox(
@@ -125,11 +110,10 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(currentUser.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
-                  Text(currentUser.email, style: const TextStyle(fontSize: 15),),
+                  Text(currentUser.name, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: "Gabarito", fontSize: 25),),
+                  const SizedBox(height: 2),
+                  Text(currentUser.email, style: const TextStyle(fontSize: 15, fontFamily: "Gabarito"),),
                   const SizedBox(height: 20),
-
-                  /// -- BUTTON
                   SizedBox(
                     width: 200,
                     child: ElevatedButton(
@@ -139,105 +123,48 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                         ),
                       },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, side: BorderSide.none, shape: const StadiumBorder()),
-                      child: const Text('Edit Profile', style: TextStyle(color: Colors.black)),
+                          backgroundColor: Colors.lightBlueAccent.shade400, side: BorderSide.none, shape: const StadiumBorder()),
+                      child: const Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0)),
                     ),
                   ),
                   const SizedBox(height: 30),
                   const Divider(),
-
-                  GestureDetector(
-                    onTap: () {
-                      // Handle button press
-                      // Put your logic here
-                      // For example, call a function or navigate to another screen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChangePasswordPage(user: currentUser),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      leading: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: iconColor.withOpacity(0.1),
-                        ),
-                        child: Icon(LineAwesomeIcons.key, color: iconColor),
+                  ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: iconColor.withOpacity(0.1),
                       ),
-                      title: const Text('Change Password', style: TextStyle(color: Colors.black, fontSize: 15)),
-                      trailing: true
-                          ? Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.grey.withOpacity(0.1),
-                          ),
-                          child: const Column(
-                            children: [
-                              Icon(LineAwesomeIcons.angle_right, size: 18.0, color: Colors.grey)
-                            ],
-                          )
-                      )
-                          : null,
+                      child: Icon(LineAwesomeIcons.key, color: iconColor),
                     ),
+                    title: const Text('Change Password', style: TextStyle(color: Colors.black, fontFamily: "Oswald", fontSize: 17)),
+                    trailing: true
+                      ? SizedBox(
+                      width: 35,
+                      height: 35,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(2, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                        onPressed: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangePasswordPage(user: currentUser),
+                            ),
+                          );
+                        },
+                        child: Icon(Icons.arrow_forward_ios_sharp, color: Colors.grey.shade700, size: 19.0,),
+                      ),
+                    ) : null,
                   ),
                   const Divider(),
-                  const SizedBox(height: 10),
-
-                  GestureDetector(
-                    onTap: () {
-                      // Handle button press
-                      // Put your logic here
-                      // For example, call a function or navigate to another screen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      leading: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          color: iconColor.withOpacity(0.1),
-                        ),
-                        child: Icon(LineAwesomeIcons.alternate_sign_out, color: iconColor),
-                      ),
-                      title: const Text('Logout', style: TextStyle(color: Colors.red, fontSize: 15)),
-                      trailing: true
-                          ? Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.grey.withOpacity(0.1),
-                          ),
-                          child: const Column(
-                            children: [
-                              Icon(LineAwesomeIcons.angle_right, size: 18.0, color: Colors.grey)
-                            ],
-                          )
-                      )
-                          : null,
-                    ),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 10),
                 ],
               ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 }

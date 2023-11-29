@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Attendance/attendanceDashboard.dart';
 import 'package:keninacafe/MenuManagement/menuList.dart';
@@ -8,6 +9,7 @@ import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 
 
+import 'Auth/login.dart';
 import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
@@ -31,21 +33,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -64,48 +51,217 @@ class AppsBar extends StatefulWidget {
 class AppsBarState extends State<AppsBar> {
 
   @override
-  Widget buildDrawer(BuildContext context) {
+  Widget buildDrawer(BuildContext context, User currentUser, bool isHomePage) {
     enterFullScreen();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
-            decoration: BoxDecoration(
-                color: Colors.green,
-                image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage('images/KE_Nina_Cafe_appsbar.jpg'))
+          // const DrawerHeader(
+          //   decoration: BoxDecoration(
+          //       color: Colors.green,
+          //       // image: DecorationImage(
+          //       //     fit: BoxFit.fill,
+          //       //     image: AssetImage('images/KE_Nina_Cafe_appsbar.jpg'))
+          //   ),
+          //   child: Text(
+          //     'Side menu',
+          //     style: TextStyle(color: Colors.white, fontSize: 25),
+          //   ),
+          // ),
+          Container(
+            color: Colors.deepPurple.shade400,
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 45,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0), // Border radius
+                      child: ClipOval(child: Image.asset('images/KE_Nina_Cafe_logo.jpg')),
+                    ),
+                  ),
+                  const SizedBox(width: 20.0,),
+                  const Text(
+                    'Admin System',
+                    style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
+                  ),
+                ]
             ),
+          ),
+          const SizedBox(height: 10,),
+          if (isHomePage == false)
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.deepPurple.shade300,
+              ),
+              title: Text(
+                'Home',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
+                ),
+              },
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 19, 15, 10),
             child: Text(
-              'Side menu',
-              style: TextStyle(color: Colors.white, fontSize: 25),
+              'Management',
+              style: TextStyle(color: Colors.grey.shade800, fontSize: 19, fontWeight: FontWeight.bold),
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.input),
-            title: const Text('Welcome'),
-            onTap: () => {},
+            leading: Icon(
+              Icons.receipt_outlined,
+              color: Colors.deepPurple.shade300,
+            ),
+            title: Text(
+              'Order',
+              style: TextStyle(
+                color: Colors.deepPurple.shade400,
+                fontWeight: FontWeight.bold,
+                fontSize: 17.0,
+              ),
+            ),
+            onTap: () => {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser))
+              ),
+            },
+          ),
+          if (currentUser.staff_type != "Restaurant Worker")
+            ListTile(
+              leading: Icon(
+                Icons.menu_book_outlined,
+                color: Colors.deepPurple.shade300
+              ),
+              title: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser))
+                ),
+              },
+            ),
+          if (currentUser.staff_type != "Restaurant Worker")
+            ListTile(
+              leading: Icon(
+                Icons.discount_outlined,
+                color: Colors.deepPurple.shade300,
+              ),
+              title: Text(
+                'Voucher',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser))
+                ),
+              },
+            ),
+          if (currentUser.staff_type != "Restaurant Worker")
+            ListTile(
+              leading: Icon(
+                Icons.people_outline_outlined,
+                color: Colors.deepPurple.shade300
+              ),
+              title: Text(
+                'Staff',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser))
+                ),
+              },
+            ),
+          if (currentUser.staff_type != "Restaurant Worker")
+            ListTile(
+              leading: Icon(
+                Icons.local_shipping_outlined,
+                color: Colors.deepPurple.shade300
+              ),
+              title: Text(
+                'Supplier',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+                ),
+              },
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 18, 15, 10),
+            child: Text(
+              'Account',
+              style: TextStyle(color: Colors.grey.shade800, fontSize: 19, fontWeight: FontWeight.bold),
+            ),
           ),
           ListTile(
-            leading: const Icon(Icons.verified_user),
-            title: const Text('Profile'),
-            onTap: () => {Navigator.of(context).pop()},
+            leading: Icon(
+              Icons.account_circle_rounded,
+              color: Colors.deepPurple.shade300
+            ),
+            title: Text(
+              'Profile',
+              style: TextStyle(
+                color: Colors.deepPurple.shade400,
+                fontWeight: FontWeight.bold,
+                fontSize: 17.0,
+              ),
+            ),
+            onTap: () => {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              ),
+            },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: const Icon(Icons.border_color),
-            title: const Text('Feedback'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text('Logout'),
-            onTap: () => {Navigator.of(context).pop()},
+            leading: Icon(
+              Icons.exit_to_app,
+              color: Colors.deepPurple.shade300
+            ),
+            title: Text(
+              'Log Out',
+              style: TextStyle(
+                color: Colors.deepPurple.shade400,
+                fontWeight: FontWeight.bold,
+                fontSize: 17.0,
+              ),
+            ),
+            onTap: () => {
+              Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const LoginPage(), ),
+              )
+            },
           ),
         ],
       ),
@@ -118,16 +274,6 @@ class AppsBarState extends State<AppsBar> {
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
-        // leading: Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 20),
-        //   child: IconButton(
-        //     icon: const Icon(Icons.arrow_back_ios_outlined),
-        //     onPressed: () {
-        //       // Handle back button press
-        //       Navigator.pop(context);
-        //     },
-        //   ),
-        // ),
         elevation: 0,
         toolbarHeight: 100,
         title: Text(title,
@@ -144,6 +290,142 @@ class AppsBarState extends State<AppsBar> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
+
+  @override
+  PreferredSizeWidget buildSupplierDashboardAppBar(BuildContext context, String title, User currentUser) {
+
+    return PreferredSize( //wrap with PreferredSize
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(7, 0, 0, 0),
+          child: Text(title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 28, 0),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  PreferredSizeWidget buildSupplierManagementAppBarDetails(BuildContext context, String title, User currentUser) {
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+          onPressed: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+            );
+          },
+        ),
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  PreferredSizeWidget buildAppBarDetails(BuildContext context, String title, User currentUser) {
+
+    return PreferredSize( //wrap with PreferredSize
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+          onPressed: () {
+            // Handle back button press
+            Navigator.pop(context);
+          },
+        ),
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -446,44 +728,36 @@ class AppsBarState extends State<AppsBar> {
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
-        // leading: Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 20),
-        //   child: IconButton(
-        //     icon: const Icon(Icons.arrow_back_ios_outlined),
-        //     onPressed: () {
-        //       // Handle back button press
-        //       Navigator.pop(context);
-        //     },
-        //   ),
-        // ),
         automaticallyImplyLeading: false,
         elevation: 0,
         toolbarHeight: 100,
-        title: Text(title,
-          softWrap: true,
-          maxLines: 1,
-          style: const TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-            overflow: TextOverflow.ellipsis,
-            color: Colors.black54,
-            fontStyle: FontStyle.italic,
-            fontFamily: "Helvetica",
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            title,
+            softWrap: true,
+            maxLines: 1,
+            style: const TextStyle(
+              fontSize: 27,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+              fontFamily: "BreeSerif"
+              // fontStyle: FontStyle.italic,
+            ),
           ),
         ),
-        backgroundColor: Colors.yellow.withOpacity(0.2),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: IconButton(
-              icon: const Icon(Icons.close), // Add your close button icon
+              icon: const Icon(
+                Icons.close,
+                size: 30,
+              ), // Add your close button icon
               onPressed: () {
                 Navigator.of(context).pop();
-                setState(() {
-
-                  
-                });
               },
             ),
           ),

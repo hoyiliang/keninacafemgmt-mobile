@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -81,118 +82,100 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
   ImagePicker picker = ImagePicker();
   Widget? image;
   String base64Image = "";
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
   }
 
-  void showConfirmationDialog(User currentUser) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: const Text('Are you sure you want to update the personal profile?'),
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                // Perform save logic here
-                // Navigator.of(context).pop();
-                // Navigator.of(context).pop();
-                if (_formKey.currentState!.validate()) {
-                  var (err_code, currentUserUpdated) = await _submitUpdateDetails(currentUser);
-                  setState(() {
-                    // profileUpdated = profileUpdatedAsync;
-                    // if (!profileUpdated) {
-                    if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND) {
-                      showDialog(context: context, builder: (
-                          BuildContext context) =>
-                          AlertDialog(
-                            title: const Text('Error'),
-                            content: Text('An Error occurred while trying to update the personal profile.\n\nError Code: $err_code'),
-                            actions: <Widget>[
-                              TextButton(onPressed: () =>
-                                  Navigator.pop(context, 'Ok'),
-                                  child: const Text('Ok')),
-                            ],
-                          ),
-                      );
-                    } else if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_API_CONNECTION){
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
-                            AlertDialog(
-                              title: const Text('Connection Error'),
-                              content: Text(
-                                  'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
-                              actions: <Widget>[
-                                TextButton(onPressed: () =>
-                                    Navigator.pop(context, 'Ok'),
-                                    child: const Text('Ok')),
-                              ],
-                            ),
-                        );
-                      } else {
-                      // If Leave Form Data success created
-
-                      Navigator.of(context).pop();
-                      showDialog(context: context, builder: (
-                          BuildContext context) =>
-                          AlertDialog(
-                            title: const Text('Update Personal Profile Successful'),
-                            // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated)),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                      );
-                      _formKey.currentState?.reset();
-                      setState(() {
-                        nameController.text = "";
-                        emailController.text = "";
-                        passwordController.text = '';
-                        addressController.text = '';
-                        staffTypeController.text = '';
-                        dobController.text = '';
-                      });
-                    }
-                  });
-                }
-                // saveAnnouncement(title, text);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-              ),
-              child: const Text('Yes'),
-
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              child: const Text('No'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // void reqPermission() async {
-  //   Map<Permission, PermissionStatus> statuses = await [
-  //       Permission.location,
-  //       Permission.storage,
-  //   ].request();
+  // void showConfirmationDialog(User currentUser) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+  //         content: const Text('Are you sure you want to update the personal profile?'),
+  //         actions: [
+  //           ElevatedButton(
+  //             onPressed: () async {
+  //               if (_formKey.currentState!.validate()) {
+  //                 var (err_code, currentUserUpdated) = await _submitUpdateDetails(currentUser);
+  //                 setState(() {
+  //                   if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND) {
+  //                     showDialog(context: context, builder: (
+  //                         BuildContext context) =>
+  //                         AlertDialog(
+  //                           title: const Text('Error'),
+  //                           content: Text('An Error occurred while trying to update the personal profile.\n\nError Code: $err_code'),
+  //                           actions: <Widget>[
+  //                             TextButton(onPressed: () =>
+  //                                 Navigator.pop(context, 'Ok'),
+  //                                 child: const Text('Ok')),
+  //                           ],
+  //                         ),
+  //                     );
+  //                   } else if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_API_CONNECTION){
+  //                       showDialog(context: context, builder: (
+  //                           BuildContext context) =>
+  //                           AlertDialog(
+  //                             title: const Text('Connection Error'),
+  //                             content: Text(
+  //                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+  //                             actions: <Widget>[
+  //                               TextButton(onPressed: () =>
+  //                                   Navigator.pop(context, 'Ok'),
+  //                                   child: const Text('Ok')),
+  //                             ],
+  //                           ),
+  //                       );
+  //                     } else {
+  //                     Navigator.of(context).pop();
+  //                     showDialog(context: context, builder: (
+  //                         BuildContext context) =>
+  //                         AlertDialog(
+  //                           title: const Text('Update Personal Profile Successful'),
+  //                           // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+  //                           actions: <Widget>[
+  //                             TextButton(
+  //                               child: const Text('Ok'),
+  //                               onPressed: () {
+  //                                 Navigator.push(
+  //                                   context,
+  //                                   MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated)),
+  //                                 );
+  //                               },
+  //                             ),
+  //                           ],
+  //                         ),
+  //                     );
+  //                     _formKey.currentState?.reset();
+  //                     setState(() {
+  //
+  //                     });
+  //                   }
+  //                 });
+  //               }
+  //               // saveAnnouncement(title, text);
+  //             },
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: Colors.green,
+  //             ),
+  //             child: const Text('Yes'),
+  //
+  //           ),
+  //           ElevatedButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: Colors.red,
+  //             ),
+  //             child: const Text('No'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
   // }
 
   @override
@@ -200,7 +183,6 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     enterFullScreen();
 
     User? currentUser = getUser();
-    // print(currentUser?.name);
     nameController.text = currentUser!.name;
     icController.text = currentUser.ic;
     emailController.text = currentUser.email;
@@ -220,11 +202,10 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
       image = Image.memory(base64Decode(base64Image));
     }
 
-    // reqPermission();
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Update Profile', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Profile', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -233,47 +214,42 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(height: 13),
+                  const SizedBox(height: 20),
                   Stack(
                     children: [
                       SizedBox(
-                        width: 120,
-                        height: 120,
+                        width: 130,
+                        height: 130,
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
                             child: image,
                         ),
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: SizedBox(
-                          width: 35,
-                          height: 35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 0, 0, 0)),
-                            // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                            onPressed: () async {
-                              // image = await picker.pickImage(source: ImageSource.gallery);
-                              // setState(() {
-                              //   //update UI
-                              // });
-                              XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
-                              final File imageFile = File(imageRaw!.path);
-                              final Image imageImage = Image.file(imageFile);
-                              final imageBytes = await imageFile.readAsBytes();
-                              setState(() {
-                                base64Image = base64Encode(imageBytes);
-                                if(kDebugMode) {
-                                  print(base64Image);
-                                }
-                                image = imageImage;
-                              });
-                            },
-                            child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
-                          ),
-                        ),
-                      )
+                      // Positioned(
+                      //   bottom: 0,
+                      //   right: 0,
+                      //   child: SizedBox(
+                      //     width: 35,
+                      //     height: 35,
+                      //     child: ElevatedButton(
+                      //       style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                      //       onPressed: () async {
+                      //         XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
+                      //         final File imageFile = File(imageRaw!.path);
+                      //         final Image imageImage = Image.file(imageFile);
+                      //         final imageBytes = await imageFile.readAsBytes();
+                      //         setState(() {
+                      //           base64Image = base64Encode(imageBytes);
+                      //           if(kDebugMode) {
+                      //             print(base64Image);
+                      //           }
+                      //           image = imageImage;
+                      //         });
+                      //       },
+                      //       child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
+                      //     ),
+                      //   ),
+                      // )
                     ],
                   ),
                   const SizedBox(height: 13),
@@ -283,149 +259,163 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                       children: [
                         TextFormField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            label: Text('Name'), prefixIcon: Icon(LineAwesomeIcons.user)
+                          enabled: false,
+                          decoration: InputDecoration(
+                            label: Text('Name', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(LineAwesomeIcons.user, color: Colors.grey.shade700,),
                           ),
-                          validator: (nameController) {
-                             if (nameController == null || nameController.isEmpty) return 'Please fill in your full name !';
-                             return null;
-                          },
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (nameController) {
+                          //    if (nameController == null || nameController.isEmpty) return 'Please fill in your full name !';
+                          //    return null;
+                          // },
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
+                          enabled: false,
+                          controller: icController,
+                          decoration: InputDecoration(
+                            label: Text('IC', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(LineAwesomeIcons.address_card, color: Colors.grey.shade700,),
+                          ),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                        ),
+                        const SizedBox(height: 13),
+                        TextFormField(
+                          enabled: false,
                           controller: emailController,
-                          decoration: const InputDecoration(
-                              label: Text('Email'), prefixIcon: Icon(LineAwesomeIcons.envelope_1)
+                          decoration: InputDecoration(
+                              label: Text('Email', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(LineAwesomeIcons.envelope_1, color: Colors.grey.shade700,)
                           ),
-                          validator: (emailController) {
-                            if (emailController == null || emailController.isEmpty) return 'Please fill in your email !';
-                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-                            if (!emailRegex.hasMatch(emailController)) {
-                              return 'Please enter a valid email address';
-                            }
-                            return null;
-                          },
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (emailController) {
+                          //   if (emailController == null || emailController.isEmpty) return 'Please fill in your email !';
+                          //   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          //   if (!emailRegex.hasMatch(emailController)) {
+                          //     return 'Please enter a valid email address';
+                          //   }
+                          //   return null;
+                          // },
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
+                          enabled: false,
                           controller: phoneNumberController,
-                          decoration: const InputDecoration(
-                              label: Text('Phone Number'), prefixIcon: Icon(LineAwesomeIcons.phone)
+                          decoration: InputDecoration(
+                              label: Text('Phone Number', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(LineAwesomeIcons.phone, color: Colors.grey.shade700,)
                           ),
-                          validator: (phoneNumberController) {
-                            if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
-                            return null;
-                          },
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (phoneNumberController) {
+                          //   if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
+                          //   return null;
+                          // },
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
+                          enabled: false,
+                          maxLines: null,
                           controller: addressController,
-                          decoration: const InputDecoration(
-                              label: Text('Address'), prefixIcon: Icon(LineAwesomeIcons.address_card)
+                          decoration: InputDecoration(
+                              label: Text('Address', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(Icons.location_on_outlined, color: Colors.grey.shade700,)
                           ),
-                          validator: (phoneNumberController) {
-                            if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
-                            return null;
-                          },
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (phoneNumberController) {
+                          //   if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
+                          //   return null;
+                          // },
                         ),
                         const SizedBox(height: 13),
                         TextFormField(
+                          enabled: false,
                           controller: staffTypeController,
-                          decoration: const InputDecoration(
-                              label: Text('Staff Type'), prefixIcon: Icon(LineAwesomeIcons.people_carry)
+                          decoration: InputDecoration(
+                              label: Text('Position', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(Icons.work_outline, color: Colors.grey.shade700,)
                           ),
-                          validator: (phoneNumberController) {
-                            if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
-                            return null;
-                          },
-                          readOnly: true,
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (phoneNumberController) {
+                          //   if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
+                          //   return null;
+                          // },
                         ),
                         const SizedBox(height: 13),
-                        Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
-                            child: TextFormField(
-                              controller: dobController, //editing controller of this TextField
-                              decoration: const InputDecoration(
-                                  icon: Icon(Icons.calendar_today), //icon of text field
-                                  labelText: "Date Of Birth" //label text of field
-                              ),
-                              validator: (dobController) {
-                                if (dobController == null || dobController.isEmpty) return 'Please choose the date to !';
-                                return null;
-                              },
-                              readOnly: true,//set it true, so that user will not able to edit text
-                              onTap: null,
-                            ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                          child: Container(
-                            padding: const EdgeInsets.only(top: 3,left: 3),
-                            child: MaterialButton(
-                              minWidth: double.infinity,
-                              height:50,
-                              onPressed: (){
-                                if (_formKey.currentState!.validate()) {
-                                  showConfirmationDialog(currentUser);
-                                  // if (image != null) {
-                                  //   showConfirmationDialog();
-                                  // } else {
-                                  //   // showUploadImageDialog();
-                                  // }
-                                }
-                              },
-                              color: Colors.lightBlueAccent,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(40)
-                              ),
-                              child: const Text("Update",style:
-                              TextStyle(
-                                fontWeight: FontWeight.w600,fontSize: 16,
-                              ),
-                              ),
-                            ),
+                        TextFormField(
+                          enabled: false,
+                          controller: dobController,
+                          decoration: InputDecoration(
+                              label: Text('Date Of Birth', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.grey.shade500),), prefixIcon: Icon(Icons.cake_outlined, color: Colors.grey.shade700,)
                           ),
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito",
+                          ),
+                          // validator: (phoneNumberController) {
+                          //   if (phoneNumberController == null || phoneNumberController.isEmpty) return 'Please fill in your phone number !';
+                          //   return null;
+                          // },
                         ),
+                        const SizedBox(height: 13),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                        //   child: Container(
+                        //     padding: const EdgeInsets.only(top: 3,left: 3),
+                        //     child: MaterialButton(
+                        //       minWidth: double.infinity,
+                        //       height:50,
+                        //       onPressed: (){
+                        //         if (_formKey.currentState!.validate()) {
+                        //           showConfirmationDialog(currentUser);
+                        //           // if (image != null) {
+                        //           //   showConfirmationDialog();
+                        //           // } else {
+                        //           //   // showUploadImageDialog();
+                        //           // }
+                        //         }
+                        //       },
+                        //       color: Colors.lightBlueAccent,
+                        //       shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(40)
+                        //       ),
+                        //       child: const Text("Update",style:
+                        //       TextStyle(
+                        //         fontWeight: FontWeight.w600,fontSize: 16,
+                        //       ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ]
                     ),
                   ),
-
-                    // child: Form(
-                    //   key: _formKey,
-                    //   child: Column(
-                    //     children: [
-                    //       const SizedBox(height: 15,),
-                    //       const Padding(
-                    //         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
-                    //         child: Row(
-                    //             children: [
-                    //               Text('Image', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
-                    //               Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                    //             ]
-                    //         )
-                    //       ),
-                    //
-                    //       Padding(
-                    //         padding: const EdgeInsets.symmetric(horizontal: 32,),
-                    //         child: Row(
-                    //             children: [
-                    //               ElevatedButton(
-                    //                   onPressed: () async {
-                    //                     // image = await picker.pickImage(source: ImageSource.gallery);
-                    //                     // setState(() {
-                    //                     //   //update UI
-                    //                     // });
-                    //                     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                    //                   },
-                    //                   child: const Text("Upload Image")
-                    //               ),
-                    //               // image == null?Container():
-                    //               // Image.file(File(image!.path))
-                    //             ]
-                    //         ),
-                    //       ),
-                    //
                 ],
               ),
             ),
@@ -436,63 +426,51 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     );
   }
 
-  Future<(String, User)> _submitUpdateDetails(User currentUser) async {
-    var (thisUser, err_code) = await updatePersonalProfile(currentUser);
-    if (thisUser.uid == -1) {
-      if (kDebugMode) {
-        print("Failed to update User data.");
-      }
-      return (err_code, currentUser);
-    }
-    currentUser = thisUser;
-    return (err_code, currentUser);
-  }
-
-  Future<(User, String)> updatePersonalProfile(User currentUser) async {
-    try {
-      final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/editProfile/update_user_profile/${currentUser.uid}/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, dynamic> {
-          // 'id': leaveFormData.id,
-          'image': base64Image,
-          'name': nameController.text,
-          'email': emailController.text,
-          'address': addressController.text,
-          'phone': phoneNumberController.text,
-          'dob': DateTime.parse(dobController.text).toString(),
-        }),
-      );
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        var jsonResp = jsonDecode(response.body);
-        var jwtToken = jsonResp['token'];
-        return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
-      } else {
-        if (kDebugMode) {
-          print('No User found.');
-        }
-        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.LOGIN_FAIL_NO_USER));
-      }
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print('API Connection Error. $e');
-      }
-      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
-    }
-    //   } else {
-    //     if (kDebugMode) {
-    //       print('Failed to Approve Leave Application.');
-    //     }
-    //     return (false, ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND);
-    //   }
-    // } on Exception catch (e) {
-    //   if (kDebugMode) {
-    //     print('API Connection Error. $e');
-    //   }
-    //   return (false, ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_API_CONNECTION);
-    // }
-  }
+  // Future<(String, User)> _submitUpdateDetails(User currentUser) async {
+  //   var (thisUser, err_code) = await updatePersonalProfile(currentUser);
+  //   if (thisUser.uid == -1) {
+  //     if (kDebugMode) {
+  //       print("Failed to update User data.");
+  //     }
+  //     return (err_code, currentUser);
+  //   }
+  //   currentUser = thisUser;
+  //   return (err_code, currentUser);
+  // }
+  //
+  // Future<(User, String)> updatePersonalProfile(User currentUser) async {
+  //   try {
+  //     final response = await http.put(
+  //       Uri.parse('http://10.0.2.2:8000/editProfile/update_user_profile/${currentUser.uid}/'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //       body: jsonEncode(<String, dynamic> {
+  //         // 'id': leaveFormData.id,
+  //         'image': base64Image,
+  //         'name': nameController.text,
+  //         'email': emailController.text,
+  //         'address': addressController.text,
+  //         'phone': phoneNumberController.text,
+  //         'dob': DateTime.parse(dobController.text).toString(),
+  //       }),
+  //     );
+  //
+  //     if (response.statusCode == 201 || response.statusCode == 200) {
+  //       var jsonResp = jsonDecode(response.body);
+  //       var jwtToken = jsonResp['token'];
+  //       return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
+  //     } else {
+  //       if (kDebugMode) {
+  //         print('No User found.');
+  //       }
+  //       return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.LOGIN_FAIL_NO_USER));
+  //     }
+  //   } on Exception catch (e) {
+  //     if (kDebugMode) {
+  //       print('API Connection Error. $e');
+  //     }
+  //     return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+  //   }
+  // }
 }

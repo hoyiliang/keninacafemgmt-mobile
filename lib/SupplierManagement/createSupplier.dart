@@ -15,7 +15,7 @@ import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 
-import '../Entity/Stock.dart';
+// import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 
 void main() {
@@ -60,16 +60,20 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
   final emailController = TextEditingController();
   final addressController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool isNameFill = true;
+  bool isPICFill = true;
+  bool isContactFill = true;
+  bool isEmailFill = true;
+  bool isAddressFill = true;
   bool isImageUploaded = false;
-  List? stockUpdate;
-  List? stockSelected;
-  List? stock;
-  // List<String> stock = [];
+  // List? stockUpdate;
+  // List? stockSelected;
+  // List? stock;
   bool supplierCreated = false;
-  double containerHeight = 120;
   ImagePicker picker = ImagePicker();
   String base64Image = "";
-  Widget image = const Image(image: AssetImage('images/supplierLogo.jpg'));
+  Widget image = const Image(image: AssetImage('images/supplierLogo.png'));
+  bool isHomePage = false;
 
   User? getUser() {
     return widget.user;
@@ -78,7 +82,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
   @override
   void initState() {
     super.initState();
-    getStockList();
+    // getStockList();
   }
 
   @override
@@ -86,19 +90,18 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
     enterFullScreen();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
-      appBar: AppsBarState().buildAppBar(context, 'Create Supplier', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Create Supplier', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(height: 13),
+                const SizedBox(height: 15),
                 Stack(
                   children: [
                     SizedBox(
@@ -118,7 +121,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                         child:
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 0, 0, 0)),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
                           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                           onPressed: () async {
                             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -147,11 +150,11 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 7.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isNameFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,28 +165,34 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isNameFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.business, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.business, size: 35, color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: nameController,
-                                      decoration: const InputDecoration(
-                                          hintText: "Name",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                      decoration: InputDecoration(
+                                        hintText: "Name",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (nameController) {
-                                        if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (nameController) {
+                                      //   if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -191,11 +200,11 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isPICFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,28 +215,34 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isPICFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.person, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: PICController,
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                           hintText: "PIC",
-                                          contentPadding: EdgeInsets.only(left:20),
+                                          contentPadding: const EdgeInsets.only(left:20, right: 20),
                                           border: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                           errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (PICController) {
-                                        if (PICController == null || PICController.isEmpty) return 'Please fill in the PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (PICController) {
+                                      //   if (PICController == null || PICController.isEmpty) return 'Please fill in the PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -236,11 +251,11 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isContactFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,29 +265,35 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                     child: Container(
                                       width: 20,
                                       decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
+                                        border: Border(
+                                          right: isContactFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
+                                        )
                                       ),
-                                      child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.phone_android, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: contactController,
-                                      decoration: const InputDecoration(
-                                          hintText: "Contact",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                      decoration: InputDecoration(
+                                        hintText: "Contact",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (contactController) {
-                                        if (contactController == null || contactController.isEmpty) return 'Please fill in the contact of PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (contactController) {
+                                      //   if (contactController == null || contactController.isEmpty) return 'Please fill in the contact of PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -281,11 +302,11 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
                               height: 50,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isEmailFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,29 +316,35 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                     child: Container(
                                       width: 20,
                                       decoration: BoxDecoration(
-                                          border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
-                                          )
+                                        border: Border(
+                                          right: isEmailFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
+                                        )
                                       ),
-                                      child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.email_outlined, size: 35,color:Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: emailController,
-                                      decoration: const InputDecoration(
-                                          hintText: "Email",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                      decoration: InputDecoration(
+                                        hintText: "Email",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (emailController) {
-                                        if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (emailController) {
+                                      //   if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -326,11 +353,11 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                          padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                           child: Container(
-                              height: 50,
+                              height: 120,
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
+                                  border: isAddressFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,28 +368,35 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                       width: 20,
                                       decoration: BoxDecoration(
                                           border: Border(
-                                              right: BorderSide(color: Colors.grey.withOpacity(0.2))
+                                              right: isAddressFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
                                           )
                                       ),
-                                      child: Center(child: Icon(Icons.location_city, size: 35,color:Colors.grey.withOpacity(0.4))),
+                                      child: Center(child: Icon(Icons.location_city, size: 35,color: Colors.grey.shade700)),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 4,
                                     child: TextFormField(
                                       controller: addressController,
-                                      decoration: const InputDecoration(
-                                          hintText: "Address",
-                                          contentPadding: EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.black26, fontSize: 18, fontWeight: FontWeight.w500 )
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        hintText: "Address",
+                                        contentPadding: const EdgeInsets.only(left:20, right: 20, top: 10, bottom: 10),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
                                       ),
-                                      validator: (addressController) {
-                                        if (addressController == null || addressController.isEmpty) return 'Please fill in the company address !';
-                                        return null;
-                                      },
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Gabarito",
+                                      ),
+                                      // validator: (addressController) {
+                                      //   if (addressController == null || addressController.isEmpty) return 'Please fill in the company address !';
+                                      //   return null;
+                                      // },
                                     ),
                                   )
                                 ],
@@ -370,30 +404,30 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                           ),
                         ),
 
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.withOpacity(0.2) )
-                              ),
-                              child: FutureBuilder<List<String>>(
-                                  future: getStockList(),
-                                  builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Column(
-                                        children: buildStockList(snapshot.data, currentUser),
-                                      );
-                                    } else {
-                                      if (snapshot.hasError) {
-                                        return Center(child: Text('Error: ${snapshot.error}'));
-                                      } else {
-                                        return const Center(child: Text('Error: invalid state'));
-                                      }
-                                    }
-                                  }
-                              )
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
+                        //   child: Container(
+                        //       decoration: BoxDecoration(
+                        //           border: Border.all(color: Colors.grey.shade600, width: 2.0)
+                        //       ),
+                        //       child: FutureBuilder<List<Stock>>(
+                        //           future: getStockList(),
+                        //           builder: (BuildContext context, AsyncSnapshot<List<Stock>> snapshot) {
+                        //             if (snapshot.hasData) {
+                        //               return Column(
+                        //                 children: buildStockList(snapshot.data, currentUser),
+                        //               );
+                        //             } else {
+                        //               if (snapshot.hasError) {
+                        //                 return Center(child: Text('Error: ${snapshot.error}'));
+                        //               } else {
+                        //                 return const Center(child: Text('Error: invalid state'));
+                        //               }
+                        //             }
+                        //           }
+                        //       )
+                        //   ),
+                        // ),
                       ]
                     ),
                   ),
@@ -403,22 +437,43 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 120),
                   child: Container(
                     padding: const EdgeInsets.only(top: 3,left: 3),
-                    // decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.circular(40),
-                    //     border: const Border(
-                    //         bottom: BorderSide(color: Colors.black),
-                    //         top: BorderSide(color: Colors.black),
-                    //         right: BorderSide(color: Colors.black),
-                    //         left: BorderSide(color: Colors.black)
-                    //     )
-                    // ),
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height:40,
                       onPressed: (){
-                        if (_formKey.currentState!.validate()) {
-                          showConfirmationCreateDialog(currentUser);
-                        }
+                        setState(() {
+                          if (nameController.text == "") {
+                            isNameFill = false;
+                          } else {
+                            isNameFill = true;
+                          }
+                          if (PICController.text == "") {
+                            isPICFill = false;
+                          } else {
+                            isPICFill = true;
+                          }
+                          if (contactController.text == "") {
+                            isContactFill = false;
+                          } else {
+                            isContactFill = true;
+                          }
+                          if (emailController.text == "") {
+                            isEmailFill = false;
+                          } else {
+                            isEmailFill = true;
+                          }
+                          if (addressController.text == "") {
+                            isAddressFill = false;
+                          } else {
+                            isAddressFill = true;
+                          }
+                          if (!isImageUploaded) {
+                            showImageNotSelectedDialog();
+                          }
+                          if (_formKey.currentState!.validate() && isImageUploaded && isNameFill && isContactFill && isPICFill && isEmailFill && isAddressFill) {
+                            showConfirmationCreateDialog(currentUser);
+                          }
+                        });
                       },
                       color: Colors.lightBlueAccent,
                       shape: RoundedRectangleBorder(
@@ -435,97 +490,90 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 
-  List<Widget> buildStockList(List<String>? listStock, User? currentUser) {
-    if (stockSelected != []) {
-      stockSelected = [];
-    }
-
-
-    List<Widget> field = [];
-    // if (listStock != []) {
-    field.add(
-      Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  width: 20,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      right: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.inventory,
-                      size: 35,
-                      color: Colors.grey.withOpacity(0.4),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  child: ListView(
-                    shrinkWrap: true, // Allow ListView to take up only as much height as needed
-                    children: [
-                      MultiSelectFormField(
-                        autovalidate: AutovalidateMode.disabled,
-                        chipBackGroundColor: Colors.grey,
-                        chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 12),
-                        dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-                        checkBoxActiveColor: Colors.blue,
-                        checkBoxCheckColor: Colors.white,
-                        dialogShapeBorder: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                        title: const Text(
-                          "Stock",
-                          style: TextStyle(fontSize: 17, color:Colors.black26, fontWeight: FontWeight.w500),
-                        ),
-                        // validator: (value) {
-                        //   if (value == null || value.length == 0) {
-                        //     return 'Please select one or more options';
-                        //   }
-                        //   return null;
-                        // },
-                        dataSource: [for (String i in listStock!) {'value': i}],
-
-                        textField: 'value',
-                        valueField: 'value',
-                        okButtonLabel: 'OK',
-                        cancelButtonLabel: 'CANCEL',
-                        hintWidget: const Text('Please choose one or more stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black26)),
-                        initialValue: stockSelected,
-                        onSaved: (value) {
-                          if (value == null) return;
-                          setState(() {
-                            stockSelected = value;
-                            stockUpdate = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-        ),
-      );
-    // }
-    return field;
-  }
+  // List<Widget> buildStockList(List<Stock>? listStock, User? currentUser) {
+  //   if (stockSelected != []) {
+  //     stockSelected = [];
+  //   }
+  //   List<Widget> field = [];
+  //   field.add(
+  //     Column(
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               flex: 1,
+  //               child: Container(
+  //                 width: 20,
+  //                 decoration: BoxDecoration(
+  //                   border: Border(
+  //                     right: BorderSide(color: Colors.grey.withOpacity(0.2)),
+  //                   ),
+  //                 ),
+  //                 child: Center(
+  //                   child: Icon(
+  //                     Icons.inventory,
+  //                     size: 35,
+  //                     color: Colors.grey.shade700,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             Expanded(
+  //               flex: 4,
+  //               child: Container(
+  //                 constraints: const BoxConstraints(maxHeight: 120),
+  //                 decoration: BoxDecoration(
+  //                   border: Border(
+  //                     left: BorderSide(color: Colors.grey.shade600, width: 2.0),
+  //                   )
+  //                 ),
+  //                 child: ListView(
+  //                   shrinkWrap: true,
+  //                   children: [
+  //                     MultiSelectFormField(
+  //                       autovalidate: AutovalidateMode.disabled,
+  //                       chipBackGroundColor: Colors.grey.shade400,
+  //                       chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold,
+  //                           color: Colors.black,
+  //                           fontSize: 12),
+  //                       dialogTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+  //                       checkBoxActiveColor: Colors.blue,
+  //                       checkBoxCheckColor: Colors.white,
+  //                       dialogShapeBorder: const RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.all(Radius.circular(12.0))),
+  //                       title: Text(
+  //                         "Stock",
+  //                         style: TextStyle(fontSize: 17, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+  //                       ),
+  //                       dataSource: [for (Stock i in listStock!) {'value': i.name}],
+  //                       textField: 'value',
+  //                       valueField: 'value',
+  //                       okButtonLabel: 'OK',
+  //                       cancelButtonLabel: 'CANCEL',
+  //                       hintWidget: Text('Please choose one or more stock', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade700)),
+  //                       initialValue: stockSelected,
+  //                       onSaved: (value) {
+  //                         if (value == null) return;
+  //                         setState(() {
+  //                           stockSelected = value;
+  //                           stockUpdate = value;
+  //                         });
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  //   return field;
+  // }
 
   Future<(bool, String)> _submitRegisterDetails(User currentUser) async {
     String name = nameController.text;
@@ -567,7 +615,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
           'contact': contact,
           'email': email,
           'address': address,
-          'stock': stockUpdate,
+          // 'stock': stockUpdate,
           'user_created_name': currentUser.name,
         }),
       );
@@ -592,24 +640,47 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
     }
   }
 
-  Future<List<String>> getStockList() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_list'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
+  // Future<List<Stock>> getStockList() async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_list'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json; charset=UTF-8',
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 201 || response.statusCode == 200) {
+  //       // stock = Stock.getStockNameList(jsonDecode(response.body));
+  //       return Stock.getStockNameList(jsonDecode(response.body));
+  //     } else {
+  //       throw Exception('Failed to load the stock list.');
+  //     }
+  //   } on Exception catch (e) {
+  //     throw Exception('API Connection Error. $e');
+  //   }
+  // }
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // stock = Stock.getStockNameList(jsonDecode(response.body));
-        return Stock.getStockNameList(jsonDecode(response.body));
-      } else {
-        throw Exception('Failed to load the stock list.');
-      }
-    } on Exception catch (e) {
-      throw Exception('API Connection Error. $e');
-    }
+  void showImageNotSelectedDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Image Not Selected', style: TextStyle(fontWeight: FontWeight.bold,)),
+          content: const Text('Please select the supplier company image !'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              // style: ElevatedButton.styleFrom(
+              //   backgroundColor: Colors.red,
+              // ),
+              child: const Text('Ok'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void showConfirmationCreateDialog(User currentUser) {
@@ -683,12 +754,6 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                       );
                       _formKey.currentState?.reset();
                       setState(() {
-                        nameController.text = '';
-                        PICController.text = '';
-                        emailController.text = '';
-                        contactController.text = '';
-                        addressController.text = '';
-                        stockSelected = [];
                       });
                     }
                   });

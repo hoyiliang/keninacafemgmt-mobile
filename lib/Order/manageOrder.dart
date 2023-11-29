@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: ManageOrderPage(user: null),
+      home: const ManageOrderPage(user: null),
     );
   }
 }
@@ -52,6 +52,23 @@ class ManageOrderPage extends StatefulWidget {
 }
 
 class _ManageOrderPageState extends State<ManageOrderPage>{
+  bool isHomePage = false;
+  DateTime? selectedDate;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
 
   User? getUser() {
     return widget.user;
@@ -73,7 +90,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     User? currentUser = getUser();
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: Colors.grey.shade200,
         appBar: PreferredSize(
@@ -86,9 +103,10 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 child: Material(
                   color: Colors.deepPurple[100],
                   child: TabBar(
-                    tabs: [
+                    tabs: const [
                       Tab(icon: Icon(Icons.access_time)),
                       Tab(icon: Icon(Icons.restaurant)),
+                      Tab(icon: Icon(Icons.insert_drive_file_outlined)),
                     ],
                     indicator: BoxDecoration(
                       color: Colors.deepPurple[300]
@@ -133,7 +151,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        drawer: AppsBarState().buildDrawer(context),
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
         body: SafeArea(
           child: TabBarView(
             children: [
@@ -150,7 +168,6 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                                 children: buildIncomingOrderList(snapshot.data, currentUser),
                               )
                           );
-
                         } else {
                           if (snapshot.hasError) {
                             return Center(child: Text('Error: ${snapshot.error}'));
@@ -187,6 +204,87 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                     )
                 ),
               ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      children: [
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.all(13.0),
+                            child: Text(
+                              'Select Date: ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 25.0,
+                                fontFamily: 'Gabarito',
+                              ),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => _selectDate(context),
+                          child: Container(
+                            width: 200.0,
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.calendar_today),
+                                const SizedBox(width: 8.0),
+                                selectedDate != null
+                                    ? Text(
+                                  '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ) : const Text(
+                                  '',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (selectedDate != null)
+                    Expanded(
+                      child: SingleChildScrollView (
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
+                            child: FutureBuilder<List<FoodOrder>>(
+                                future: getCompleteOrderListByDate(selectedDate!, currentUser!),
+                                builder: (BuildContext context, AsyncSnapshot<List<FoodOrder>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                        child: Column(
+                                          children: buildCompleteOrderList(snapshot.data, currentUser),
+                                        )
+                                    );
+
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return const Center(child: Text('Loading...'));
+                                    }
+                                  }
+                                }
+                            )
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
@@ -199,7 +297,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     List<Widget> card = [];
     for (int i = 0; i < orderList!.length; i++) {
       DateTime dateTime = orderList[i].dateTime;
-      String formattedDate = DateFormat('yyyy-MM-dd  HH:mm:ss').format(dateTime);
+      String formattedDate = DateFormat('dd MMM yyyy  HH:mm:ss').format(dateTime);
       card.add(
         Card(
           color: Colors.white,
@@ -225,7 +323,6 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        // padding: const EdgeInsets.all(16.0),
                         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
@@ -622,6 +719,225 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     return card;
   }
 
+  List<Widget> buildCompleteOrderList(List<FoodOrder>? completeOrderList, User? currentUser) {
+    List<Widget> card = [];
+    if (completeOrderList!.isEmpty) {
+      card.add(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Vertically center the content
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 40, 0, 30),
+              child: Image.asset(
+                "images/empty_order.png",
+                // fit: BoxFit.cover,
+                // height: 500,
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+                child: Text(
+                  "No Complete Order",
+                  style: TextStyle(
+                    fontSize: 28.0,
+                    color: Colors.grey.shade900,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      for (int i = 0; i < completeOrderList!.length; i++) {
+        DateTime dateTime = completeOrderList[i].dateTime;
+        String formattedDate = DateFormat('dd MMM yyyy  HH:mm:ss').format(dateTime);
+        card.add(
+          Card(
+            color: Colors.white,
+            elevation: 20.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                  15.0),
+            ),
+            child: InkWell(
+              onTap: () {
+                // Navigator.push(context,
+                //     MaterialPageRoute(
+                //         builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i],))
+                // );
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 4.0, vertical: 8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Image.asset(
+                              "images/KE_Nina_Cafe_logo.jpg",
+                              width: 80,
+                              height: 80,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10.0),
+                            Row(
+                                children: [
+                                  Text(
+                                    "Order  ",
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.grey.shade900,
+                                      fontFamily: "Itim",
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    "#${completeOrderList[i].id}",
+                                    style: TextStyle(
+                                        fontSize: 20.0,
+                                        color: Colors.grey.shade900,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Itim"
+                                    ),
+                                  ),
+                                ]
+                            ),
+                            const SizedBox(height: 10.0,),
+                            if (completeOrderList[i].order_status == "CP")
+                              SizedBox(
+                                height: 30,
+                                width: 90,
+                                child: Material(
+                                    elevation: 3.0,
+                                    color: Colors.greenAccent.shade400,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(200),
+                                    ),
+                                    child: const Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Completed",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13.0,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                ),
+                              ),
+                          ],
+                        )
+                      ],
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Order Time",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade600,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                            Text(
+                              formattedDate,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade800,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
+                    const SizedBox(height: 6.0),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Table",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade600,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                            Text(
+                              "13",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade800,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
+                    const SizedBox(height: 6.0),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Total",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade600,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                            Text(
+                              "MYR ${completeOrderList[i].grand_total.toStringAsFixed(2)}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.0,
+                                color: Colors.grey.shade800,
+                                fontFamily: "Rajdhani",
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        card.add(
+          const SizedBox(height: 20.0,),
+        );
+      }
+    }
+    return card;
+  }
+
   Future<List<FoodOrder>> getIncomingOrderList(User currentUser) async {
     try {
       final response = await http.get(
@@ -656,6 +972,29 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
         return FoodOrder.getOrderList(jsonDecode(response.body));
       } else {
         throw Exception('Failed to load the kitchen order list.');
+      }
+    } on Exception catch (e) {
+      throw Exception('API Connection Error. $e');
+    }
+  }
+
+  Future<List<FoodOrder>> getCompleteOrderListByDate(DateTime selectedDate, User currentUser) async {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/order/request_all_complete_food_order_list_by_date'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          'selected_date': formattedDate,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return FoodOrder.getOrderList(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to load the complete order list by date.');
       }
     } on Exception catch (e) {
       throw Exception('API Connection Error. $e');

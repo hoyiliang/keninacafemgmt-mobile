@@ -35,9 +35,9 @@ class User {
       });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('User.fromJson: $json');
-    }
+    // if (kDebugMode) {
+    //   print('User.fromJson: $json');
+    // }
     return User(
         uid: json['uid'],
         image: json['image'],
@@ -58,7 +58,6 @@ class User {
   factory User.fromJWT(String jwtToken) {
     final jwt = JWT.verify(jwtToken, SecretKey('authsecret')); // Verify token from legit source
     Map<String, dynamic> jwtDecodedToken = jwt.payload;
-    print(jwtDecodedToken['points'].runtimeType);
     return User(
       uid: jwtDecodedToken['uid'],
       image: jwtDecodedToken['image'],

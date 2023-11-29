@@ -9,12 +9,12 @@ class Voucher {
   final int id;
   final String voucher_code;
   final String voucher_type_name;
-  final double cost_off;
+  final int cost_off;
   final String user_created_name;
   final String user_updated_name;
   final String applicable_menu_item_name;
   final String free_menu_item_name;
-  final double min_spending;
+  final int min_spending;
   final int redeem_point;
   final bool is_available;
 

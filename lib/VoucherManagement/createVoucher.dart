@@ -72,11 +72,11 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
   final _formKey = GlobalKey<FormState>();
   String? voucherTypeSelected;
   String? voucherType;
-  bool discountControllerEmpty = true;
-  bool freeMenuItemFulfill = false;
-  bool freeMenuItemControllerEmpty = true;
-  bool applicableMenuItemFulfill = false;
-  bool applicableMenuItemControllerEmpty = true;
+  bool discountControllerEmpty = false;
+  bool freeMenuItemFulfill = true;
+  bool freeMenuItemControllerEmpty = false;
+  bool applicableMenuItemFulfill = true;
+  bool applicableMenuItemControllerEmpty = false;
   bool voucherCreated = false;
 
 
@@ -98,283 +98,191 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Create Voucher', currentUser!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Create Voucher', currentUser!),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // const SizedBox(height: 15),
-                // Stack(
-                //   children: [
-                //     SizedBox(
-                //         width: 135,
-                //         height: 135,
-                //         child: CircleAvatar(
-                //           backgroundColor: Colors.grey.shade400,
-                //           radius: 200,
-                //           child: Padding(
-                //             padding: const EdgeInsets.all(15), // Border radius
-                //             child: ClipOval(child: image),
-                //           ),
-                //         )
-                //       // child: ClipRRect(
-                //       //     borderRadius: BorderRadius.circular(100),
-                //       //     child: image
-                //       // ),
-                //     ),
-                //     Positioned(
-                //       bottom: 0,
-                //       right: 0,
-                //       child: Container(
-                //         width: 35,
-                //         height: 35,
-                //         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                //         child: ElevatedButton(
-                //           style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(1, 1, 0, 0)),
-                //           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                //           onPressed: () async {
-                //             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
-                //             final File imageFile = File(imageRaw!.path);
-                //             final Image imageImage = Image.file(imageFile);
-                //             final imageBytes = await imageFile.readAsBytes();
-                //             base64Image = base64Encode(imageBytes);
-                //             setState(() {
-                //               image = Image.memory(imageBytes);
-                //               isImageUploaded = true;
-                //             });
-                //           },
-                //           child: Icon(LineAwesomeIcons.camera, color: Colors.grey.shade700),
-                //         ),
-                //       ),
-                //     )
-                //   ],
-                // ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10,),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Form(
                     key: _formKey,
                     child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                            child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey.shade700,
-                                      width: 2.0,
-                                    )
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          const SizedBox(height: 10.0,),
+                          const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                              child: Row(
                                   children: [
-                                    Expanded(
-                                      flex:1,
-                                      child: Container(
-                                        width: 20,
-                                        decoration: BoxDecoration(
-                                          // color: Colors.white,
-                                            border: Border(
-                                              right: BorderSide(
-                                                color: Colors.grey.shade700,
-                                                width: 2.0,
-                                              ),
-                                            )
-                                        ),
-                                        child: Center(child: Icon(Icons.discount_outlined, size: 28, color:Colors.grey.shade600)),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 4,
-                                      child: TextFormField(
-                                        controller: voucherCodeController,
-                                        decoration: InputDecoration(
-                                          hintText: "Code",
-                                          contentPadding: const EdgeInsets.only(left:20),
-                                          border: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          errorBorder: InputBorder.none,
-                                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500),
-                                        ),
-                                        style: TextStyle(
-                                          color: Colors.grey.shade700,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        validator: (nameController) {
-                                          if (nameController == null || nameController.isEmpty) return 'Please fill in the supplier name !';
-                                          return null;
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                )
-                            ),
+                                    Text('Code', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                    // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                  ]
+                              )
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                            child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey.shade700,
-                                      width: 2.0,
-                                    )
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child: TextFormField(
+                              controller: voucherCodeController,
+                              decoration: InputDecoration(
+                                hintText: 'e.g. Code',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade500,
+                                    width: 2.0,
+                                  ),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      flex:1,
-                                      child: Container(
-                                        width: 20,
-                                        decoration: BoxDecoration(
-                                            border: Border(
-                                                right: BorderSide(
-                                                  color: Colors.grey.shade700,
-                                                  width: 2.0,
-                                                )
-                                            )
-                                        ),
-                                        child: Center(child: Icon(Icons.point_of_sale_sharp, size: 30, color:Colors.grey.shade600)),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 4,
-                                      child: TextFormField(
-                                        controller: redeemPointController,
-                                        keyboardType: const TextInputType.numberWithOptions(decimal: false),
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.allow(RegExp(r'^\d*')),
-                                        ],
-                                        decoration: InputDecoration(
-                                            hintText: "Redeem Point",
-                                            contentPadding: const EdgeInsets.only(left:20),
-                                            border: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500 )
-                                        ),
-                                        style: TextStyle(
-                                          color: Colors.grey.shade700,
-
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        validator: (redeemPointController) {
-                                          if (redeemPointController == null || redeemPointController.isEmpty) return 'Please fill in the PIC !';
-                                          return null;
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                )
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade500,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                              ),
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Gabarito",
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Please fill in the voucher code !';
+                                return null;
+                              },
                             ),
                           ),
-                          FutureBuilder<List<String>>(
-                              future: getVoucherTypeList(),
-                              builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                                if (snapshot.hasData) {
-                                  return Column(
-                                    children: buildVoucherTypeList(snapshot.data),
-                                  );
-                                } else {
-                                  if (snapshot.hasError) {
-                                    return Center(child: Text('Error: ${snapshot.error}'));
+                          const SizedBox(height: 13,),
+                          const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                              child: Row(
+                                  children: [
+                                    Text('Redeem Point', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                    // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                  ]
+                              )
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child:
+                            TextFormField(
+                              controller: redeemPointController,
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 100',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade500,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade500,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20), // Set border radius here
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                              ),
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Gabarito",
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Please fill in the redeem point needed !';
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 13,),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                            child: Row(
+                                children: [
+                                  Text('Voucher Type', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                  // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                ]
+                            )
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            child: FutureBuilder<List<String>>(
+                                future: getVoucherTypeList(),
+                                builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Column(
+                                      children: [buildVoucherTypeList(snapshot.data)],
+                                    );
                                   } else {
-                                    return const Center(child: Text('Error: invalid state'));
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return const Center(child: Text('Error: invalid state'));
+                                    }
                                   }
                                 }
-                              }
+                            ),
                           ),
+                          const SizedBox(height: 13,),
+                          if (voucherTypeSelected != null)
+                            const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                                child: Row(
+                                    children: [
+                                      Text('Details', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                      // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                    ]
+                                )
+                            ),
                           if (voucherTypeSelected == "Discount")
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: Colors.grey.shade700,
+                                    color: discountControllerEmpty == true ? Colors.red : Colors.grey.shade500,
                                     width: 2.0,
                                   ),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-                                        child: Row(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.topLeft,
-                                              child: Text(
-                                                'Details',
-                                                style: TextStyle(
-                                                  fontSize: 16.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.grey.shade700,
-                                                  // fontFamily: 'Rajdhani',
-                                                ),
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            if (discountControllerEmpty == false)
-                                              SizedBox(
-                                                height: 18,
-                                                width: 65,
-                                                child: Material(
-                                                  // elevation: 3.0, // Add elevation to simulate a border
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                        color: Colors.grey.shade600, // Border color
-                                                        width: 2.0, // Border width
-                                                      ),
-                                                      borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                    ),
-                                                    child: Align(
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        "Completed",
-                                                        style: TextStyle(
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 8.0,
-                                                          color: Colors.grey.shade700,
-                                                        ),
-                                                      ),
-                                                    )
-                                                ),
-                                              )
-                                            else if (discountControllerEmpty == true)
-                                              SizedBox(
-                                                height: 18,
-                                                width: 65,
-                                                child: Material(
-                                                    elevation: 3.0, // Add elevation to simulate a border
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                        color: Colors.red.shade200, // Border color
-                                                        width: 2.0, // Border width
-                                                      ),
-                                                      borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                                    ),
-                                                    child: Align(
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        "Required",
-                                                        style: TextStyle(
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 8.0,
-                                                          color: Colors.red.shade300,
-                                                        ),
-                                                      ),
-                                                    )
-                                                ),
-                                              )
-                                          ],
-                                        ),
-                                      ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
                                         child: TextFormField(
@@ -400,21 +308,23 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                                 width: 2, // You can change this thickness
                                               ),
                                             ),
-                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 13.5, fontWeight: FontWeight.w500)
+                                            errorBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.red, // You can change this color
+                                                width: 2, // You can change this thickness
+                                              ),
+                                            ),
+                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
                                           ),
                                           style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
+                                              color: Colors.grey.shade700,
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: "Gabarito"
                                           ),
                                           onChanged: (String value) {
                                             setState(() {
                                               costOffController.text = value;
-                                              if (minSpendingController.text != "" && costOffController.text != "") {
-                                                discountControllerEmpty = false;
-                                              } else {
-                                                discountControllerEmpty = true;
-                                              }
                                             });
                                           },
                                           // validator: (costOffController) {
@@ -424,7 +334,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                         ),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
+                                        padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 0),
                                         child: TextFormField(
                                           controller: minSpendingController,
                                           maxLines: null,
@@ -448,27 +358,25 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                                 width: 2, // You can change this thickness
                                               ),
                                             ),
-                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 13.5, fontWeight: FontWeight.w500)
+                                            errorBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.red, // You can change this color
+                                                width: 2, // You can change this thickness
+                                              ),
+                                            ),
+                                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
                                           ),
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
                                             fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "Gabarito"
                                           ),
                                           onChanged: (String value) {
                                             setState(() {
                                               minSpendingController.text = value;
-                                              if (minSpendingController.text != "" && costOffController.text != "") {
-                                                discountControllerEmpty = false;
-                                              } else {
-                                                discountControllerEmpty = true;
-                                              }
                                             });
                                           },
-                                          // validator: (minSpendingController) {
-                                          //   if (minSpendingController == null || minSpendingController.isEmpty) return null;
-                                          //   return null;
-                                          // },
                                         ),
                                       ),
                                     ],
@@ -514,44 +422,59 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                     ),
                   ),
                 ),
-
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 10.0,),
+                  padding: const EdgeInsets.symmetric(horizontal: 120),
                   child: Container(
-                    padding: const EdgeInsets.only(top: 3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.lightBlueAccent,
-                      borderRadius: BorderRadius.circular(40.0), // Adjust the radius as needed
-                    ),
+                    padding: const EdgeInsets.only(top: 3,left: 3),
                     child: MaterialButton(
                       minWidth: double.infinity,
                       height:40,
                       onPressed: (){
-                        if (_formKey.currentState!.validate()) {
-                          if (voucherTypeSelected == "Discount" && discountControllerEmpty == false || voucherTypeSelected == "FreeItem" && freeMenuItemFulfill == true || voucherTypeSelected == "BuyOneFreeOne" && applicableMenuItemFulfill == true) {
+                        setState(() {
+                          if (voucherTypeSelected == "Discount") {
+                            if (minSpendingController.text != "" && costOffController.text != "") {
+                              discountControllerEmpty = false;
+                            } else {
+                              discountControllerEmpty = true;
+                            }
+                          }
+                          if (voucherTypeSelected == "FreeItem") {
+                            if (temp_freeMenuItemController.text != "" && freeMenuItemFulfill == true) {
+                              print('1');
+                              freeMenuItemControllerEmpty = false;
+                            } else {
+                              print('2');
+                              freeMenuItemControllerEmpty = true;
+                            }
+                          }
+                          if (voucherTypeSelected == "BuyOneFreeOne") {
+                            if (temp_applicableMenuItemController.text != "" && applicableMenuItemFulfill == true) {
+                              applicableMenuItemControllerEmpty = false;
+                            } else {
+                              applicableMenuItemControllerEmpty = true;
+                            }
+                          }
+                          if (_formKey.currentState!.validate() && discountControllerEmpty == false && freeMenuItemControllerEmpty == false && applicableMenuItemControllerEmpty == false) {
                             showConfirmationCreateDialog(currentUser);
                           }
-                          // showConfirmationCreateDialog(currentUser);
-                        }
+                        });
                       },
-                      // color: Colors.lightBlueAccent,
+                      color: Colors.lightBlueAccent.shade400,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40)
                       ),
                       child: const Text("Create",style: TextStyle(
-                        fontWeight: FontWeight.w600,fontSize: 16,
+                          fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white
                       ),),
                     ),
                   ),
                 ),
-                const SizedBox(height: 5.0),
+                const SizedBox(height: 13.0,),
               ],
             ),
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
 
@@ -559,11 +482,11 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
     List<Widget> freeItemDetailsField = [];
     freeItemDetailsField.add(
       Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.grey.shade700,
+              color: freeMenuItemControllerEmpty == true ? Colors.red : Colors.grey.shade700,
               width: 2.0,
             ),
           ),
@@ -571,104 +494,6 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-                    child: Row(
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            'Details',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade700,
-                              // fontFamily: 'Rajdhani',
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        if (freeMenuItemControllerEmpty == false && freeMenuItemFulfill == true)
-                          SizedBox(
-                            height: 18,
-                            width: 65,
-                            child: Material(
-                              // elevation: 3.0, // Add elevation to simulate a border
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.grey.shade600, // Border color
-                                    width: 2.0, // Border width
-                                  ),
-                                  borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Completed",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 8.0,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                )
-                            ),
-                          ),
-                        if (freeMenuItemControllerEmpty == true && freeMenuItemFulfill == false)
-                          SizedBox(
-                            height: 18,
-                            width: 65,
-                            child: Material(
-                                elevation: 3.0, // Add elevation to simulate a border
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.red.shade200, // Border color
-                                    width: 2.0, // Border width
-                                  ),
-                                  borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Required",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 8.0,
-                                      color: Colors.red.shade300,
-                                    ),
-                                  ),
-                                )
-                            ),
-                          ),
-                        if (freeMenuItemControllerEmpty == false && freeMenuItemFulfill == false)
-                          SizedBox(
-                            height: 18,
-                            width: 65,
-                            child: Material(
-                                elevation: 3.0, // Add elevation to simulate a border
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.red.shade200, // Border color
-                                    width: 2.0, // Border width
-                                  ),
-                                  borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Not Match",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 8.0,
-                                      color: Colors.red.shade300,
-                                    ),
-                                  ),
-                                )
-                            ),
-                          )
-                      ],
-                    ),
-                  ),
                   RawAutocomplete(
                     optionsBuilder: (freeMenuItemController) {
                       if (freeMenuItemController.text == '') {
@@ -694,7 +519,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                     fieldViewBuilder: (BuildContext context, freeMenuItemController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
-                        child: TextField(
+                        child: TextFormField(
                           decoration: InputDecoration(
                             hintText: 'Menu Item Free',
                             border: InputBorder.none,
@@ -711,31 +536,33 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                 width: 2,
                               ),
                             ),
-                            hintStyle: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w500,
+                            errorBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.red, // You can change this color
+                                width: 2, // You can change this thickness
+                              ),
                             ),
+                            hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
                           ),
                           controller: temp_freeMenuItemController,
                           focusNode: focusNode,
                           onChanged: (String value) {
                             setState(() {
                               freeMenuItemController.text = value;
-                              if (freeMenuItemController.text != "") {
-                                freeMenuItemControllerEmpty = false;
-                              } else {
-                                freeMenuItemControllerEmpty = true;
-                              }
+                              temp_freeMenuItemController.text = value;
                               if (menuItemList!.contains(value)) {
                                 freeMenuItemFulfill = true;
                               } else {
                                 freeMenuItemFulfill = false;
                               }
-                              print(freeMenuItemController.text);
-                              print(applicableMenuItemController.text);
                             });
                           },
+                          style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Gabarito"
+                          ),
                         ),
                       );
                     },
@@ -782,11 +609,11 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
     List<Widget> buyOneFreeOneDetailsField = [];
     buyOneFreeOneDetailsField.add(
       Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.grey.shade700,
+              color: applicableMenuItemControllerEmpty== true ? Colors.red : Colors.grey.shade700,
               width: 2.0,
             ),
           ),
@@ -794,104 +621,6 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-                  child: Row(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          'Details',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700,
-                            // fontFamily: 'Rajdhani',
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      if (applicableMenuItemControllerEmpty == false && applicableMenuItemFulfill == true)
-                        SizedBox(
-                          height: 18,
-                          width: 65,
-                          child: Material(
-                            // elevation: 3.0, // Add elevation to simulate a border
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Colors.grey.shade600, // Border color
-                                  width: 2.0, // Border width
-                                ),
-                                borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Completed",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 8.0,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              )
-                          ),
-                        ),
-                      if (applicableMenuItemControllerEmpty == true && applicableMenuItemFulfill == false)
-                        SizedBox(
-                          height: 18,
-                          width: 65,
-                          child: Material(
-                              elevation: 3.0, // Add elevation to simulate a border
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Colors.red.shade200, // Border color
-                                  width: 2.0, // Border width
-                                ),
-                                borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Required",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 8.0,
-                                    color: Colors.red.shade300,
-                                  ),
-                                ),
-                              )
-                          ),
-                        ),
-                      if (applicableMenuItemControllerEmpty == false && applicableMenuItemFulfill == false)
-                        SizedBox(
-                          height: 18,
-                          width: 65,
-                          child: Material(
-                              elevation: 3.0, // Add elevation to simulate a border
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Colors.red.shade200, // Border color
-                                  width: 2.0, // Border width
-                                ),
-                                borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Not Match",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 8.0,
-                                    color: Colors.red.shade300,
-                                  ),
-                                ),
-                              )
-                          ),
-                        )
-                    ],
-                  ),
-                ),
                 RawAutocomplete(
                   optionsBuilder: (applicableMenuItemController) {
                     if (applicableMenuItemController.text == '') {
@@ -917,7 +646,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                   fieldViewBuilder: (BuildContext context, applicableMenuItemController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
-                      child: TextField(
+                      child: TextFormField(
                         decoration: InputDecoration(
                           hintText: 'Menu Item Offered',
                           border: InputBorder.none,
@@ -934,31 +663,32 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                               width: 2,
                             ),
                           ),
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w500,
+                          errorBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.red, // You can change this color
+                              width: 2, // You can change this thickness
+                            ),
                           ),
+                          hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Gabarito")
                         ),
                         controller: temp_applicableMenuItemController,
                         focusNode: focusNode,
                         onChanged: (String value) {
                           setState(() {
                             applicableMenuItemController.text = value;
-                            if (applicableMenuItemController.text != "") {
-                              applicableMenuItemControllerEmpty = false;
-                            } else {
-                              applicableMenuItemControllerEmpty = true;
-                            }
                             if (menuItemList!.contains(value)) {
                               applicableMenuItemFulfill = true;
                             } else {
                               applicableMenuItemFulfill = false;
                             }
-                            print(freeMenuItemController.text);
-                            print(applicableMenuItemController.text);
                           });
                         },
+                        style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Gabarito"
+                        ),
                       ),
                     );
                   },
@@ -1001,89 +731,75 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
     return buyOneFreeOneDetailsField;
   }
 
-  List<Widget> buildVoucherTypeList(List<String>? voucherTypeList) {
-    List<Widget> field = [];
-    // if (listStock != []) {
-    field.add(
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-        child: Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey.shade700,
-                width: 2.0,
-              )
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  width: 20,
-                  decoration: BoxDecoration(
-                      border: Border(
-                          right: BorderSide(
-                            color: Colors.grey.shade700,
-                            width: 2.0,
-                          )
-                      )
-                  ),
-                  child: Center(child: Icon(Icons.pie_chart_outline, size: 30,color:Colors.grey.shade600)),
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                // child: Container(
-                //   constraints: const BoxConstraints(maxHeight: 120),
-                child: DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(left:20),
-                    border: const OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: InputBorder.none,
-                    hintText: "Voucher Type",
-                    hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 16.0, fontWeight: FontWeight.w500),
-                  ),
-                  // value: typeSelected,
-                  items: voucherTypeList!.map((voucherType) {
-                    return DropdownMenuItem<String>(
-                      value: voucherType,
-                      child: Text(
-                        voucherType,
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      voucherTypeSelected = value;
-                      // costOffController.text = "";
-                      // minSpendingController.text = "";
-                      // freeMenuItemController.text = "";
-                      // applicableMenuItemController.text = "";
-                      // freecon.text = "";
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Please fill in the contact of PIC !';
-                    return null;
-                  },
-                ),
-                // ),
-              ),
-            ],
+  Widget buildVoucherTypeList(List<String>? voucherTypeList) {
+    return DropdownButtonFormField(
+      decoration: InputDecoration(
+        // hintText: 'e.g. Discount',
+        hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Gabarito"),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: BorderSide(
+            color: Colors.grey.shade500,
+            width: 2.0,
           ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: BorderSide(
+            color: Colors.grey.shade500,
+            width: 2.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20), // Set border radius here
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+        filled: true,
+        fillColor: Colors.white,
       ),
+      style: TextStyle(
+        fontSize: 18.0,
+        color: Colors.grey.shade700,
+        fontWeight: FontWeight.bold,
+        fontFamily: "Gabarito",
+      ),
+      validator: (value) {
+        if (value == null || value.toString().isEmpty) return 'Please choose the voucher type !';
+        return null;
+      },
+      value: voucherTypeSelected,
+      onChanged: (String? newValue) {
+        setState(() {
+          voucherTypeSelected = newValue!;
+          discountControllerEmpty = false;
+          freeMenuItemControllerEmpty = false;
+          applicableMenuItemControllerEmpty = false;
+        });
+      },
+      items: voucherTypeList!.map((voucherType) {
+        return DropdownMenuItem<String>(
+          value: voucherType,
+          child: Text(
+            voucherType,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 16.0,
+            ),
+          ),
+        );
+      }).toList(),
     );
-    // }
-    return field;
   }
 
 
@@ -1101,13 +817,13 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
       cost_off = costOffController.text;
       min_spending = minSpendingController.text;
     } else if (voucherTypeSelected == "FreeItem") {
-      free_menu_item_name = freeMenuItemController.text;
+      free_menu_item_name = temp_freeMenuItemController.text;
       applicable_menu_item_name = "";
       cost_off = "";
       min_spending = "";
     } else if (voucherTypeSelected == "BuyOneFreeOne") {
       free_menu_item_name = "";
-      applicable_menu_item_name = applicableMenuItemController.text;
+      applicable_menu_item_name = temp_applicableMenuItemController.text;
       cost_off = "";
       min_spending = "";
     } else {

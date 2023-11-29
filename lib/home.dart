@@ -53,6 +53,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool isHomePage = true;
 
   User? getUser() {
     return widget.user;
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
       appBar: AppsBarState().buildAppBar(context, 'Home', currentUser!),
       body: const Center(
 
