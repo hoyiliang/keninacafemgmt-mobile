@@ -8,16 +8,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/StaffManagement/staffDashboard.dart';
 import 'package:keninacafe/StaffManagement/staffList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
-import '../Entity/LeaveType.dart';
-import '../Entity/LeaveFormData.dart';
 import '../Entity/StaffType.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,15 +40,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateStaffPage(user: null,),
+      home: const CreateStaffPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class CreateStaffPage extends StatefulWidget {
-  const CreateStaffPage({super.key, this.user});
+  const CreateStaffPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<CreateStaffPage> createState() => _CreateStaffPageState();
@@ -83,6 +84,57 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
   @override
   void initState() {
     super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   void _togglePasswordView() {
@@ -105,7 +157,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildAppBarDetails(context, 'Create Staff', currentUser!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Create Staff', currentUser!, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -810,7 +862,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -885,7 +937,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     String name = staffNameController.text;
     String ic = icController.text;
     String email = emailController.text;
-    String? staff_type = selectedValue;
+    String? staffType = selectedValue;
     String phone = phoneController.text;
     String address = addressController.text;
     String password = passwordController.text;
@@ -897,7 +949,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
       print('name: $name');
       print('ic: $ic');
       print('email: $email');
-      print('staff_type: $staff_type');
+      print('staff_type: $staffType');
       print('phone: $phone');
       print('address: $address');
       print('password: $password');
@@ -905,8 +957,8 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
       print('gender: $gender');
       print('dob: $dob');
     }
-    String enc_pw = Encryptor().encryptPassword(password);
-    var (thisUser, err_code) = await createStaff(name, ic, email, staff_type!, phone, address, enc_pw, gender, dob);
+    String encPw = Encryptor().encryptPassword(password);
+    var (thisUser, err_code) = await createStaff(name, ic, email, staffType!, phone, address, encPw, gender, dob);
     if (thisUser.uid == -1) {
       if (kDebugMode) {
         print("Failed to create staff.");
@@ -916,16 +968,16 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     return (true, err_code);
   }
 
-  Future<(User, String)> createStaff(String name, String ic, String email, String staff_type, String phone, String address, String enc_pw, String gender, DateTime dob) async {
-    int? staff_type_id;
-    if (staff_type == "Restaurant Owner") {
-      staff_type_id = 1;
-    } else if (staff_type == "Restaurant Manager") {
-      staff_type_id = 2;
-    } else if (staff_type == "Restaurant Worker") {
-      staff_type_id = 3;
+  Future<(User, String)> createStaff(String name, String ic, String email, String staffType, String phone, String address, String encPw, String gender, DateTime dob) async {
+    int? staffTypeId;
+    if (staffType == "Restaurant Owner") {
+      staffTypeId = 1;
+    } else if (staffType == "Restaurant Manager") {
+      staffTypeId = 2;
+    } else if (staffType == "Restaurant Worker") {
+      staffTypeId = 3;
     } else {
-      staff_type_id = null;
+      staffTypeId = null;
     }
     try {
       final response = await http.post(
@@ -937,10 +989,10 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
           'image': base64Image,
           'is_staff': true,
           'is_active': true,
-          'staff_type': staff_type_id,
+          'staff_type': staffTypeId,
           'name': name,
           'email': email,
-          'password': enc_pw,
+          'password': encPw,
           'address': address,
           'phone': phone,
           'gender': gender,
@@ -1050,7 +1102,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                                 child: const Text('Ok'),
                                 onPressed: () {
                                   Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => StaffListPage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => StaffListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),

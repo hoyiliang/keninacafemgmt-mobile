@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:keninacafe/Auth/login.dart';
 import 'package:keninacafe/PersonalProfile/changePassword.dart';
 import 'package:keninacafe/PersonalProfile/editPersonalProfile.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,15 +31,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewPersonalProfilePage(user: null,),
+      home: const ViewPersonalProfilePage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class ViewPersonalProfilePage extends StatefulWidget {
-  const ViewPersonalProfilePage({super.key, this.user});
+  const ViewPersonalProfilePage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<ViewPersonalProfilePage> createState() => _ViewPersonalProfilePageState();
@@ -51,6 +54,62 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
 
   User? getUser() {
     return widget.user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -72,8 +131,8 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Profile', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildAppBar(context, 'Profile', currentUser, widget.webSocketManagers!),
       body: SingleChildScrollView(
         child: SizedBox(
           child: Padding(
@@ -119,7 +178,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                     child: ElevatedButton(
                       onPressed: () => {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => EditPersonalProfilePage(user: currentUser))
+                          MaterialPageRoute(builder: (context) => EditPersonalProfilePage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                         ),
                       },
                       style: ElevatedButton.styleFrom(
@@ -150,7 +209,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ChangePasswordPage(user: currentUser),
+                              builder: (context) => ChangePasswordPage(user: currentUser, webSocketManagers: widget.webSocketManagers),
                             ),
                           );
                         },

@@ -1,29 +1,25 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/Entity/StockReceipt.dart';
 import 'package:keninacafe/SupplierManagement/stockReceiptList.dart';
-import 'package:keninacafe/SupplierManagement/supplierDashboard.dart';
-import 'dart:typed_data';
 
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
-import 'package:keninacafe/Security/Encryptor.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:keninacafe/Utils/multiselect_formfield_fixed.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,17 +42,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const EditStockReceiptPage(user: null, stockReceipt: null, pdfFile: null,),
+      home: const EditStockReceiptPage(user: null, stockReceipt: null, pdfFile: null, webSocketManagers: null),
     );
   }
 }
 
 class EditStockReceiptPage extends StatefulWidget {
-  const EditStockReceiptPage({super.key, this.user, this.stockReceipt, this.pdfFile,});
+  const EditStockReceiptPage({super.key, this.user, this.stockReceipt, this.pdfFile, this.webSocketManagers});
 
   final User? user;
   final StockReceipt? stockReceipt;
   final Uint8List? pdfFile;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<EditStockReceiptPage> createState() => _EditStockReceiptPageState();
@@ -108,6 +105,57 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     dateReceiptController.text = getStockReceipt()!.date_receipt.toString().substring(0,10);
     base64File = base64Encode(getPdfFileBytes()!);
     getStockWithSupplierList();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   void showConfirmationDialog(StockReceipt currentStockReceipt, User currentUser) {
@@ -163,7 +211,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),
@@ -208,8 +256,8 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -507,14 +555,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                           FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                           final File file = File(result!.files.single.path!);
                                           final fileBytes = await file.readAsBytes();
-                                          if (result != null) {
-                                            setState(() {
-                                              base64File = base64Encode(fileBytes);
-                                              pdfFileNameController.text = file!.path.split('/').last;
-                                              isFileUploaded = true;
-                                            });
-                                            print('Selected file: ${file?.path}');
-                                          }
+                                          setState(() {
+                                            base64File = base64Encode(fileBytes);
+                                            pdfFileNameController.text = file.path.split('/').last;
+                                            isFileUploaded = true;
+                                          });
+                                          print('Selected file: ${file.path}');
                                         },
                                         child: Padding(
                                             padding: const EdgeInsets.fromLTRB(8.0, 5, 0, 0),
@@ -854,23 +900,23 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   }
 
   Future<(String, StockReceipt)> _submitUpdateReceiptDetails(StockReceipt currentStockReceipt, User currentUser) async {
-    String receipt_number = receiptNumberController.text;
-    String total_price = totalPriceController.text;
-    List? stock_in_receipt;
+    String receiptNumber = receiptNumberController.text;
+    String totalPrice = totalPriceController.text;
+    List? stockInReceipt;
     if (stockSelected == stockUpdate) {
-      stock_in_receipt = stockUpdate;
+      stockInReceipt = stockUpdate;
     } else {
-      stock_in_receipt = stockSelected;
+      stockInReceipt = stockSelected;
     }
     print('hi');
     print(stockSelected);
     print(stockUpdate);
-    print(stock_in_receipt);
-    String supplier_name = supplierNameController.text;
-    String supplier_name_before = supplierNameBeforeController.text;
-    String pdf_file_name = pdfFileNameController.text;
-    DateTime date_receipt = DateTime.parse(dateReceiptController.text);
-    var (success, err_code) = await updateSupplierProfile(receipt_number, total_price, stock_in_receipt!, supplier_name, supplier_name_before, pdf_file_name, date_receipt, currentStockReceipt, currentUser);
+    print(stockInReceipt);
+    String supplierName = supplierNameController.text;
+    String supplierNameBefore = supplierNameBeforeController.text;
+    String pdfFileName = pdfFileNameController.text;
+    DateTime dateReceipt = DateTime.parse(dateReceiptController.text);
+    var (success, err_code) = await updateSupplierProfile(receiptNumber, totalPrice, stockInReceipt!, supplierName, supplierNameBefore, pdfFileName, dateReceipt, currentStockReceipt, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to update the receipt.");
@@ -880,7 +926,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     return (err_code, currentStockReceipt);
   }
 
-  Future<(bool, String)> updateSupplierProfile(String receipt_number, String total_price, List stock_in_receipt, String supplier_name, String supplier_name_before, String pdf_file_name, DateTime date_receipt, StockReceipt currentStockReceipt, User currentUser) async {
+  Future<(bool, String)> updateSupplierProfile(String receiptNumber, String totalPrice, List stockInReceipt, String supplierName, String supplierNameBefore, String pdfFileName, DateTime dateReceipt, StockReceipt currentStockReceipt, User currentUser) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/supplierManagement/update_receipt_details/${currentStockReceipt.id}/'),
@@ -888,13 +934,13 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'receipt_number': receipt_number,
-          'total_price': total_price,
-          'stock_in_receipt': stock_in_receipt,
-          'pdf_file_name': pdf_file_name,
+          'receipt_number': receiptNumber,
+          'total_price': totalPrice,
+          'stock_in_receipt': stockInReceipt,
+          'pdf_file_name': pdfFileName,
           'pdf_file': base64File,
-          'supplier_name': supplier_name,
-          'supplier_name_before': supplier_name_before,
+          'supplier_name': supplierName,
+          'supplier_name_before': supplierNameBefore,
           'is_file_uploaded': isFileUploaded,
           'user_updated_name': currentUser.name,
           'date_receipt': DateTime.parse(dateReceiptController.text).toString()

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:keninacafe/Announcement/createAnnouncement.dart';
+import 'package:keninacafe/Order/manageOrder.dart';
+import 'package:keninacafe/Utils/WebSocketManager.dart';
 import 'Entity/User.dart';
 import 'package:keninacafe/AppsBar.dart';
 
@@ -38,15 +41,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(user: null,),
+      home: const HomePage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.user});
+  const HomePage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -60,19 +64,91 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              dispose();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              dispose();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     dispose();
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     enterFullScreen();
 
     User? currentUser = getUser();
 
+    print(widget.webSocketManagers == null);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Home', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+      appBar: AppsBarState().buildAppBar(context, 'Home', currentUser, widget.webSocketManagers),
       body: const Center(
 
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:tuple/tuple.dart';
-import 'Supplier.dart';
 
 @JsonSerializable()
 class Stock {
@@ -74,13 +73,13 @@ class Stock {
   static Tuple2<List<String>, List<String>> getStockDataListWithSupplier(Map<String, dynamic> json) {
     List<String> stockNameList = [];
     List<String> stockNameListWithSupplier = [];
-    List<Map<String, dynamic>> all_stock = List<Map<String, dynamic>>.from(json['data']['all_stock']);
-    List<Map<String, dynamic>> all_stock_with_current_supplier = List<Map<String, dynamic>>.from(json['data']['all_stock_with_current_supplier']);
-    for (Map<String,dynamic> stockData in all_stock) {
+    List<Map<String, dynamic>> allStock = List<Map<String, dynamic>>.from(json['data']['all_stock']);
+    List<Map<String, dynamic>> allStockWithCurrentSupplier = List<Map<String, dynamic>>.from(json['data']['all_stock_with_current_supplier']);
+    for (Map<String,dynamic> stockData in allStock) {
       Stock oneStockName = Stock.fromJson(stockData);
       stockNameList.add(oneStockName.name);
     }
-    for (Map<String,dynamic> stockDataWithSupplier in all_stock_with_current_supplier) {
+    for (Map<String,dynamic> stockDataWithSupplier in allStockWithCurrentSupplier) {
       Stock oneStockNameWithSupplier = Stock.fromJson(stockDataWithSupplier);
       stockNameListWithSupplier.add(oneStockNameWithSupplier.name);
     }

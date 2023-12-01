@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
-import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
-import 'package:keninacafe/StaffManagement/staffList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Attendance/viewAttendanceStatus.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,15 +33,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AttendanceDashboardPage(user: null,),
+      home: const AttendanceDashboardPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class AttendanceDashboardPage extends StatefulWidget {
-  const AttendanceDashboardPage({super.key, this.user});
+  const AttendanceDashboardPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<AttendanceDashboardPage> createState() => _AttendanceDashboardState();
@@ -54,6 +55,75 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
   User? getUser() {
     return widget.user;
+  }
+
+  @override
+  void dispose() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              dispose();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              dispose();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   void showConfirmationDialog(DateTime dateAttendanceTaken, User currentUser) {
@@ -77,7 +147,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
                           // Navigator.of(context).pop();
                           // Navigator.of(context).pop();
                           // if (_formKey.currentState!.validate()) {
-                          var (attendanceCreatedAsync, err_code) = await _submitAttendanceDetails(dateAttendanceTaken, currentUser!);
+                          var (attendanceCreatedAsync, err_code) = await _submitAttendanceDetails(dateAttendanceTaken, currentUser);
                           setState(() {
                             attendanceCreated = attendanceCreatedAsync;
                             if (!attendanceCreated) {
@@ -403,8 +473,8 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+      appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 20,),
@@ -446,8 +516,9 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
                         child: ElevatedButton(
                           onPressed: () {
+                            dispose();
                             Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser)));
+                                MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser, webSocketManagers: widget.webSocketManagers,)));
                           },
                           child: Column(
                             children: [
@@ -467,24 +538,24 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
   Future<(bool, String)> _submitAttendanceDetails(DateTime nowDateTime, User currentUser) async {
     String dateAttendanceTaken = nowDateTime.toString();
-    int user_created_id = currentUser.uid;
+    int userCreatedId = currentUser.uid;
 
     if (kDebugMode) {
       print('dateAttendanceTaken: $dateAttendanceTaken');
-      print('user_created_id: $user_created_id');
+      print('user_created_id: $userCreatedId');
     }
 
-    var (success, err_code) = await createAttendanceData(dateAttendanceTaken, user_created_id);
+    var (success, err_code) = await createAttendanceData(dateAttendanceTaken, userCreatedId);
     return (success, err_code);
   }
 
-  Future<(bool, String)> createAttendanceData(String dateAttendanceTaken, int user_created_id) async {
+  Future<(bool, String)> createAttendanceData(String dateAttendanceTaken, int userCreatedId) async {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:8000/attendance/attendance_data'),
@@ -493,7 +564,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
         },
         body: jsonEncode(<String, dynamic> {
           'dateAttendanceTaken': dateAttendanceTaken,
-          'user_created_id': user_created_id,
+          'user_created_id': userCreatedId,
         }),
       );
 

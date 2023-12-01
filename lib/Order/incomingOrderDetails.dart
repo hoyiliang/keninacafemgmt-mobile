@@ -2,17 +2,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Entity/LeaveFormData.dart';
-import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
-import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/OrderFoodItemMoreInfo.dart';
 import '../Entity/User.dart';
-import '../Entity/Attendance.dart';
+import '../Utils/WebSocketManager.dart';
 import 'manageOrder.dart';
 
 void main() {
@@ -36,16 +33,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const IncomingOrderDetailsPage(user: null,),
+      home: const IncomingOrderDetailsPage(user: null, order: null, webSocketManagers: null),
     );
   }
 }
 
 class IncomingOrderDetailsPage extends StatefulWidget {
-  const IncomingOrderDetailsPage({super.key, this.user, this.order});
+  const IncomingOrderDetailsPage({super.key, this.user, this.order, this.webSocketManagers});
 
   final User? user;
   final FoodOrder? order;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<IncomingOrderDetailsPage> createState() => _IncomingOrderDetailsPageState();
@@ -67,6 +65,57 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
   @override
   void initState() {
     super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -78,7 +127,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Order Details', currentUser!),
+      appBar: AppsBarState().buildDetailsAppBar(context, 'Order Details', currentUser!, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -105,7 +154,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -590,7 +639,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.green.shade400,
+                                    backgroundColor: Colors.green.shade400,
                                   ),
                                   child: const Text(
                                     'Confirm',
@@ -688,17 +737,17 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
     return rows;
   }
 
-  void showConfirmationUpdatedStatusDialog(FoodOrder currentOrder, User currentUser, String order_status) {
+  void showConfirmationUpdatedStatusDialog(FoodOrder currentOrder, User currentUser, String orderStatus) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: order_status == "CF" ? const Text('Are you sure to confirm this order?') : const Text('Are you sure to reject this order?'),
+          content: orderStatus == "CF" ? const Text('Are you sure to confirm this order?') : const Text('Are you sure to reject this order?'),
           actions: [
             ElevatedButton(
               onPressed: () async {
-                var (orderStatusUpdatedAsync, err_code) = await updateIncomingOrderStatus(currentOrder, order_status);
+                var (orderStatusUpdatedAsync, err_code) = await updateIncomingOrderStatus(currentOrder, orderStatus);
                 setState(() {
                   orderStatusUpdated = orderStatusUpdatedAsync;
                   if (! orderStatusUpdated) {
@@ -707,7 +756,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                           BuildContext context) =>
                           AlertDialog(
                             title: const Text('Error'),
-                            content: order_status == "CF" ? Text('An Error occurred while trying to confirm this order.\n\nError Code: $err_code') : Text('An Error occurred while trying to reject this order.\n\nError Code: $err_code'),
+                            content: orderStatus == "CF" ? Text('An Error occurred while trying to confirm this order.\n\nError Code: $err_code') : Text('An Error occurred while trying to reject this order.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
                                   Navigator.pop(context, 'Ok'),
@@ -735,8 +784,8 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: order_status == "CF" ? const Text('Order Confirmed Successful') : const Text('Order Rejected Successful'),
-                          content: order_status == "CF" ? const Text('Ask the kitchen to start to prepare the order.') : const Text('Please proceed to other order.'),
+                          title: orderStatus == "CF" ? const Text('Order Confirmed Successful') : const Text('Order Rejected Successful'),
+                          content: orderStatus == "CF" ? const Text('Ask the kitchen to start to prepare the order.') : const Text('Please proceed to other order.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -744,7 +793,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                                 Navigator.of(context).pop();
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser)),
+                                  MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                 );
                               },
                             ),
@@ -827,7 +876,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
     }
   }
 
-  Future<(bool, String)> updateIncomingOrderStatus(FoodOrder currentOrder, String order_status) async {
+  Future<(bool, String)> updateIncomingOrderStatus(FoodOrder currentOrder, String orderStatus) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/order/update_order_status/${currentOrder.id}/'),
@@ -835,7 +884,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'order_status': order_status,
+          'order_status': orderStatus,
         }),
       );
 

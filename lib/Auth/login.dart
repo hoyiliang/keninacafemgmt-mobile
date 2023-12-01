@@ -2,27 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/Attendance/manageRestaurantWorkerAttendance.dart';
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/Announcement/createAnnouncement.dart';
-import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
-import 'package:keninacafe/LeaveApplication/viewLeaveApplicationStatus.dart';
-import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
-import 'package:keninacafe/LeaveApplication/manageLeaveApplicationRequest.dart';
-import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
-import 'package:keninacafe/StaffManagement/createStaff.dart';
-import 'package:keninacafe/StaffManagement/staffDashboard.dart';
-import 'package:keninacafe/Attendance/attendanceDashboard.dart';
-import 'package:keninacafe/Attendance/manageAttendanceRequest.dart';
 import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Security/Encryptor.dart';
-import '../StaffManagement/staffList.dart';
+import '../Utils/WebSockPaths.dart';
+import '../Utils/WebSocketManager.dart';
 import '../home.dart';
 
 void main() {
@@ -63,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   bool submittedOnce = false;
   bool securePasswordText = true;
   late SharedPreferences prefs;
-  late User  currentUser;
+  late User currentUser;
 
   @override
   void initState() {
@@ -179,8 +167,17 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                         );
+                        final receiveOrderManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ORDER}');
+                        final receiveOrderReminderManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_UNPAID_ORDER_REMINDER}');
+                        final receiveAnnouncementManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ANNOUNCEMENT}${currentUser.name.replaceAll(" ", "")}${currentUser.uid}/');
+                        final receiveAttendanceRequestManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}');
+                        Map<String, WebSocketManager> webSocketManagers = {
+                          'order': receiveOrderManager,
+                          'announcement': receiveAnnouncementManager,
+                          'attendance': receiveAttendanceRequestManager
+                        };
                         Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
+                            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers,))
                         );
                       }
                     });
@@ -202,8 +199,8 @@ class _LoginPageState extends State<LoginPage> {
       print('Email: $email');
       print('Password: $password');
     }
-    String enc_pw = Encryptor().encryptPassword(password);
-    var (thisUser, err_code) = await createUser(email, enc_pw);
+    String encPw = Encryptor().encryptPassword(password);
+    var (thisUser, err_code) = await createUser(email, encPw);
     if (thisUser.uid == -1) {
       if (kDebugMode) {
         print("Failed to retrieve User data.");

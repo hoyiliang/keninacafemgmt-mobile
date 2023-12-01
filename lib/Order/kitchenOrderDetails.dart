@@ -2,17 +2,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Entity/LeaveFormData.dart';
-import 'package:keninacafe/LeaveApplication/applyViewLeaveApplication.dart';
-import 'package:keninacafe/LeaveApplication/applyLeaveForm.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/OrderFoodItemMoreInfo.dart';
 import '../Entity/User.dart';
-import '../Entity/Attendance.dart';
+import '../Utils/WebSocketManager.dart';
 import 'manageOrder.dart';
 
 void main() {
@@ -36,16 +33,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const KitchenOrderDetailsPage(user: null,),
+      home: const KitchenOrderDetailsPage(user: null, order: null, webSocketManagers: null),
     );
   }
 }
 
 class KitchenOrderDetailsPage extends StatefulWidget {
-  const KitchenOrderDetailsPage({super.key, this.user, this.order});
+  const KitchenOrderDetailsPage({super.key, this.user, this.order, this.webSocketManagers});
 
   final User? user;
   final FoodOrder? order;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<KitchenOrderDetailsPage> createState() => _KitchenOrderDetailsPageState();
@@ -67,6 +65,57 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
   @override
   void initState() {
     super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -78,7 +127,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Order Details', currentUser!),
+      appBar: AppsBarState().buildDetailsAppBar(context, 'Order Details', currentUser!, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -105,13 +154,13 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
   List<Widget> buildMenuItemDataRows(List<OrderFoodItemMoreInfo>? orderFoodItemList, FoodOrder currentOrder, User? currentUser) {
     List<Widget> rows = [];
-    bool is_order_done = true;
+    bool isOrderDone = true;
     rows.add(
       Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -221,7 +270,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
 
     for (int i = 0; i < orderFoodItemList!.length; i++) {
       if (orderFoodItemList[i].is_done == false) {
-        is_order_done = false;
+        isOrderDone = false;
       }
       rows.add(
         Table(
@@ -469,7 +518,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                 // minWidth: double.infinity,
                 height:40,
                 onPressed: () {
-                  showCompletedDialog(is_order_done, currentOrder, currentUser!);
+                  showCompletedDialog(isOrderDone, currentOrder, currentUser!);
                 },
                 child: const Text(
                   "Complete",
@@ -488,9 +537,9 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
     return rows;
   }
 
-  Future<void> showCompletedDialog(bool is_order_done, FoodOrder currentOrder, User currentUser) async {
-    if (is_order_done) {
-      var (orderStatusUpdatedAsync, err_code) = await updateKitchenOrderStatus(currentOrder, is_order_done);
+  Future<void> showCompletedDialog(bool isOrderDone, FoodOrder currentOrder, User currentUser) async {
+    if (isOrderDone) {
+      var (orderStatusUpdatedAsync, err_code) = await updateKitchenOrderStatus(currentOrder, isOrderDone);
       setState(() {
         orderStatusUpdated = orderStatusUpdatedAsync;
         if (!orderStatusUpdated) {
@@ -577,7 +626,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
     }
   }
 
-  Future<(bool, String)> updateOrderFoodItemStatus(OrderFoodItemMoreInfo orderFoodItem, bool is_done) async {
+  Future<(bool, String)> updateOrderFoodItemStatus(OrderFoodItemMoreInfo orderFoodItem, bool isDone) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/order/update_order_food_item_status/${orderFoodItem.id}/'),
@@ -585,7 +634,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'is_done': is_done,
+          'is_done': isDone,
         }),
       );
 
@@ -605,7 +654,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
     }
   }
 
-  Future<(bool, String)> updateKitchenOrderStatus(FoodOrder currentOrder, bool is_order_done) async {
+  Future<(bool, String)> updateKitchenOrderStatus(FoodOrder currentOrder, bool isOrderDone) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/order/update_order_status/${currentOrder.id}/'),

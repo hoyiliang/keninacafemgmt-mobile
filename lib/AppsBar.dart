@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Attendance/attendanceDashboard.dart';
 import 'package:keninacafe/MenuManagement/menuList.dart';
@@ -13,6 +11,7 @@ import 'Auth/login.dart';
 import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
+import 'Utils/WebSocketManager.dart';
 import 'VoucherManagement/voucherAvailableList.dart';
 import 'home.dart';
 
@@ -36,13 +35,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AppsBar(),
+      home: AppsBar( webSocketManagers: null,),
     );
   }
 }
 
 class AppsBar extends StatefulWidget {
-  const AppsBar({super.key});
+  AppsBar({super.key, this.webSocketManagers});
+
+  Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<AppsBar> createState() => AppsBarState();
@@ -51,7 +52,20 @@ class AppsBar extends StatefulWidget {
 class AppsBarState extends State<AppsBar> {
 
   @override
-  Widget buildDrawer(BuildContext context, User currentUser, bool isHomePage) {
+  void dispose() {
+    super.dispose();
+  }
+
+  void disconnectWS(final Map<String,WebSocketManager>? webSocketManagers) {
+    if (webSocketManagers != null) {
+      webSocketManagers.forEach((key, value) {
+        value.disconnectFromWebSocket();
+      });
+    }
+  }
+
+  @override
+  Widget buildDrawer(BuildContext context, User currentUser, bool isHomePage, final Map<String,WebSocketManager>? webSocketManagers) {
     enterFullScreen();
     return Drawer(
       child: ListView(
@@ -107,8 +121,9 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
+                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers))
                 ),
               },
             ),
@@ -133,8 +148,9 @@ class AppsBarState extends State<AppsBar> {
               ),
             ),
             onTap: () => {
+              disconnectWS(webSocketManagers),
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser))
+                  MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser, webSocketManagers: webSocketManagers))
               ),
             },
           ),
@@ -153,8 +169,9 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
+                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, webSocketManagers: webSocketManagers))
                 ),
               },
             ),
@@ -173,8 +190,9 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
+                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser, webSocketManagers: webSocketManagers))
                 ),
               },
             ),
@@ -193,8 +211,9 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
+                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
                 ),
               },
             ),
@@ -213,8 +232,9 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
+                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
                 ),
               },
             ),
@@ -239,8 +259,9 @@ class AppsBarState extends State<AppsBar> {
               ),
             ),
             onTap: () => {
+              disconnectWS(webSocketManagers),
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+                  MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser, webSocketManagers: webSocketManagers))
               ),
             },
           ),
@@ -258,6 +279,7 @@ class AppsBarState extends State<AppsBar> {
               ),
             ),
             onTap: () => {
+              disconnectWS(webSocketManagers),
               Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const LoginPage(), ),
               )
@@ -269,7 +291,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildAppBar(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildAppBar(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
@@ -288,8 +310,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                  MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -309,7 +332,7 @@ class AppsBarState extends State<AppsBar> {
 
 
   @override
-  PreferredSizeWidget buildSupplierDashboardAppBar(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildSupplierDashboardAppBar(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
@@ -331,8 +354,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.fromLTRB(0, 0, 28, 0),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -351,7 +375,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildSupplierManagementAppBarDetails(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildSupplierManagementAppBarDetails(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize(
       preferredSize: const Size.fromHeight(80),
@@ -359,8 +383,9 @@ class AppsBarState extends State<AppsBar> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_outlined),
           onPressed: () {
+            disconnectWS(webSocketManagers);
             Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+                MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
             );
           },
         ),
@@ -378,8 +403,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -398,7 +424,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildAppBarDetails(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildAppBarDetails(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
@@ -406,6 +432,7 @@ class AppsBarState extends State<AppsBar> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_outlined),
           onPressed: () {
+            disconnectWS(webSocketManagers);
             // Handle back button press
             Navigator.pop(context);
           },
@@ -424,8 +451,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -444,7 +472,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildDetailsAppBar(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildDetailsAppBar(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize(
       preferredSize: const Size.fromHeight(80),
@@ -452,6 +480,7 @@ class AppsBarState extends State<AppsBar> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () {
+            disconnectWS(webSocketManagers);
             Navigator.pop(context);
           },
         ),
@@ -469,8 +498,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -489,7 +519,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildOrderAppBar(BuildContext context, String title, User currentUser) {
+  PreferredSizeWidget buildOrderAppBar(BuildContext context, String title, User currentUser, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
@@ -525,8 +555,9 @@ class AppsBarState extends State<AppsBar> {
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: IconButton(
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: webSocketManagers))
                 );
               },
               icon: const Icon(Icons.notifications, size: 35,),
@@ -545,7 +576,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
 
-  PreferredSize buildBottomNavigationBar(User currentUser, BuildContext context) {
+  PreferredSize buildBottomNavigationBar(User currentUser, BuildContext context, final Map<String,WebSocketManager>? webSocketManagers) {
     int selectedIndex = 0;
 
     void _onItemTapped(int index) {
@@ -562,20 +593,24 @@ class AppsBarState extends State<AppsBar> {
         // ];
         // _widgetOptions.elementAt(selectedIndex);
         if (index == 0) {
+          disconnectWS(webSocketManagers);
           Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user: currentUser)),
+            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers)),
           );
         } else if (selectedIndex == 1) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (selectedIndex == 2) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (selectedIndex == 3) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         }
       } else if (currentUser.staff_type == "Restaurant Manager") {
@@ -586,47 +621,57 @@ class AppsBarState extends State<AppsBar> {
         // _widgetOptions.elementAt(selectedIndex);
         // Regular user-specific logic
         if (index == 0) {
+          disconnectWS(webSocketManagers);
           Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user: currentUser)),
+            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers)),
           );
         } else if (index == 1) {
+          disconnectWS(webSocketManagers);
           Navigator.push(context,
-            MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser)),
+            MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, webSocketManagers: webSocketManagers)),
           );
         } else if (index == 2) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 3) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 4) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 5) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         }
     } else if (currentUser.staff_type == "Restaurant Worker") {
 
         if (index == 0) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => HomePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 1) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 2) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         } else if (index == 3) {
+          disconnectWS(webSocketManagers);
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+              MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser, webSocketManagers: webSocketManagers))
           );
         }
       }
@@ -723,7 +768,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildViewSupplierDetailsAppBar(BuildContext context, String title) {
+  PreferredSizeWidget buildViewSupplierDetailsAppBar(BuildContext context, String title, final Map<String,WebSocketManager>? webSocketManagers) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
@@ -757,6 +802,7 @@ class AppsBarState extends State<AppsBar> {
                 size: 30,
               ), // Add your close button icon
               onPressed: () {
+                disconnectWS(webSocketManagers);
                 Navigator.of(context).pop();
               },
             ),

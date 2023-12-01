@@ -4,17 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:keninacafe/MenuManagement/updateMenuItem.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
-import '../Entity/FoodOrder.dart';
 import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 
-import 'package:flutter/cupertino.dart';
 
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 import 'createMenuItem.dart';
 
@@ -38,15 +37,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MenuListPage(user: null),
+      home: const MenuListPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class MenuListPage extends StatefulWidget {
-  const MenuListPage({super.key, this.user});
+  const MenuListPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<MenuListPage> createState() => _MenuListPageState();
@@ -65,6 +65,62 @@ class _MenuListPageState extends State<MenuListPage>{
 
   onGoBack(dynamic value) {
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -135,7 +191,7 @@ class _MenuListPageState extends State<MenuListPage>{
                       child: IconButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                              MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                           );
                         },
                         icon: const Icon(Icons.notifications, size: 35,),
@@ -144,7 +200,7 @@ class _MenuListPageState extends State<MenuListPage>{
                   ],
                 ),
               ),
-              drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+              drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
               body: SafeArea(
                 child: FutureBuilder<List<MenuItem>>(
                   future: getMenuItemList(),
@@ -153,7 +209,7 @@ class _MenuListPageState extends State<MenuListPage>{
                       return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                           child: TabBarView(
-                            children: buildTabBarView(snapshot.data, currentUser!),
+                            children: buildTabBarView(snapshot.data, currentUser),
                           )
                       );
 
@@ -170,7 +226,7 @@ class _MenuListPageState extends State<MenuListPage>{
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser))
+                      MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                   );
                 },
                 child: const Icon(
@@ -464,7 +520,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                             height: 35,
                                             decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                             child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: !menuItemList[j].isOutOfStock! ? Colors.green : Colors.red),
+                                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: !menuItemList[j].isOutOfStock? Colors.green : Colors.red),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
                                                 showUpdateIsOutOfStockConfirmationDialog(menuItemList[j]);
@@ -490,7 +546,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                               style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
-                                                Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j],));
+                                                Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j], webSocketManagers: widget.webSocketManagers));
                                                 Navigator.push(context, route).then(onGoBack);
                                               },
                                               child: Icon(Icons.edit, color: Colors.grey.shade800),

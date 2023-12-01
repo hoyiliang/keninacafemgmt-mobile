@@ -1,29 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/Entity/ItemCategory.dart';
 
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
-import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:keninacafe/VoucherManagement/voucherAvailableList.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/MenuItem.dart';
-import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 import '../Entity/Voucher.dart';
 import '../Entity/VoucherType.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,16 +38,17 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor:Colors.white,
         useMaterial3: true,
       ),
-      home: const EditVoucherPage(user: null, voucher: null,),
+      home: const EditVoucherPage(user: null, voucher: null, webSocketManagers: null),
     );
   }
 }
 
 class EditVoucherPage extends StatefulWidget {
-  const EditVoucherPage({super.key, this.user, this.voucher});
+  const EditVoucherPage({super.key, this.user, this.voucher, this.webSocketManagers});
 
   final User? user;
   final Voucher? voucher;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<EditVoucherPage> createState() => _EditVoucherPageState();
@@ -116,6 +109,57 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
       applicableMenuItemFulfill = true;
       applicableMenuItemControllerEmpty = false;
     }
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -127,7 +171,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Edit Voucher', currentUser!),
+      appBar: AppsBarState().buildDetailsAppBar(context, 'Edit Voucher', currentUser!, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -502,7 +546,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -833,45 +877,45 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
 
 
   Future<(bool, String)> _submitUpdateVoucherDetails(Voucher currentVoucher, User currentUser) async {
-    String voucher_code = voucherCodeController.text;
-    String redeem_point = redeemPointController.text;
-    String cost_off;
-    String min_spending;
-    String free_menu_item_name;
-    String applicable_menu_item_name;
+    String voucherCode = voucherCodeController.text;
+    String redeemPoint = redeemPointController.text;
+    String costOff;
+    String minSpending;
+    String freeMenuItemName;
+    String applicableMenuItemName;
 
     if (voucherTypeSelected == "Discount") {
-      free_menu_item_name = "";
-      applicable_menu_item_name = "";
-      cost_off = costOffController.text;
-      min_spending = minSpendingController.text;
+      freeMenuItemName = "";
+      applicableMenuItemName = "";
+      costOff = costOffController.text;
+      minSpending = minSpendingController.text;
     } else if (voucherTypeSelected == "FreeItem") {
-      free_menu_item_name = temp_freeMenuItemController.text;
-      applicable_menu_item_name = "";
-      cost_off = "";
-      min_spending = "";
+      freeMenuItemName = temp_freeMenuItemController.text;
+      applicableMenuItemName = "";
+      costOff = "";
+      minSpending = "";
     } else if (voucherTypeSelected == "BuyOneFreeOne") {
-      free_menu_item_name = "";
-      applicable_menu_item_name = temp_applicableMenuItemController.text;
-      cost_off = "";
-      min_spending = "";
+      freeMenuItemName = "";
+      applicableMenuItemName = temp_applicableMenuItemController.text;
+      costOff = "";
+      minSpending = "";
     } else {
-      free_menu_item_name = "";
-      applicable_menu_item_name = "";
-      cost_off = "";
-      min_spending = "";
+      freeMenuItemName = "";
+      applicableMenuItemName = "";
+      costOff = "";
+      minSpending = "";
     }
 
     if (kDebugMode) {
-      print('voucher_code: $voucher_code');
-      print('redeem_point: $redeem_point');
+      print('voucher_code: $voucherCode');
+      print('redeem_point: $redeemPoint');
       print('voucher_type_name: $voucherTypeSelected');
-      print('cost_off: $cost_off');
-      print('min_spending: $min_spending');
-      print('free_menu_item_name: $free_menu_item_name');
-      print('applicable_menu_item_name: $applicable_menu_item_name');
+      print('cost_off: $costOff');
+      print('min_spending: $minSpending');
+      print('free_menu_item_name: $freeMenuItemName');
+      print('applicable_menu_item_name: $applicableMenuItemName');
     }
-    var (success, err_code) = await updateVoucher(voucher_code, redeem_point, voucherTypeSelected!, cost_off, min_spending, free_menu_item_name, applicable_menu_item_name, currentVoucher, currentUser);
+    var (success, err_code) = await updateVoucher(voucherCode, redeemPoint, voucherTypeSelected!, costOff, minSpending, freeMenuItemName, applicableMenuItemName, currentVoucher, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to update the voucher.");
@@ -881,7 +925,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
     return (true, err_code);
   }
 
-  Future<(bool, String)> updateVoucher(String voucher_code, String redeem_point, String voucher_type_name, String cost_off, String min_spending, String free_menu_item_name, String applicable_menu_item_name, Voucher currentVoucher, User currentUser) async {
+  Future<(bool, String)> updateVoucher(String voucherCode, String redeemPoint, String voucherTypeName, String costOff, String minSpending, String freeMenuItemName, String applicableMenuItemName, Voucher currentVoucher, User currentUser) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/order/update_voucher'),
@@ -891,13 +935,13 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
         },
         body: jsonEncode(<String, dynamic> {
           'previous_voucher_voucher_code': currentVoucher.voucher_code,
-          'voucher_code': voucher_code,
-          'redeem_point': redeem_point,
-          'voucher_type_name': voucher_type_name,
-          'cost_off': cost_off,
-          'min_spending': min_spending,
-          'free_menu_item_name': free_menu_item_name,
-          'applicable_menu_item_name': applicable_menu_item_name,
+          'voucher_code': voucherCode,
+          'redeem_point': redeemPoint,
+          'voucher_type_name': voucherTypeName,
+          'cost_off': costOff,
+          'min_spending': minSpending,
+          'free_menu_item_name': freeMenuItemName,
+          'applicable_menu_item_name': applicableMenuItemName,
           'user_updated_name': currentUser.name,
         }),
       );
@@ -1017,7 +1061,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                                   Navigator.of(context).pop();
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => VoucherAvailableListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),

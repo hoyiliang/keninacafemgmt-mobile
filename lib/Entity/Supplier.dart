@@ -1,9 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
-import 'Stock.dart';
-import 'User.dart';
 
 @JsonSerializable()
 class Supplier {

@@ -6,18 +6,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:flutter/services.dart';
-import 'package:tuple/tuple.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
-import '../StaffManagement/staffList.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 
 void main() {
@@ -41,16 +40,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const UpdateSupplierPage(supplier_data: null, user: null,),
+      home: const UpdateSupplierPage(supplier_data: null, user: null, webSocketManagers: null),
     );
   }
 }
 
 class UpdateSupplierPage extends StatefulWidget {
-  const UpdateSupplierPage({super.key, this.supplier_data, this.user});
+  const UpdateSupplierPage({super.key, this.supplier_data, this.user, this.webSocketManagers});
 
   final User? user;
   final Supplier? supplier_data;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<UpdateSupplierPage> createState() => _UpdateSupplierPageState();
@@ -98,6 +98,57 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     contactController.text = getSupplier()!.contact;
     emailController.text = getSupplier()!.email;
     addressController.text = getSupplier()!.address;
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   void showConfirmationDialog(Supplier supplierData, User currentUser) {
@@ -158,7 +209,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),
@@ -224,8 +275,8 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Update Supplier', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Supplier', currentUser, widget.webSocketManagers),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -596,7 +647,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                       isAddressFill = true;
                                     }
                                     if (_formKey.currentState!.validate() && isNameFill && isContactFill && isPICFill && isEmailFill && isAddressFill) {
-                                      showConfirmationDialog(currentSupplier!, currentUser);
+                                      showConfirmationDialog(currentSupplier, currentUser);
                                     }
                                   });
                                 });
@@ -621,7 +672,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -735,7 +786,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                             "Stock",
                             style: TextStyle(fontSize: 17, color:Colors.grey.shade700, fontWeight: FontWeight.bold),
                           ),
-                          dataSource: [for (String i in listStock!) {'value': i}],
+                          dataSource: [for (String i in listStock) {'value': i}],
                           textField: 'value',
                           valueField: 'value',
                           okButtonLabel: 'OK',

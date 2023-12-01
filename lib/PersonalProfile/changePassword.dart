@@ -4,12 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
-import '../Entity/User.dart';
+import '../Order/manageOrder.dart';
 import '../Security/Encryptor.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,15 +32,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ChangePasswordPage(user: null,),
+      home: const ChangePasswordPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key, this.user});
+  const ChangePasswordPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
@@ -75,6 +77,62 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   void _toggleConfirmPasswordView() {
     setState(() {
       secureConfirmPasswordText = !secureConfirmPasswordText;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
     });
   }
 
@@ -149,7 +207,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated)),
+                                    MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),
@@ -194,8 +252,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Change Password', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Change Password', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -456,7 +514,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               )
             )
         ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
 
     );
   }
