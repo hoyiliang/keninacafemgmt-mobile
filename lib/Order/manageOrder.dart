@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:keninacafe/Utils/WebSocketManager.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/User.dart';
-import '../Utils/error_codes.dart';
 
-import 'package:flutter/cupertino.dart';
 
 import 'incomingOrderDetails.dart';
 import 'kitchenOrderDetails.dart';
@@ -37,15 +36,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ManageOrderPage(user: null),
+      home: const ManageOrderPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class ManageOrderPage extends StatefulWidget {
-  const ManageOrderPage({super.key, this.user});
+  const ManageOrderPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<ManageOrderPage> createState() => _ManageOrderPageState();
@@ -79,8 +79,59 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
   }
 
   void navigateKitchenOrderDetailsPage(FoodOrder currentOrder, User currentUser) {
-    Route route = MaterialPageRoute(builder: (context) => KitchenOrderDetailsPage(order: currentOrder, user: currentUser,));
+    Route route = MaterialPageRoute(builder: (context) => KitchenOrderDetailsPage(order: currentOrder, user: currentUser, webSocketManagers: widget.webSocketManagers));
     Navigator.push(context, route).then(onGoBack);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      setState(() {
+        // do nothing
+      });
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        final snackBar = SnackBar(
+            content: const Text('Received new order!'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -142,7 +193,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 child: IconButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser))
+                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                     );
                   },
                   icon: const Icon(Icons.notifications, size: 35,),
@@ -151,7 +202,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
         body: SafeArea(
           child: TabBarView(
             children: [
@@ -159,7 +210,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 20.0),
                     child: FutureBuilder<List<FoodOrder>>(
-                      future: getIncomingOrderList(currentUser!),
+                      future: getIncomingOrderList(currentUser),
                       builder: (BuildContext context, AsyncSnapshot<List<FoodOrder>> snapshot) {
                         if (snapshot.hasData) {
                           return Padding(
@@ -183,7 +234,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 20.0),
                     child: FutureBuilder<List<FoodOrder>>(
-                        future: getKitchenOrderList(currentUser!),
+                        future: getKitchenOrderList(currentUser),
                         builder: (BuildContext context, AsyncSnapshot<List<FoodOrder>> snapshot) {
                           if (snapshot.hasData) {
                             return Padding(
@@ -261,7 +312,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                         child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
                             child: FutureBuilder<List<FoodOrder>>(
-                                future: getCompleteOrderListByDate(selectedDate!, currentUser!),
+                                future: getCompleteOrderListByDate(selectedDate!, currentUser),
                                 builder: (BuildContext context, AsyncSnapshot<List<FoodOrder>> snapshot) {
                                   if (snapshot.hasData) {
                                     return Padding(
@@ -288,7 +339,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser!, context),
+        bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
       ),
     );
   }
@@ -311,7 +362,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(
-                      builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i],))
+                      builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i], webSocketManagers: widget.webSocketManagers))
               );
             },
             child: Container(
@@ -752,7 +803,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
         ),
       );
     } else {
-      for (int i = 0; i < completeOrderList!.length; i++) {
+      for (int i = 0; i < completeOrderList.length; i++) {
         DateTime dateTime = completeOrderList[i].dateTime;
         String formattedDate = DateFormat('dd MMM yyyy  HH:mm:ss').format(dateTime);
         card.add(

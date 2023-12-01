@@ -2,19 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coupon_uikit/coupon_uikit.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:keninacafe/SupplierManagement/createSupplier.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
-import '../Entity/FoodOrder.dart';
-import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Entity/Voucher.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 import 'createVoucher.dart';
 import 'editVoucher.dart';
@@ -39,15 +37,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: VoucherAvailableListPage(user: null),
+      home: VoucherAvailableListPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class VoucherAvailableListPage extends StatefulWidget {
-  VoucherAvailableListPage({super.key, this.user});
+  VoucherAvailableListPage({super.key, this.user, this.webSocketManagers});
 
   User? user;
+  Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<VoucherAvailableListPage> createState() => _VoucherAvailableListPageState();
@@ -61,6 +60,62 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     enterFullScreen();
 
@@ -68,8 +123,8 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser, widget.webSocketManagers!),
       body: SafeArea(
         child: SingleChildScrollView (
           child: Padding(
@@ -96,7 +151,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
           );
         },
         child: const Icon(
@@ -341,7 +396,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i])),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i], webSocketManagers: widget.webSocketManagers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -585,7 +640,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i])),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i], webSocketManagers: widget.webSocketManagers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -829,7 +884,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i])),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i], webSocketManagers: widget.webSocketManagers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),

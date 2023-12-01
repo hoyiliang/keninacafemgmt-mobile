@@ -1,22 +1,17 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/SupplierManagement/createSupplier.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:keninacafe/SupplierManagement/updateSupplier.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:tuple/tuple.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
-import '../Utils/error_codes.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,16 +34,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewSupplierDetailsPage(user: null, supplier: null),
+      home: const ViewSupplierDetailsPage(user: null, supplier: null, webSocketManagers: null),
     );
   }
 }
 
 class ViewSupplierDetailsPage extends StatefulWidget {
-  const ViewSupplierDetailsPage({super.key, this.user, this.supplier});
+  const ViewSupplierDetailsPage({super.key, this.user, this.supplier, this.webSocketManagers});
 
   final User? user;
   final Supplier? supplier;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<ViewSupplierDetailsPage> createState() => _ViewSupplierDetailsPageState();
@@ -72,6 +68,62 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
 
   Supplier? getSupplier() {
     return widget.supplier;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -101,7 +153,7 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, 'Information'),
+      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, 'Information', widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -394,7 +446,7 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                                 border: Border.all(color: Colors.grey.shade600, width: 2.0)
                             ),
                             child: FutureBuilder<List<String>>(
-                              future: getStockUnderSupplierList(currentSupplier!),
+                              future: getStockUnderSupplierList(currentSupplier),
                               builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
                                 if (snapshot.hasData) {
                                   return Column(

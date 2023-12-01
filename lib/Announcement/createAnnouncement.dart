@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Entity/Announcement.dart';
+import 'package:keninacafe/Utils/WebSocketManager.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import '../Entity/AnnouncementAssignUserMoreInfo.dart';
 import '../Entity/User.dart';
+import '../Order/manageOrder.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,15 +32,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateAnnouncementPage(user: null,),
+      home: const CreateAnnouncementPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class CreateAnnouncementPage extends StatefulWidget {
-  const CreateAnnouncementPage({super.key, this.user});
+  const CreateAnnouncementPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<CreateAnnouncementPage> createState() => _CreateAnnouncementPageState();
@@ -63,8 +65,66 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   }
 
   @override
+  void dispose() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+
+    // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+        content: const Text('Received new order!'),
+        action: SnackBarAction(
+          label: 'View',
+          onPressed: () {
+            dispose();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+              ),
+            );
+          },
+        )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      setState(() {
+        // do nothing
+      });
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -357,7 +417,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.green.shade400,
+                  backgroundColor: Colors.green.shade400,
                 ),
                 child: const Text(
                   'Confirm',
@@ -374,8 +434,8 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -603,7 +663,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green.shade400,
+                backgroundColor: Colors.green.shade400,
               ),
               child: const Text(
                 'Confirm',
@@ -892,13 +952,13 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
     );
   }
 
-  void showErrorDialogIfUpdateIsReadFail(String err_code) {
-    if (err_code == ErrorCodes.UPDATE_ANNOUNCEMENT_FAIL_BACKEND) {
+  void showErrorDialogIfUpdateIsReadFail(String errCode) {
+    if (errCode == ErrorCodes.UPDATE_ANNOUNCEMENT_FAIL_BACKEND) {
       showDialog(context: context, builder: (
         BuildContext context) =>
         AlertDialog(
           title: const Text('Error'),
-          content: Text('An Error occurred while trying to update this announcement Is Read status.\n\nError Code: $err_code'),
+          content: Text('An Error occurred while trying to update this announcement Is Read status.\n\nError Code: $errCode'),
           actions: <Widget>[
             TextButton(onPressed: () =>
                 Navigator.pop(context, 'Ok'),
@@ -912,7 +972,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
         AlertDialog(
           title: const Text('Connection Error'),
           content: Text(
-              'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+              'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $errCode'),
           actions: <Widget>[
             TextButton(onPressed: () =>
                 Navigator.pop(context, 'Ok'),
@@ -926,28 +986,28 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   List<Widget> buildAnnouncementCards(List<AnnouncementAssignUserMoreInfo>? listAnnouncement, User? currentUser) {
     List<Widget> cards = [];
     for (AnnouncementAssignUserMoreInfo a in listAnnouncement!) {
-      bool diff_seconds = false;
-      bool diff_minutes = false;
-      bool diff_hours = false;
-      bool diff_days_in_week = false;
+      bool diffSeconds = false;
+      bool diffMinutes = false;
+      bool diffHours = false;
+      bool diffDaysInWeek = false;
       DateTime nowDateTime = DateTime.now().toUtc().toLocal();
       DateTime dateCreated = a.date_created;
       String formattedDate = DateFormat('dd MMM yyyy').format(dateCreated);
       Duration difference = nowDateTime.difference(dateCreated);
 
       if (difference.inDays == 0 && difference.inHours == 0 && difference.inMinutes == 0 && difference.inSeconds != 0) {
-        diff_seconds = true;
+        diffSeconds = true;
       } else if (difference.inDays == 0 && difference.inHours == 0 &&
           difference.inMinutes != 0) {
-        diff_minutes = true;
+        diffMinutes = true;
       } else if (difference.inDays == 0 && difference.inHours != 0) {
-        diff_hours = true;
+        diffHours = true;
       } else if (difference.inDays == 1 && difference.inHours != 0) {
-        diff_hours = true;
+        diffHours = true;
       } else if (difference.inDays != 0 && difference.inDays <= 7) {
-        diff_days_in_week = true;
+        diffDaysInWeek = true;
       } else if (difference.inDays != 0 && difference.inDays > 7) {
-        diff_days_in_week = false;
+        diffDaysInWeek = false;
       }
       cards.add(
         Container(
@@ -1136,7 +1196,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                             ),
                           ),
                           const Spacer(),
-                          if (diff_seconds == true)
+                          if (diffSeconds == true)
                             Text(
                               "< 1 minutes ago",
                               style: TextStyle(
@@ -1147,7 +1207,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                               ),
                               overflow: TextOverflow.clip,
                             ),
-                          if (diff_minutes == true)
+                          if (diffMinutes == true)
                             Text(
                               "${difference.inMinutes.toStringAsFixed(0)} minute(s) ago",
                               style: TextStyle(
@@ -1158,7 +1218,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                               ),
                               overflow: TextOverflow.clip,
                             ),
-                          if (diff_hours == true)
+                          if (diffHours == true)
                             Text(
                               "${difference.inHours.toStringAsFixed(0)} hour(s) ago",
                               style: TextStyle(
@@ -1169,7 +1229,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                               ),
                               overflow: TextOverflow.clip,
                             ),
-                          if (diff_days_in_week == true)
+                          if (diffDaysInWeek == true)
                             Text(
                               "${difference.inDays.toStringAsFixed(0)} day(s) ago",
                               style: TextStyle(
@@ -1180,7 +1240,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                               ),
                               overflow: TextOverflow.clip,
                             ),
-                          if (difference.inDays > 7 && diff_days_in_week == false)
+                          if (difference.inDays > 7 && diffDaysInWeek == false)
                             Text(
                               formattedDate,
                               style: TextStyle(
@@ -1266,6 +1326,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
+        print(AnnouncementAssignUserMoreInfo.getAnnouncementList(jsonDecode(response.body)));
         return AnnouncementAssignUserMoreInfo.getAnnouncementList(jsonDecode(response.body));
       } else {
         throw Exception('Failed to load all the announcements');

@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
@@ -11,10 +9,12 @@ import 'package:keninacafe/SupplierManagement/createSupplier.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/SupplierManagement/updateSupplier.dart';
 import 'package:keninacafe/SupplierManagement/viewSupplierDetails.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 
 void main() {
@@ -38,15 +38,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SupplierListWithDeletePage(user: null,),
+      home: const SupplierListWithDeletePage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class SupplierListWithDeletePage extends StatefulWidget {
-  const SupplierListWithDeletePage({super.key, this.user});
+  const SupplierListWithDeletePage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<SupplierListWithDeletePage> createState() => _SupplierListWithDeletePageState();
@@ -69,6 +70,62 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
 
   User? getUser() {
     return widget.user;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   void showPopupViewSupplierDetails(Supplier supplierData, User currentUser) {
@@ -163,7 +220,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                   height:40,
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => CreateSupplierPage(user: currentUser))
+                        MaterialPageRoute(builder: (context) => CreateSupplierPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                     );
                   },
                   // color: Colors.red,
@@ -349,7 +406,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                       supplierNameController.text = newValue!;
                     });
                   },
-                  items: supplierList!.map((supplier) {
+                  items: supplierList.map((supplier) {
                     return DropdownMenuItem<String>(
                       value: supplier.name,
                       child: Text(
@@ -373,7 +430,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                 }
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green.shade400,
+                backgroundColor: Colors.green.shade400,
               ),
               child: const Text(
                 'Confirm',
@@ -564,7 +621,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),
@@ -604,8 +661,8 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Supplier List', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Supplier List', currentUser, widget.webSocketManagers),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -763,7 +820,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                                 // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                 onPressed: () async {
                                   Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) => UpdateSupplierPage(supplier_data: a, user: currentUser))
+                                      MaterialPageRoute(builder: (context) => UpdateSupplierPage(supplier_data: a, user: currentUser, webSocketManagers: widget.webSocketManagers))
                                   );
                                 },
                                 child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -835,7 +892,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
         ),
       );
     } else {
-      for (int i = 0; i < stockNameList!.length; i++) {
+      for (int i = 0; i < stockNameList.length; i++) {
         text.add(
           Text(
             stockNameList[i],

@@ -2,21 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
-import 'package:keninacafe/SupplierManagement/createSupplier.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:keninacafe/SupplierManagement/updateSupplier.dart';
 import 'package:keninacafe/SupplierManagement/viewSupplierDetails.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Receipt.dart';
 import '../Entity/Stock.dart';
 import '../Entity/StockReceipt.dart';
 import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 import 'createStockReceipt.dart';
 import 'editStockReceipt.dart';
@@ -42,15 +42,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const StockReceiptListPage(user: null,),
+      home: const StockReceiptListPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class StockReceiptListPage extends StatefulWidget {
-  const StockReceiptListPage({super.key, this.user});
+  const StockReceiptListPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<StockReceiptListPage> createState() => _StockReceiptListPageState();
@@ -77,6 +78,57 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   void initState() {
     super.initState();
     selectedDate = DateTime.now();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -131,24 +183,24 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     );
   }
 
-  void showDeleteConfirmationDialog(String receipt_number) {
+  void showDeleteConfirmationDialog(String receiptNumber) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
-          content: Text('Are you sure you want to delete this receipt ($receipt_number)?'),
+          content: Text('Are you sure you want to delete this receipt ($receiptNumber)?'),
           actions: [
             ElevatedButton(
               onPressed: () async {
-                var (deleteReceipt, err_code) = await _submitDeleteReceipt(receipt_number);
+                var (deleteReceipt, err_code) = await _submitDeleteReceipt(receiptNumber);
                 setState(() {
                   if (err_code == ErrorCodes.DELETE_RECEIPT_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
                           title: const Text('Error'),
-                          content: Text('An Error occurred while trying to delete the receipt ($receipt_number).\n\nError Code: $err_code'),
+                          content: Text('An Error occurred while trying to delete the receipt ($receiptNumber).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
                                 Navigator.pop(context, 'Ok'),
@@ -175,7 +227,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete Receipt ($receipt_number) Successful'),
+                          title: Text('Delete Receipt ($receiptNumber) Successful'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -210,8 +262,8 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     );
   }
 
-  void exportPdfFile(String receipt_number) async {
-    var (pdf_file, err_code) = await downloadPdfFile(receipt_number);
+  void exportPdfFile(String receiptNumber) async {
+    var (pdf_file, err_code) = await downloadPdfFile(receiptNumber);
     if (err_code == ErrorCodes.DOWNLOAD_PDF_FILE_FAIL_BACKEND) {
       showDialog(context: context, builder: (
           BuildContext context) =>
@@ -242,10 +294,10 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     } else {
       Uint8List bytes = base64Decode(pdf_file);
       String dir = "/sdcard/Documents";
-      File file = File("$dir/receipt_$receipt_number.pdf");
+      File file = File("$dir/receipt_$receiptNumber.pdf");
       int fileNumber = 1;
       while (await file.exists()) {
-        String fileName = "receipt_${receipt_number}_$fileNumber.pdf";
+        String fileName = "receipt_${receiptNumber}_$fileNumber.pdf";
         file = File("$dir/$fileName");
         fileNumber++;
       }
@@ -264,8 +316,8 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Receipt List', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Receipt List', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: Column(
           children: [
@@ -349,7 +401,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateStockReceiptPage(user: currentUser))
+              MaterialPageRoute(builder: (context) => CreateStockReceiptPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
           );
         },
         child: const Icon(
@@ -369,7 +421,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
 
   List<Widget> buildStockReceiptList(List<StockReceipt>? stockReceiptList, User? currentUser) {
     List<Widget> cards = [];
-    String stock_list_name = "";
+    String stockListName = "";
     if (stockReceiptList!.isEmpty) {
       cards.add(
         Column(
@@ -401,8 +453,8 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
         ),
       );
     } else {
-      for (int i = 0; i < stockReceiptList!.length; i++) {
-        stock_list_name = stockReceiptList[i].stock_name.toString();
+      for (int i = 0; i < stockReceiptList.length; i++) {
+        stockListName = stockReceiptList[i].stock_name.toString();
         cards.add(
           Card(
             child: Container(
@@ -523,7 +575,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                               ),
                               Flexible(
                                 child: Text(
-                                  stock_list_name,
+                                  stockListName,
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     color: Colors.grey.shade700,
@@ -617,7 +669,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                                   var (pdf_file, err_code) = await downloadPdfFile(stockReceiptList[i].receipt_number);
                                   Uint8List pdfBytes = base64Decode(pdf_file);
                                   Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) => EditStockReceiptPage(user: currentUser, stockReceipt: stockReceiptList[i], pdfFile: pdfBytes))
+                                      MaterialPageRoute(builder: (context) => EditStockReceiptPage(user: currentUser, stockReceipt: stockReceiptList[i], pdfFile: pdfBytes, webSocketManagers: widget.webSocketManagers))
                                   );
                                 },
                                 child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -690,7 +742,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     return cards;
   }
 
-  Future<(String, String)> downloadPdfFile(String receipt_number) async {
+  Future<(String, String)> downloadPdfFile(String receiptNumber) async {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:8000/supplierManagement/request_pdf_file'),
@@ -698,7 +750,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'receipt_number': receipt_number,
+          'receipt_number': receiptNumber,
         }),
       );
 
@@ -761,18 +813,18 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     }
   }
 
-  Future<(bool, String)> _submitDeleteReceipt(String receipt_number) async {
-    var (bool, err_code) = await deleteReceipt(receipt_number);
+  Future<(bool, String)> _submitDeleteReceipt(String receiptNumber) async {
+    var (bool, err_code) = await deleteReceipt(receiptNumber);
     if (bool == true) {
       if (kDebugMode) {
-        print("Failed to delete Receipt (${receipt_number}) data.");
+        print("Failed to delete Receipt ($receiptNumber) data.");
       }
       return (false, err_code);
     }
     return (false, err_code);
   }
 
-  Future<(bool, String)> deleteReceipt(String receipt_number) async {
+  Future<(bool, String)> deleteReceipt(String receiptNumber) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/supplierManagement/delete_receipt'),
@@ -780,7 +832,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'receipt_number': receipt_number,
+          'receipt_number': receiptNumber,
         }),
       );
 
@@ -788,7 +840,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
         return (true, (ErrorCodes.OPERATION_OK));
       } else {
         if (kDebugMode) {
-          print('No Receipt (${receipt_number}) found.');
+          print('No Receipt ($receiptNumber) found.');
         }
         return (false, (ErrorCodes.DELETE_RECEIPT_FAIL_BACKEND));
       }

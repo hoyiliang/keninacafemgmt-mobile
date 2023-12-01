@@ -1,7 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:tuple/tuple.dart';
-import 'Supplier.dart';
 
 @JsonSerializable()
 class StockReceipt {

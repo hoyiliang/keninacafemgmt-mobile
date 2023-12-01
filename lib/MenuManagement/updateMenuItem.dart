@@ -5,21 +5,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/Entity/ItemCategory.dart';
 
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
-import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/MenuItem.dart';
-import '../Entity/Stock.dart';
 import '../Entity/User.dart';
-import 'menuList.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,16 +39,17 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor:Colors.white,
         useMaterial3: true,
       ),
-      home: const UpdateMenuItemPage(user: null, menuItem: null,),
+      home: const UpdateMenuItemPage(user: null, menuItem: null, webSocketManagers: null),
     );
   }
 }
 
 class UpdateMenuItemPage extends StatefulWidget {
-  const UpdateMenuItemPage({super.key, this.user, this.menuItem});
+  const UpdateMenuItemPage({super.key, this.user, this.menuItem, this.webSocketManagers});
 
   final User? user;
   final MenuItem? menuItem;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<UpdateMenuItemPage> createState() => _UpdateMenuItemPageState();
@@ -105,6 +103,57 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     categorySelected = getMenuItem()!.category_name;
     hasSize = getMenuItem()!.hasSize;
     hasVariant = getMenuItem()!.hasVariant;
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -128,7 +177,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Update Item', currentUser!),
+      appBar: AppsBarState().buildDetailsAppBar(context, 'Update Item', currentUser!, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -171,7 +220,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                               image = Image.memory(imageBytes);
                             });
                           },
-                          child: Icon(LineAwesomeIcons.camera, color: Colors.black),
+                          child: const Icon(LineAwesomeIcons.camera, color: Colors.black),
                         ),
                       ),
                     )
@@ -368,7 +417,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                                   itemClassSelected = newValue;
                                 });
                               },
-                              items: itemClass!.map((itemClass) {
+                              items: itemClass.map((itemClass) {
                                 return DropdownMenuItem<String>(
                                   value: itemClass,
                                   child: Text(
@@ -1443,7 +1492,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -1516,8 +1565,8 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
 
   Future<(bool, String)> _submitUpdateMenuItemDetails(MenuItem currentMenuItem, User currentUser) async {
     String name = nameController.text;
-    String price_standard = priceStandardController.text;
-    String price_large = priceLargeController.text;
+    String priceStandard = priceStandardController.text;
+    String priceLarge = priceLargeController.text;
     String description = descriptionController.text;
     String variants = variantController.text;
     String? itemClass;
@@ -1526,22 +1575,22 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     } else if (itemClassSelected == "Drink") {
       itemClass = "D";
     }
-    String? category_name = categorySelected;
+    String? categoryName = categorySelected;
     bool? hasSize = this.hasSize;
     bool? hasVariant = this.hasVariant;
 
     if (kDebugMode) {
       print('name: $name');
-      print('price_standard: $price_standard');
-      print('price_large: $price_large');
+      print('price_standard: $priceStandard');
+      print('price_large: $priceLarge');
       print('description: $description');
       print('variants: $variants');
       print('itemClass: $itemClass');
-      print('category_name: $category_name');
+      print('category_name: $categoryName');
       print('hasSize: $hasSize');
       print('hasVariant: $hasVariant');
     }
-    var (success, err_code) = await updateMenuItem(name, price_standard, price_large, description, variants, itemClass!, category_name!, hasSize!, hasVariant!, currentMenuItem, currentUser);
+    var (success, err_code) = await updateMenuItem(name, priceStandard, priceLarge, description, variants, itemClass!, categoryName!, hasSize!, hasVariant!, currentMenuItem, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to update the menu item.");
@@ -1551,7 +1600,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     return (true, err_code);
   }
 
-  Future<(bool, String)> updateMenuItem(String name, String price_standard, String price_large, String description, String variants, String itemClass, String category_name, bool hasSize, bool hasVariant, MenuItem currentMenuItem, User currentUser) async {
+  Future<(bool, String)> updateMenuItem(String name, String priceStandard, String priceLarge, String description, String variants, String itemClass, String categoryName, bool hasSize, bool hasVariant, MenuItem currentMenuItem, User currentUser) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/menu/update_menu_item/${currentMenuItem.id}/'),
@@ -1562,13 +1611,13 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
         body: jsonEncode(<String, dynamic> {
           'image': base64Image,
           'name': name,
-          'price_standard': price_standard,
-          'price_large': price_large,
+          'price_standard': priceStandard,
+          'price_large': priceLarge,
           'description': description,
           'isOutOfStock': false,
           'variants': variants,
           'itemClass': itemClass,
-          'category_name': category_name,
+          'category_name': categoryName,
           'hasSize': hasSize,
           'hasVariant': hasVariant,
           'user_updated_name': currentUser.name,

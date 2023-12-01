@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Utils/error_codes.dart';
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,16 +46,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ManageRestaurantWorkerAttendancePage(staff_data: null, user: null,),
+      home: const ManageRestaurantWorkerAttendancePage(staff_data: null, user: null, webSocketManagers: null),
     );
   }
 }
 
 class ManageRestaurantWorkerAttendancePage extends StatefulWidget {
-  const ManageRestaurantWorkerAttendancePage({super.key, this.user, this.staff_data});
+  const ManageRestaurantWorkerAttendancePage({super.key, this.user, this.staff_data, this.webSocketManagers});
 
   final User? user;
   final User? staff_data;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<ManageRestaurantWorkerAttendancePage> createState() => _ManageRestaurantWorkerAttendancePageState();
@@ -75,24 +78,80 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     enterFullScreen();
 
     User? currentUser = getUser();
     print(currentUser?.name);
 
-    User? staff_data = getStaffData();
-    print(staff_data?.name);
+    User? staffData = getStaffData();
+    print(staffData?.name);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBar(context, 'Manage Attendance', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+      appBar: AppsBarState().buildAppBar(context, 'Manage Attendance', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
             child: SizedBox(
               child: FutureBuilder<List<Attendance>>(
-                  future: getAttendanceData(staff_data),
+                  future: getAttendanceData(staffData),
                   builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
                     if (snapshot.hasData) {
                       return Padding(
@@ -130,7 +189,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
     );
   }
 
@@ -260,10 +319,10 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
       _events[date] = ['absence'];
   }
 
-  Future<List<Attendance>> getAttendanceData(User? staff_data) async {
+  Future<List<Attendance>> getAttendanceData(User? staffData) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_all_list_per_staff/${staff_data?.uid}'),
+        Uri.parse('http://10.0.2.2:8000/attendance/request_all_list_per_staff/${staffData?.uid}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

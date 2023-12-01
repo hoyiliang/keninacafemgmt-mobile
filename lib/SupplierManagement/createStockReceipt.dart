@@ -4,24 +4,21 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/SupplierManagement/stockReceiptList.dart';
-import 'package:keninacafe/SupplierManagement/supplierDashboard.dart';
-import 'dart:typed_data';
 
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
-import 'package:keninacafe/Security/Encryptor.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
+import '../Order/manageOrder.dart';
+import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,15 +41,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateStockReceiptPage(user: null,),
+      home: const CreateStockReceiptPage(user: null, webSocketManagers: null),
     );
   }
 }
 
 class CreateStockReceiptPage extends StatefulWidget {
-  const CreateStockReceiptPage({super.key, this.user});
+  const CreateStockReceiptPage({super.key, this.user, this.webSocketManagers});
 
   final User? user;
+  final Map<String,WebSocketManager>? webSocketManagers;
 
   @override
   State<CreateStockReceiptPage> createState() => _CreateStockReceiptPageState();
@@ -88,8 +86,57 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
   @override
   void initState() {
     super.initState();
-    // getStockWithSupplierList();
 
+    // Web Socket
+    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+      final snackBar = SnackBar(
+          content: const Text('Received new announcement!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                ),
+              );
+            },
+          )
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+
+    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+      SnackBar(
+        content: const Text('Received new attendance request!'),
+        // action: SnackBarAction(
+        //   label: 'View',
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //       ),
+        //     );
+        //   },
+        // )
+      );
+    });
   }
 
   @override
@@ -100,8 +147,8 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser, widget.webSocketManagers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -693,22 +740,22 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
   }
 
   Future<(bool, String)> _submitReceiptDetails(User currentUser) async {
-    String receipt_number = receiptNumberController.text;
-    String total_price = totalPriceController.text;
-    List? stock_in_receipt = stockUpdate;
-    String pdf_file_name = pdfFileNameController.text;
-    String supplier_name = supplierNameController.text;
+    String receiptNumber = receiptNumberController.text;
+    String totalPrice = totalPriceController.text;
+    List? stockInReceipt = stockUpdate;
+    String pdfFileName = pdfFileNameController.text;
+    String supplierName = supplierNameController.text;
     File? pdfFile = file;
-    DateTime date_receipt = DateTime.parse(dateReceiptController.text);
+    DateTime dateReceipt = DateTime.parse(dateReceiptController.text);
 
     if (kDebugMode) {
-      print('receipt_number: $receipt_number');
-      print('total_price: $total_price');
-      print('stock_in_receipt: $stock_in_receipt');
-      print('pdf_file_name: $pdf_file_name');
+      print('receipt_number: $receiptNumber');
+      print('total_price: $totalPrice');
+      print('stock_in_receipt: $stockInReceipt');
+      print('pdf_file_name: $pdfFileName');
       print('pdfFile: $pdfFile');
     }
-    var (success, err_code) = await createReceipt(receipt_number, total_price, stock_in_receipt, pdf_file_name, pdfFile, supplier_name, date_receipt, currentUser);
+    var (success, err_code) = await createReceipt(receiptNumber, totalPrice, stockInReceipt, pdfFileName, pdfFile, supplierName, dateReceipt, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to create the receipt.");
@@ -718,7 +765,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
     return (true, err_code);
   }
 
-  Future<(bool, String)> createReceipt(String receipt_number, String total_price, List? stock_in_receipt, String pdf_file_name, File? pdfFile, String supplier_name, DateTime date_receipt, User currentUser) async {
+  Future<(bool, String)> createReceipt(String receiptNumber, String totalPrice, List? stockInReceipt, String pdfFileName, File? pdfFile, String supplierName, DateTime dateReceipt, User currentUser) async {
     try {
       Future<Uint8List> _readFile(File file) async {
         return await file.readAsBytes();
@@ -731,14 +778,14 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'receipt_number': receipt_number,
-          'total_price': total_price,
-          'stock_in_receipt': stock_in_receipt,
-          'pdf_file_name': pdf_file_name,
+          'receipt_number': receiptNumber,
+          'total_price': totalPrice,
+          'stock_in_receipt': stockInReceipt,
+          'pdf_file_name': pdfFileName,
           'pdfFile': base64Encode(await _readFile(pdfFile!)),
           'user_created_name': currentUser.name,
-          'supplier_name': supplier_name,
-          'date_receipt': date_receipt.toString(),
+          'supplier_name': supplierName,
+          'date_receipt': dateReceipt.toString(),
         }),
       );
 
@@ -864,7 +911,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                                   Navigator.of(context).pop();
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser)),
+                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
                                   );
                                 },
                               ),

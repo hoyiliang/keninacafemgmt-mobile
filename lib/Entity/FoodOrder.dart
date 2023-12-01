@@ -1,8 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
-import 'User.dart';
 
 @JsonSerializable()
 class FoodOrder {
@@ -35,9 +32,9 @@ class FoodOrder {
       order_status: json['order_status'],
       gross_total: json['gross_total'],
       grand_total: json['grand_total'],
-      voucher: json['voucher_name'] != null ? json['voucher_name'] : '',
-      user_created_name: json['user_created_name'] != null ? json['user_created_name'] : '',
-      user_updated_name: json['user_updated_name'] != null ? json['user_updated_name'] : '',
+      voucher: json['voucher_name'] ?? '',
+      user_created_name: json['user_created_name'] ?? '',
+      user_updated_name: json['user_updated_name'] ?? '',
       dateTime: DateTime.parse(json['date_created']),
     );
   }

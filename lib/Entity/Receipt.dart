@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
@@ -38,10 +37,10 @@ class Receipt {
   }
 
   static String getPdfFile(Map<String, dynamic> json) {
-    String pdf_file = "";
+    String pdfFile = "";
     for (Map<String,dynamic> receipt in json['data']) {
-      pdf_file = Receipt.fromJson(receipt).pdf_file;
+      pdfFile = Receipt.fromJson(receipt).pdf_file;
     }
-    return pdf_file;
+    return pdfFile;
   }
 }
