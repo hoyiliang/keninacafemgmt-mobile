@@ -56,17 +56,27 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
     return widget.user;
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -84,6 +94,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -177,6 +188,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                     width: 200,
                     child: ElevatedButton(
                       onPressed: () => {
+                        disconnectWS(),
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => EditPersonalProfilePage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                         ),
@@ -206,6 +218,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(2, 1, 0, 0), backgroundColor: Colors.grey.shade200),
                         onPressed: () async {
+                          disconnectWS();
                           Navigator.push(
                             context,
                             MaterialPageRoute(

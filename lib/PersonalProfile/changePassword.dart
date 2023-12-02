@@ -80,11 +80,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     });
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),

@@ -51,17 +51,27 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
     return widget.user;
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -79,6 +89,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -133,6 +144,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
                           child: ElevatedButton(
                             onPressed: () {
+                              disconnectWS();
                               Navigator.of(context).push(
                                   MaterialPageRoute(builder: (context) => StaffListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)));
                             },
@@ -159,6 +171,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
                           child: ElevatedButton(
                             onPressed: () {
+                              disconnectWS();
                               Navigator.of(context).push(
                                   MaterialPageRoute(builder: (context) => ManageAttendanceRequestPage(user: currentUser, webSocketManagers: widget.webSocketManagers)));
                             },
