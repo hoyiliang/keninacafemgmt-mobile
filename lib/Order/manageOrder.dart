@@ -55,6 +55,14 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
   bool isHomePage = false;
   DateTime? selectedDate;
 
+  void disconnectWS() {
+    if (widget.webSocketManagers != null) {
+      widget.webSocketManagers?.forEach((key, value) {
+        value.disconnectFromWebSocket();
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -80,6 +88,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
 
   void navigateKitchenOrderDetailsPage(FoodOrder currentOrder, User currentUser) {
     Route route = MaterialPageRoute(builder: (context) => KitchenOrderDetailsPage(order: currentOrder, user: currentUser, webSocketManagers: widget.webSocketManagers));
+    disconnectWS();
     Navigator.push(context, route).then(onGoBack);
   }
 
@@ -88,6 +97,9 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     super.initState();
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       setState(() {
         // do nothing
@@ -106,6 +118,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -192,6 +205,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: IconButton(
                   onPressed: () {
+                    disconnectWS();
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                     );
@@ -360,6 +374,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
           ),
           child: InkWell(
             onTap: () {
+              disconnectWS();
               Navigator.push(context,
                   MaterialPageRoute(
                       builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i], webSocketManagers: widget.webSocketManagers))

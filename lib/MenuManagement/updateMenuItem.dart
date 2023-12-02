@@ -82,6 +82,12 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     return widget.menuItem;
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -105,12 +111,16 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     hasVariant = getMenuItem()!.hasVariant;
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -128,6 +138,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),

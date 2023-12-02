@@ -15,7 +15,7 @@ class User {
   final String gender;
   final DateTime dob;
   final String ic;
-  final int points;
+  final double points;
 
   const User({
     required this.uid,
@@ -50,7 +50,7 @@ class User {
         gender: json['gender'],
         dob: DateTime.parse(json['dob']),
         ic: json['ic'],
-        points: json['points'],
+        points: double.parse(json['points']),
     );
   }
 
@@ -70,7 +70,7 @@ class User {
       gender: jwtDecodedToken['gender'],
       dob: DateTime.parse(jwtDecodedToken['dob']),
       ic: jwtDecodedToken['ic'],
-      points: jwtDecodedToken['points']
+      points: double.parse(jwtDecodedToken['points']),
     );
   }
 

@@ -67,17 +67,27 @@ class _MenuListPageState extends State<MenuListPage>{
     setState(() {});
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Web Socket
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.connectToWebSocket();
+    }
     widget.webSocketManagers!['order']?.listenToWebSocket((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -95,6 +105,7 @@ class _MenuListPageState extends State<MenuListPage>{
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
+              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
@@ -190,6 +201,7 @@ class _MenuListPageState extends State<MenuListPage>{
                       padding: const EdgeInsets.symmetric(horizontal: 28),
                       child: IconButton(
                         onPressed: () {
+                          disconnectWS();
                           Navigator.of(context).push(
                               MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                           );
@@ -225,6 +237,7 @@ class _MenuListPageState extends State<MenuListPage>{
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
+                  disconnectWS();
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
                   );
@@ -546,6 +559,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                               style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
+                                                disconnectWS();
                                                 Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j], webSocketManagers: widget.webSocketManagers));
                                                 Navigator.push(context, route).then(onGoBack);
                                               },
