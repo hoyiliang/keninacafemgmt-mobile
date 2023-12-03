@@ -97,6 +97,7 @@ flutter:
     - images/stockReceipt.png
     - images/broke_receipt.png
     - images/empty_order.png
+    - images/emptyAttendance.png
 
   fonts:
     - family: AsapCondensed

@@ -180,7 +180,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                                 Image.asset('images/viewApplication.png'),
                                 const Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  child: Text('Attendance Request', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                  child: Text('Attendance', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
                                 ),
                               ],
                             ),
