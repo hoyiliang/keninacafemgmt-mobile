@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,12 +12,12 @@ import 'package:keninacafe/Entity/ItemCategory.dart';
 
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,17 +40,17 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor:Colors.white,
         useMaterial3: true,
       ),
-      home: const UpdateMenuItemPage(user: null, menuItem: null, webSocketManagers: null),
+      home: const UpdateMenuItemPage(user: null, menuItem: null, streamControllers: null),
     );
   }
 }
 
 class UpdateMenuItemPage extends StatefulWidget {
-  const UpdateMenuItemPage({super.key, this.user, this.menuItem, this.webSocketManagers});
+  const UpdateMenuItemPage({super.key, this.user, this.menuItem, this.streamControllers});
 
   final User? user;
   final MenuItem? menuItem;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<UpdateMenuItemPage> createState() => _UpdateMenuItemPageState();
@@ -82,12 +83,6 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     return widget.menuItem;
   }
 
-  void disconnectWS() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -111,19 +106,15 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     hasVariant = getMenuItem()!.hasVariant;
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
-              disconnectWS();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -132,25 +123,32 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              disconnectWS();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -158,7 +156,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -188,7 +186,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildDetailsAppBar(context, 'Update Item', currentUser!, widget.webSocketManagers),
+      appBar: AppsBarState().buildDetailsAppBar(context, 'Update Item', currentUser!, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -1503,7 +1501,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 

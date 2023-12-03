@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Attendance/viewAttendanceStatus.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,16 +34,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AttendanceDashboardPage(user: null, webSocketManagers: null),
+      home: const AttendanceDashboardPage(user: null, streamControllers: null),
     );
   }
 }
 
 class AttendanceDashboardPage extends StatefulWidget {
-  const AttendanceDashboardPage({super.key, this.user, this.webSocketManagers});
+  const AttendanceDashboardPage({super.key, this.user, this.streamControllers});
 
   final User? user;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<AttendanceDashboardPage> createState() => _AttendanceDashboardState();
@@ -59,9 +60,6 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
   @override
   void dispose() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
     super.dispose();
   }
 
@@ -70,19 +68,15 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
     super.initState();
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
-              dispose();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -91,25 +85,32 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              dispose();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -117,7 +118,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -473,8 +474,8 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
-      appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+      appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 20,),
@@ -516,9 +517,8 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
                         child: ElevatedButton(
                           onPressed: () {
-                            dispose();
                             Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser, webSocketManagers: widget.webSocketManagers,)));
+                                MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser, streamControllers: widget.streamControllers,)));
                           },
                           child: Column(
                             children: [
@@ -538,7 +538,7 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 

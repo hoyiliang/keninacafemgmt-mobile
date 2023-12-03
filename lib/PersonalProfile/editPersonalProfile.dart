@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,16 +45,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const EditPersonalProfilePage(user: null, webSocketManagers: null),
+      home: const EditPersonalProfilePage(user: null, streamControllers: null),
     );
   }
 }
 
 class EditPersonalProfilePage extends StatefulWidget {
-  const EditPersonalProfilePage({super.key, this.user, this.webSocketManagers});
+  const EditPersonalProfilePage({super.key, this.user, this.streamControllers});
 
   final User? user;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<EditPersonalProfilePage> createState() => _EditPersonalProfilePageState();
@@ -82,21 +83,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
     return widget.user;
   }
 
-  void disconnectWS() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
@@ -104,7 +96,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -113,24 +105,32 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -138,7 +138,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -263,8 +263,8 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser, isHomePage, widget.webSocketManagers),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Update Profile', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser, isHomePage, widget.streamControllers),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Profile', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -481,7 +481,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 

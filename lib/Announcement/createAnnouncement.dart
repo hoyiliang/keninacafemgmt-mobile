@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:keninacafe/Utils/WebSocketManager.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import '../Entity/AnnouncementAssignUserMoreInfo.dart';
 import '../Entity/User.dart';
@@ -32,16 +32,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateAnnouncementPage(user: null, webSocketManagers: null),
+      home: const CreateAnnouncementPage(user: null, streamControllers: null),
     );
   }
 }
 
 class CreateAnnouncementPage extends StatefulWidget {
-  const CreateAnnouncementPage({super.key, this.user, this.webSocketManagers});
+  const CreateAnnouncementPage({super.key, this.user, this.streamControllers});
 
   final User? user;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<CreateAnnouncementPage> createState() => _CreateAnnouncementPageState();
@@ -66,9 +66,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
   @override
   void dispose() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
     super.dispose();
   }
 
@@ -77,40 +74,43 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
     super.initState();
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
-        content: const Text('Received new order!'),
-        action: SnackBarAction(
-          label: 'View',
-          onPressed: () {
-            dispose();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-              ),
-            );
-          },
-        )
+          content: const Text('Received new order!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+    widget.streamControllers!['announcement']?.stream.listen((message) {
       setState(() {
         // do nothing
       });
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        final data = jsonDecode(message);
+        String content = data['message'];
+        if (content == 'New Announcement') {
+          print("Received new announcement!");
+          final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else if (content == 'Delete Announcement') {
+          print("Received delete announcement!");
+        }
       });
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -148,51 +148,29 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                   // Navigator.of(context).pop();
                   if (_formKey.currentState!.validate()) {
                     var (announcementCreatedAsync, err_code) = await _submitAnnouncementDetails(title, description, currentUser!);
-                    setState(() {
-                      announcementCreated = announcementCreatedAsync;
-                      if (!announcementCreated) {
-                        if (err_code == ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_BACKEND) {
-                          showDialog(context: context, builder: (
-                              BuildContext context) =>
-                              AlertDialog(
-                                title: const Text('Error'),
-                                content: Text(
-                                    'An Error occurred while trying to create a new announcement.\n\nError Code: $err_code'),
-                                actions: <Widget>[
-                                  TextButton(onPressed: () =>
-                                      Navigator.pop(context, 'Ok'),
-                                      child: const Text('Ok')),
-                                ],
-                              ),
-                          );
-                        } else {
-                          showDialog(context: context, builder: (
-                              BuildContext context) =>
-                              AlertDialog(
-                                title: const Text('Connection Error'),
-                                content: Text(
-                                    'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
-                                actions: <Widget>[
-                                  TextButton(onPressed: () =>
-                                      Navigator.pop(context, 'Ok'),
-                                      child: const Text('Ok')),
-                                ],
-                              ),
-                          );
-                        }
-                      } else {
-                        titleController.text = '';
-                        descriptionController.text = '';
-                        numTitleText = 0;
-                        numDescriptionText = 0;
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
+                    announcementCreated = announcementCreatedAsync;
+                    if (!announcementCreated) {
+                      if (err_code == ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_BACKEND) {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Create New Announcement Successful'),
-                              content: const Text(
-                                  'The announcement can be viewed in the Announcement page.'),
+                              title: const Text('Error'),
+                              content: Text(
+                                  'An Error occurred while trying to create a new announcement.\n\nError Code: $err_code'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                      } else {
+                        showDialog(context: context, builder: (
+                            BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Connection Error'),
+                              content: Text(
+                                  'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
                                     Navigator.pop(context, 'Ok'),
@@ -201,7 +179,27 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                             ),
                         );
                       }
-                    });
+                    } else {
+                      titleController.text = '';
+                      descriptionController.text = '';
+                      numTitleText = 0;
+                      numDescriptionText = 0;
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      showDialog(context: context, builder: (
+                          BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Create New Announcement Successful'),
+                            content: const Text(
+                                'The announcement can be viewed in the Announcement page.'),
+                            actions: <Widget>[
+                              TextButton(onPressed: () =>
+                                  Navigator.pop(context, 'Ok'),
+                                  child: const Text('Ok')),
+                            ],
+                          ),
+                      );
+                    };
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -434,8 +432,8 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
-      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+      appBar: AppsBarState().buildAppBar(context, 'Announcement', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(

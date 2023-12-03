@@ -6,13 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
 import '../Entity/User.dart';
 import '../Entity/Voucher.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 import 'createVoucher.dart';
 import 'editVoucher.dart';
@@ -37,16 +37,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: VoucherAvailableListPage(user: null, webSocketManagers: null),
+      home: VoucherAvailableListPage(user: null, streamControllers: null),
     );
   }
 }
 
 class VoucherAvailableListPage extends StatefulWidget {
-  VoucherAvailableListPage({super.key, this.user, this.webSocketManagers});
+  VoucherAvailableListPage({super.key, this.user, this.streamControllers});
 
   User? user;
-  Map<String,WebSocketManager>? webSocketManagers;
+  Map<String,StreamController>? streamControllers;
 
   @override
   State<VoucherAvailableListPage> createState() => _VoucherAvailableListPageState();
@@ -64,7 +64,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
     super.initState();
 
     // Web Socket
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
@@ -72,7 +72,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -81,24 +81,32 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -106,7 +114,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -123,8 +131,8 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
-      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser, widget.webSocketManagers!),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser, widget.streamControllers!),
       body: SafeArea(
         child: SingleChildScrollView (
           child: Padding(
@@ -151,7 +159,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
+              MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser, streamControllers: widget.streamControllers))
           );
         },
         child: const Icon(
@@ -396,7 +404,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i], webSocketManagers: widget.webSocketManagers)),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i], streamControllers: widget.streamControllers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -640,7 +648,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i], webSocketManagers: widget.webSocketManagers)),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i], streamControllers: widget.streamControllers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -884,7 +892,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             onPressed: () async {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i], webSocketManagers: widget.webSocketManagers)),
+                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i], streamControllers: widget.streamControllers)),
                               );
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
