@@ -8,7 +8,12 @@ class Attendance {
   final bool is_active;
   final bool is_approve;
   final bool is_reject;
-  final String name;
+  final int user_created_id;
+  final String user_created_name;
+  final String user_updated_name;
+  final String user_created_image;
+  final bool is_clock_in;
+  final bool is_clock_out;
 
   const Attendance({
     required this.id,
@@ -16,31 +21,39 @@ class Attendance {
     required this.is_active,
     required this.is_approve,
     required this.is_reject,
-    required this.name,
+    required this.user_created_id,
+    required this.user_created_name,
+    required this.user_updated_name,
+    required this.user_created_image,
+    required this.is_clock_in,
+    required this.is_clock_out,
   });
 
   factory Attendance.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('Attendance.fromJson: $json');
-    }
+    // if (kDebugMode) {
+    //   print('Attendance.fromJson: $json');
+    // }
     return Attendance(
       id: json['id'],
       dateAttendanceTaken: DateTime.parse(json['dateAttendanceTaken']),
       is_active: json['is_active'],
       is_approve: json['is_approve'],
       is_reject: json['is_reject'],
-      name: json['user_name'],
+      user_created_id: json['user_created_id'],
+      user_created_name: json['user_created_name'],
+      user_updated_name: json['user_updated_name'] ?? "",
+      user_created_image: json['user_created_image'] ?? "",
+      is_clock_in: json['is_clock_in'],
+      is_clock_out: json['is_clock_out'],
     );
   }
 
   static bool getAttendanceDateList(Map<String, dynamic> json) {
     for (Map<String,dynamic> attendanceDate in json['data']) {
       Attendance oneAttendanceDate = Attendance.fromJson(attendanceDate);
-      if (oneAttendanceDate.dateAttendanceTaken.toString().substring(0,10) == DateTime.now().toString().substring(0,10)) {
-        return false;
-      }
+      return true;
     }
-    return true;
+    return false;
   }
 
   static List<Attendance> getAttendanceDataList(Map<String, dynamic> json) {

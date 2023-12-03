@@ -16,6 +16,8 @@ class User {
   final DateTime dob;
   final String ic;
   final double points;
+  final DateTime date_created;
+  final DateTime date_deactivated;
 
   const User({
     required this.uid,
@@ -31,26 +33,30 @@ class User {
     required this.dob,
     required this.ic,
     required this.points,
-      });
+    required this.date_created,
+    required this.date_deactivated,
+  });
 
   factory User.fromJson(Map<String, dynamic> json) {
     // if (kDebugMode) {
     //   print('User.fromJson: $json');
     // }
     return User(
-        uid: json['uid'],
-        image: json['image'],
-        is_staff: json['is_staff'],
-        is_active: json['is_active'],
-        staff_type: json['staff_type'],
-        name: json['name'],
-        email: json['email'],
-        address: json['address'],
-        phone: json['phone'],
-        gender: json['gender'],
-        dob: DateTime.parse(json['dob']),
-        ic: json['ic'],
-        points: double.parse(json['points']),
+      uid: json['uid'],
+      image: json['image'],
+      is_staff: json['is_staff'],
+      is_active: json['is_active'],
+      staff_type: json['staff_type'],
+      name: json['name'] ?? "",
+      email: json['email'] ?? "",
+      address: json['address'] ?? "",
+      phone: json['phone'] ?? "",
+      gender: json['gender'] ?? "",
+      dob: DateTime.parse(json['dob']),
+      ic: json['ic'],
+      points: double.parse(json['points']),
+      date_created: DateTime.parse(json['date_created']),
+      date_deactivated: json['date_deactivated'] != null ? DateTime.parse(json['date_deactivated']) : DateTime.now(),
     );
   }
 
@@ -71,6 +77,8 @@ class User {
       dob: DateTime.parse(jwtDecodedToken['dob']),
       ic: jwtDecodedToken['ic'],
       points: double.parse(jwtDecodedToken['points']),
+      date_created: DateTime.parse(jwtDecodedToken['date_created']),
+      date_deactivated: jwtDecodedToken['date_deactivated'] != null ? DateTime.parse(jwtDecodedToken['date_deactivated']) : DateTime.now(),
     );
   }
 
