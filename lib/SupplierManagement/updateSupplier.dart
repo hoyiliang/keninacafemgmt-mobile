@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,13 +11,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/SupplierManagement/supplierListWithDelete.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:keninacafe/AppsBar.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 import '../Utils/error_codes.dart';
 
 void main() {
@@ -40,17 +41,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const UpdateSupplierPage(supplier_data: null, user: null, webSocketManagers: null),
+      home: const UpdateSupplierPage(supplier_data: null, user: null, streamControllers: null),
     );
   }
 }
 
 class UpdateSupplierPage extends StatefulWidget {
-  const UpdateSupplierPage({super.key, this.supplier_data, this.user, this.webSocketManagers});
+  const UpdateSupplierPage({super.key, this.supplier_data, this.user, this.streamControllers});
 
   final User? user;
   final Supplier? supplier_data;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<UpdateSupplierPage> createState() => _UpdateSupplierPageState();
@@ -100,7 +101,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
     addressController.text = getSupplier()!.address;
 
     // Web Socket
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
@@ -108,7 +109,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -117,24 +118,32 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -142,7 +151,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -209,7 +218,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
+                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, streamControllers: widget.streamControllers)),
                                   );
                                 },
                               ),
@@ -275,8 +284,8 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Update Supplier', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Update Supplier', currentUser, widget.streamControllers),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -672,7 +681,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 

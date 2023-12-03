@@ -5,7 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:keninacafe/Utils/WebSocketManager.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
@@ -36,16 +36,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ManageOrderPage(user: null, webSocketManagers: null),
+      home: const ManageOrderPage(user: null, streamControllers: null),
     );
   }
 }
 
 class ManageOrderPage extends StatefulWidget {
-  const ManageOrderPage({super.key, this.user, this.webSocketManagers});
+  const ManageOrderPage({super.key, this.user, this.streamControllers});
 
   final User? user;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<ManageOrderPage> createState() => _ManageOrderPageState();
@@ -54,14 +54,6 @@ class ManageOrderPage extends StatefulWidget {
 class _ManageOrderPageState extends State<ManageOrderPage>{
   bool isHomePage = false;
   DateTime? selectedDate;
-
-  void disconnectWS() {
-    if (widget.webSocketManagers != null) {
-      widget.webSocketManagers?.forEach((key, value) {
-        value.disconnectFromWebSocket();
-      });
-    }
-  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -87,8 +79,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
   }
 
   void navigateKitchenOrderDetailsPage(FoodOrder currentOrder, User currentUser) {
-    Route route = MaterialPageRoute(builder: (context) => KitchenOrderDetailsPage(order: currentOrder, user: currentUser, webSocketManagers: widget.webSocketManagers));
-    disconnectWS();
+    Route route = MaterialPageRoute(builder: (context) => KitchenOrderDetailsPage(order: currentOrder, user: currentUser, streamControllers: widget.streamControllers));
     Navigator.push(context, route).then(onGoBack);
   }
 
@@ -97,40 +88,44 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     super.initState();
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       setState(() {
         // do nothing
       });
       SchedulerBinding.instance.addPostFrameCallback((_) {
         final snackBar = SnackBar(
-            content: const Text('Received new order!'),
+          content: const Text('Received new order!'),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       });
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              disconnectWS();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -138,7 +133,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -205,9 +200,8 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: IconButton(
                   onPressed: () {
-                    disconnectWS();
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
+                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
                     );
                   },
                   icon: const Icon(Icons.notifications, size: 35,),
@@ -216,7 +210,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
         body: SafeArea(
           child: TabBarView(
             children: [
@@ -353,7 +347,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+        bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
       ),
     );
   }
@@ -374,10 +368,9 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
           ),
           child: InkWell(
             onTap: () {
-              disconnectWS();
               Navigator.push(context,
                   MaterialPageRoute(
-                      builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i], webSocketManagers: widget.webSocketManagers))
+                      builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i], streamControllers: widget.streamControllers))
               );
             },
             child: Container(

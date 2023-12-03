@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -13,13 +14,13 @@ import 'package:keninacafe/SupplierManagement/stockReceiptList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Utils/multiselect_formfield_fixed.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
-import '../Utils/WebSocketManager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,18 +43,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const EditStockReceiptPage(user: null, stockReceipt: null, pdfFile: null, webSocketManagers: null),
+      home: const EditStockReceiptPage(user: null, stockReceipt: null, pdfFile: null, streamControllers: null),
     );
   }
 }
 
 class EditStockReceiptPage extends StatefulWidget {
-  const EditStockReceiptPage({super.key, this.user, this.stockReceipt, this.pdfFile, this.webSocketManagers});
+  const EditStockReceiptPage({super.key, this.user, this.stockReceipt, this.pdfFile, this.streamControllers});
 
   final User? user;
   final StockReceipt? stockReceipt;
   final Uint8List? pdfFile;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<EditStockReceiptPage> createState() => _EditStockReceiptPageState();
@@ -107,7 +108,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     getStockWithSupplierList();
 
     // Web Socket
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
@@ -115,7 +116,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -124,24 +125,32 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new announcement!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    widget.streamControllers!['announcement']?.stream.listen((message) {
+      final data = jsonDecode(message);
+      String content = data['message'];
+      if (content == 'New Announcement') {
+        final snackBar = SnackBar(
+            content: const Text('Received new announcement!'),
+            action: SnackBarAction(
+              label: 'View',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateAnnouncementPage(user: getUser(),
+                            streamControllers: widget.streamControllers),
+                  ),
+                );
+              },
+            )
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (content == 'Delete Announcement') {
+        print("Received delete announcement!");
+      }
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
@@ -149,7 +158,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
         //   onPressed: () {
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -211,7 +220,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, webSocketManagers: widget.webSocketManagers)),
+                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, streamControllers: widget.streamControllers)),
                                   );
                                 },
                               ),
@@ -256,8 +265,8 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers!),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Stock Receipt', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(

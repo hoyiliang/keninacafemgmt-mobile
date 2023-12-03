@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
 import 'package:keninacafe/Order/manageOrder.dart';
-import 'package:keninacafe/Utils/WebSocketManager.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'Entity/User.dart';
 import 'package:keninacafe/AppsBar.dart';
 
@@ -41,16 +43,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(user: null, webSocketManagers: null),
+      home: const HomePage(user: null, streamControllers: null),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.user, this.webSocketManagers});
+  const HomePage({super.key, this.user, this.streamControllers});
 
   final User? user;
-  final Map<String,WebSocketManager>? webSocketManagers;
+  final Map<String,StreamController>? streamControllers;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -65,9 +67,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
     super.dispose();
   }
 
@@ -76,19 +75,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     // Web Socket
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.connectToWebSocket();
-    }
-    widget.webSocketManagers!['order']?.listenToWebSocket((message) {
+    widget.streamControllers!['order']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new order!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
-              dispose();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -97,16 +92,15 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['announcement']?.listenToWebSocket((message) {
+    widget.streamControllers!['announcement']?.stream.listen((message) {
       final snackBar = SnackBar(
           content: const Text('Received new announcement!'),
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
-              dispose();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => CreateAnnouncementPage(user: getUser(), webSocketManagers: widget.webSocketManagers),
+                  builder: (context) => CreateAnnouncementPage(user: getUser(), streamControllers: widget.streamControllers),
                 ),
               );
             },
@@ -115,16 +109,15 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
 
-    widget.webSocketManagers!['attendance']?.listenToWebSocket((message) {
+    widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
         // action: SnackBarAction(
         //   label: 'View',
         //   onPressed: () {
-        //     dispose();
         //     Navigator.of(context).push(
         //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), webSocketManagers: widget.webSocketManagers),
+        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
         //       ),
         //     );
         //   },
@@ -139,16 +132,14 @@ class _HomePageState extends State<HomePage> {
 
     User? currentUser = getUser();
 
-    print(widget.webSocketManagers == null);
-
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
-      appBar: AppsBarState().buildAppBar(context, 'Home', currentUser, widget.webSocketManagers),
+      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+      appBar: AppsBarState().buildAppBar(context, 'Home', currentUser, widget.streamControllers),
       body: const Center(
 
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.webSocketManagers),
+      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 }

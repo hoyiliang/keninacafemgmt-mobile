@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,10 +9,10 @@ import 'package:keninacafe/Utils/error_codes.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Security/Encryptor.dart';
 import '../Utils/WebSockPaths.dart';
-import '../Utils/WebSocketManager.dart';
 import '../home.dart';
 
 void main() {
@@ -167,17 +169,29 @@ class _LoginPageState extends State<LoginPage> {
                               ],
                             ),
                         );
-                        final receiveOrderManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ORDER}');
-                        final receiveOrderReminderManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_UNPAID_ORDER_REMINDER}');
-                        final receiveAnnouncementManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ANNOUNCEMENT}${currentUser.name.replaceAll(" ", "")}${currentUser.uid}/');
-                        final receiveAttendanceRequestManager = WebSocketManager('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}');
-                        Map<String, WebSocketManager> webSocketManagers = {
-                          'order': receiveOrderManager,
-                          'announcement': receiveAnnouncementManager,
-                          'attendance': receiveAttendanceRequestManager
+                        final receiveOrderChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ORDER}'));
+                        final receiveOrderReminderChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_UNPAID_ORDER_REMINDER}'));
+                        final receiveAnnouncementChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_ANNOUNCEMENT_UPDATES}'));
+                        final receiveAttendanceRequestChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}'));
+
+                        final receiveOrderStreamController = StreamController.broadcast();
+                        receiveOrderStreamController.addStream(receiveOrderChannel.stream);
+                        final receiveOrderReminderStreamController = StreamController.broadcast();
+                        receiveOrderReminderStreamController.addStream(receiveOrderReminderChannel.stream);
+                        final receiveAnnouncementStreamController = StreamController.broadcast();
+                        receiveAnnouncementStreamController.addStream(receiveAnnouncementChannel.stream);
+                        final receiveAttendanceRequestStreamController = StreamController.broadcast();
+                        receiveAttendanceRequestStreamController.addStream(receiveAttendanceRequestChannel.stream);
+
+                        Map<String, StreamController> streamControllers = {
+                          'order': receiveOrderStreamController,
+                          'orderReminder': receiveOrderReminderStreamController,
+                          'announcement': receiveAnnouncementStreamController,
+                          'attendance': receiveAttendanceRequestStreamController,
                         };
+
                         Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, webSocketManagers: webSocketManagers,))
+                            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers,))
                         );
                       }
                     });
