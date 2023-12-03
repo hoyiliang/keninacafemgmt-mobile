@@ -267,9 +267,8 @@ class AppsBarState extends State<AppsBar> {
                 ),
               ),
               onTap: () => {
-                disconnectWS(webSocketManagers),
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
+                    MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser, streamControllers: streamControllers))
                 ),
               },
             ),

@@ -70,12 +70,6 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
     return widget.user;
   }
 
-  void disconnectWS() {
-    for (String key in widget.webSocketManagers!.keys) {
-      widget.webSocketManagers![key]?.disconnectFromWebSocket();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
