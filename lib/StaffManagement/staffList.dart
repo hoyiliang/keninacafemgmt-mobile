@@ -657,7 +657,10 @@ class _StaffListPageState extends State<StaffListPage> {
               gender: '',
               dob: DateTime.now(),
               phone: '',
-              points: 0)
+              points: 0,
+              date_created: DateTime.now(),
+              date_deactivated: DateTime.now()
+          )
         ]);
       }
     } on Exception catch (e) {
@@ -677,7 +680,10 @@ class _StaffListPageState extends State<StaffListPage> {
             gender: '',
             dob: DateTime.now(),
             phone: '',
-            points: 0)
+            points: 0,
+            date_created: DateTime.now(),
+            date_deactivated: DateTime.now()
+        )
       ]);
     }
   }
@@ -714,13 +720,13 @@ class _StaffListPageState extends State<StaffListPage> {
         if (kDebugMode) {
           print('No User found.');
         }
-        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0), (ErrorCodes.DELETE_STAFF_FAIL_BACKEND));
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.DELETE_STAFF_FAIL_BACKEND));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.DELETE_STAFF_FAIL_API_CONNECTION));
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.DELETE_STAFF_FAIL_API_CONNECTION));
     }
     //   } else {
     //     if (kDebugMode) {

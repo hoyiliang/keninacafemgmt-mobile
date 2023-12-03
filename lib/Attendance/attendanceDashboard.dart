@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
+import 'package:keninacafe/Attendance/takeAttendance.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Attendance/viewAttendanceStatus.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -478,32 +479,36 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
       appBar: AppsBarState().buildAppBar(context, 'Attendance', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 20,),
-          child: Row(
-              children: [
-                SizedBox(
-                  width: 196.5,
-                  // height: 300,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Navigator.of(context).push(
-                            //     MaterialPageRoute(builder: (context) => StaffListPage(user: currentUser)));
-                            showConfirmationDialog(DateTime.now(), currentUser);
-                          },
-                          child: Column(
-                            children: [
-                              Image.asset('images/status.png',),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                child: Text('Submit Attendance', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+            padding: const EdgeInsets.symmetric(vertical: 20,),
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                  children: [
+                    SizedBox(
+                      width: 210.0,
+                      // height: 300,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                disconnectWS();
+                                Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => TakeAttendancePage(user: currentUser, webSocketManagers: widget.webSocketManagers)));
+                              },
+                              child: Column(
+                                children: [
+                                  Image.asset('images/status.png', width: 140, height: 150,),
+                                  const Padding(
+                                    padding: EdgeInsets.fromLTRB(10, 4, 10, 13),
+                                    child: Text('Clock In / Out', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -527,15 +532,14 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
                                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 child: Text('Attendance Status', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ]
-          ),
+                    ),
+                  ]
+              ),
+            )
         ),
       ),
       bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
@@ -608,14 +612,6 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
     } on Exception catch (e) {
       throw Exception('Failed to connect API $e');
     }
-
-    // if (kDebugMode) {
-    //   print('title: $title');
-    //   print('description: $description');
-    // }
-    //
-    // var (success, err_code) = await createAnnouncement(title, description, currentUser);
-    // return (success, err_code);
   }
 
 }

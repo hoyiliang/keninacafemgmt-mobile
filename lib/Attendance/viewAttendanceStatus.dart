@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
@@ -46,19 +47,39 @@ class ViewAttendanceStatusPage extends StatefulWidget {
 }
 
 class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
-  String title = '';
-  String text = '';
-  final _formKey = GlobalKey<FormState>();
   List<Attendance> listAttendanceData = [];
   bool isHomePage = false;
+  DateTime? selectedDate;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
 
   User? getUser() {
     return widget.user;
   }
 
+  void disconnectWS() {
+    for (String key in widget.webSocketManagers!.keys) {
+      widget.webSocketManagers![key]?.disconnectFromWebSocket();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    selectedDate = DateTime.now();
 
     // Web Socket
     widget.streamControllers!['order']?.stream.listen((message) {
@@ -125,216 +146,403 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
     enterFullScreen();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
 
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
       appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser, widget.streamControllers),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-              child: FutureBuilder<List<Attendance>>(
-                  future: getAttendanceData(currentUser),
-                  builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                        child: Column(
-                          children: buildAttendanceDataRows(snapshot.data, currentUser),
-                        )
-                      );
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                children: [
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(13.0),
+                      child: Text(
+                        'Select Date: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 25.0,
+                          fontFamily: 'Gabarito',
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      width: 200.0,
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today),
+                          const SizedBox(width: 8.0),
+                          selectedDate != null
+                              ? Text(
+                            '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                            style: const TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ) : const Text(
+                            '',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                    } else {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return const Center(child: Text('Error: invalid state'));
-                      }
-                    }
-                  }
-              )
-          ),
+            if (selectedDate != null)
+              Expanded(
+                child: SingleChildScrollView (
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
+                      child: FutureBuilder<List<Attendance>>(
+                          future: getAttendanceWithStatusList(DateFormat('yyyy-MM-dd').format(selectedDate!), currentUser),
+                          builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
+                            if (snapshot.hasData) {
+                              return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                  child: Column(
+                                    children: buildAttendanceWithStatusList(snapshot.data, currentUser)
+                                  )
+                              );
+
+                            } else {
+                              if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else {
+                                return const Center(child: Text('Loading...'));
+                              }
+                            }
+                          }
+                      )
+                  ),
+                ),
+              ),
+          ],
         ),
+        // child: SingleChildScrollView(
+        //   child: SizedBox(
+        //       child: FutureBuilder<List<Attendance>>(
+        //           future: getAttendanceData(currentUser),
+        //           builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
+        //             if (snapshot.hasData) {
+        //               return Padding(
+        //                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        //                 child: Column(
+        //                   children: buildAttendanceDataRows(snapshot.data, currentUser),
+        //                 )
+        //               );
+        //
+        //             } else {
+        //               if (snapshot.hasError) {
+        //                 return Center(child: Text('Error: ${snapshot.error}'));
+        //               } else {
+        //                 return const Center(child: Text('Error: invalid state'));
+        //               }
+        //             }
+        //           }
+        //       )
+        //   ),
+        // ),
       ),
       bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
-  Widget buildStatusIsActive(Attendance a, User currentUser) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Center(
-        child: Container(
-          width: 100,
-          height: 25,
-          decoration: BoxDecoration(
-            color: Colors.blue[200],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Colors.black,
-              width: 2,
+  Widget buildStatusIsActive() {
+    return SizedBox(
+      height: 20,
+      width: 70,
+      child: Material(
+          elevation: 3.0, // Add elevation to simulate a border
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Colors.grey.shade600, // Border color
+              width: 2.0, // Border width
             ),
+            borderRadius: BorderRadius.circular(200), // Apply border radius if needed
           ),
-          child: const Center(
+          child: Align(
+            alignment: Alignment.center,
             child: Text(
-              'Pending',
+              "Pending",
               style: TextStyle(
-                // fontSize: 16,
                 fontWeight: FontWeight.bold,
+                fontSize: 9.0,
+                color: Colors.grey.shade700,
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-  //
-  Widget buildStatusIsAprrove(Attendance a, User currentUser) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Center(
-        child: Container(
-          width: 100,
-          height: 25,
-          decoration: BoxDecoration(
-            color: Colors.green[300],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Colors.black,
-              width: 2,
-            ),
-          ),
-          child: const Center(
-            child: Text(
-              'Approve',
-              style: TextStyle(
-                // fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
+          )
       ),
     );
   }
 
-  Widget buildStatusIsReject(Attendance a, User currentUser) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Center(
-        child: Container(
-          width: 100,
-          height: 25,
-          decoration: BoxDecoration(
-            color: Colors.red[400],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Colors.black,
-              width: 2,
+  Widget buildStatusIsApprove() {
+    return SizedBox(
+      height: 20,
+      width: 70,
+      child: Material(
+          elevation: 3.0, // Add elevation to simulate a border
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Colors.green.shade400, // Border color
+              width: 2.0, // Border width
             ),
+            borderRadius: BorderRadius.circular(200), // Apply border radius if needed
           ),
-          child: const Center(
+          child: Align(
+            alignment: Alignment.center,
             child: Text(
-              'Reject',
+              "Approved",
               style: TextStyle(
-                // fontSize: 16,
                 fontWeight: FontWeight.bold,
+                fontSize: 9.0,
+                color: Colors.green.shade500,
               ),
             ),
-          ),
-        ),
+          )
       ),
     );
   }
 
-  List<Widget> buildAttendanceDataRows(List<Attendance>? listAttendanceData, User? currentUser) {
-    List<Widget> rows = [];
-    rows.add(
-      Table(
-        border: TableBorder.symmetric(
-          outside:
-          BorderSide(color: Colors.grey[700]!, width: 1.5)
-        ),
-        children: [
-          //This table row is for the table header which is static
-          TableRow(
-              decoration: BoxDecoration(color: Colors.grey[400]),
-              children: const [
-
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "Date",
-                      style: TextStyle(
-                        fontSize: 18,
-                          fontWeight: FontWeight.bold, color: Colors.black87),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "Status",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold, color: Colors.black87),
-                    ),
-                  ),
-                ),
-              ]
+  Widget buildStatusIsReject() {
+    return SizedBox(
+      height: 20,
+      width: 70,
+      child: Material(
+          elevation: 3.0, // Add elevation to simulate a border
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(
+              color: Colors.red, // Border color
+              width: 2.0, // Border width
+            ),
+            borderRadius: BorderRadius.circular(200), // Apply border radius if needed
           ),
-        ],
+          child: const Align(
+            alignment: Alignment.center,
+            child: Text(
+              "Rejected",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 9.0,
+                color: Colors.red,
+              ),
+            ),
+          )
       ),
     );
+  }
 
-    for (Attendance a in listAttendanceData!) {
-      rows.add(
-        Table(
+  String _getDayName(int day) {
+    switch (day) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return '';
+    }
+  }
+
+  List<Widget> buildAttendanceWithStatusList(List<Attendance>? listAttendanceData, User? currentUser) {
+    List<Widget> cards = [];
+    if (listAttendanceData!.isEmpty) {
+      cards.add(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Vertically center the content
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TableRow(
-              decoration: BoxDecoration(color: Colors.grey[200]),
-              children: [
-
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text(
-                      a.dateAttendanceTaken.toString().substring(0,10), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)
-                    ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 50, 0, 20),
+              child: Image.asset(
+                "images/emptyAttendance.png",
+                width: 250,
+                height: 250,
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+                child: Text(
+                  "No Attendance Record",
+                  style: TextStyle(
+                    fontSize: 28.0,
+                    color: Colors.grey.shade900,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                buildAttendanceStatus(a, currentUser!),
-              ],
+              ),
             ),
           ],
         ),
       );
+    } else {
+      cards.add(
+        const SizedBox(height: 10.0,),
+      );
+      for (Attendance a in listAttendanceData!) {
+        cards.add(
+          Card(
+            child: Container(
+              constraints: const BoxConstraints(
+                maxHeight: double.infinity,
+              ),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueGrey, width: 4.0),
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 15, 0, 5),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  _getDayName(a.dateAttendanceTaken.weekday),
+                                  style: TextStyle(
+                                    fontSize: 22.0,
+                                    color: Colors.grey.shade900,
+                                    fontFamily: "YoungSerif",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.clip,
+                                ),
+                              ),
+                              const Spacer(),
+                              buildAttendanceStatus(a),
+                              const SizedBox(width: 2.0,),
+                            ],
+                          ),
+                          const SizedBox(height: 5.0,),
+                          Row(
+                            children: [
+                              if (a.is_clock_in && !a.is_clock_out)
+                                Text(
+                                  "Time Clock In : ",
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: "Oswald",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  "Time Clock Out : ",
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: "Oswald",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              Text(
+                                "${a.dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${a.dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${a.dateAttendanceTaken.second.toString().padLeft(2, '0')}",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade800,
+                                  fontFamily: "BreeSerif",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2.0,),
+                          if (a.user_updated_name != "")
+                            Row(
+                              children: [
+                                Text(
+                                  "Updated By : ",
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: "Oswald",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  a.user_updated_name,
+                                  style: TextStyle(
+                                    fontSize: 19.0,
+                                    color: Colors.grey.shade800,
+                                    fontFamily: "BreeSerif",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 5.0,),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        cards.add(
+          const SizedBox(height: 20,),
+        );
+      }
     }
-    return rows;
+    return cards;
   }
 
-  Widget buildAttendanceStatus(Attendance a, User currentUser) {
+  Widget buildAttendanceStatus(Attendance a) {
+    print(a.is_active);
+    print(a.is_reject);
+    print(a.is_approve);
     if (a.is_reject) {
-      return buildStatusIsReject(a, currentUser);
+      return buildStatusIsReject();
     } else if (a.is_approve) {
-      return buildStatusIsAprrove(a, currentUser);
+      return buildStatusIsApprove();
     } else if (a.is_active) {
-      return buildStatusIsActive(a, currentUser);
+      return buildStatusIsActive();
     } else {
       return const SizedBox.shrink();
     }
   }
 
-  Future<List<Attendance>> getAttendanceData(User currentUser) async {
+  Future<List<Attendance>> getAttendanceWithStatusList(String selectedDate, User currentUser) async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_list/${currentUser.uid}'),
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/attendance/request_attendance_with_status_list_by_date/${currentUser.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
+        body: jsonEncode(<String, dynamic> {
+          'date_selected': selectedDate,
+        }),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {

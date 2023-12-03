@@ -583,7 +583,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               staff_type: '',
               dob: DateTime.now(),
               phone: '',
-              points: 0), (ErrorCodes.OLD_PASSWORD_DOES_NOT_MATCH_DIALOG));
+              points: 0,
+              date_created: DateTime.now(),
+              date_deactivated: DateTime.now(),
+          ), (ErrorCodes.OLD_PASSWORD_DOES_NOT_MATCH_DIALOG));
         } else {
           if (kDebugMode) {
             print(error);
@@ -600,14 +603,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               staff_type: '',
               dob: DateTime.now(),
               phone: '',
-              points: 0), (ErrorCodes.PASSWORD_UPDATE_FAIL_BACKEND));
+              points: 0,
+              date_created: DateTime.now(),
+              date_deactivated: DateTime.now(),
+          ), (ErrorCodes.PASSWORD_UPDATE_FAIL_BACKEND));
         }
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, ), (ErrorCodes.PASSWORD_UPDATE_FAIL_API_CONNECTION));
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.PASSWORD_UPDATE_FAIL_API_CONNECTION));
     }
   }
 }

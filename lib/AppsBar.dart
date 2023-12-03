@@ -193,7 +193,7 @@ class AppsBarState extends State<AppsBar> {
                 color: Colors.deepPurple.shade300
               ),
               title: Text(
-                'Staff',
+                'Staff / Attendance',
                 style: TextStyle(
                   color: Colors.deepPurple.shade400,
                   fontWeight: FontWeight.bold,
@@ -252,6 +252,27 @@ class AppsBarState extends State<AppsBar> {
               ),
             },
           ),
+          if (currentUser.staff_type == "Restaurant Worker")
+            ListTile(
+              leading: Icon(
+                  Icons.access_time,
+                  color: Colors.deepPurple.shade300
+              ),
+              title: Text(
+                'Attendance',
+                style: TextStyle(
+                  color: Colors.deepPurple.shade400,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
+              onTap: () => {
+                disconnectWS(webSocketManagers),
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AttendanceDashboardPage(user: currentUser, webSocketManagers: webSocketManagers))
+                ),
+              },
+            ),
           ListTile(
             leading: Icon(
               Icons.exit_to_app,

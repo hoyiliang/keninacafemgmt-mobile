@@ -1020,13 +1020,13 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
           print(response.body);
           print('Staff exist in system.');
         }
-        return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0), (ErrorCodes.REGISTER_FAIL_STAFF_EXISTS));
+        return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_FAIL_STAFF_EXISTS));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0), (ErrorCodes.REGISTER_FAIL_API_CONNECTION));
+      return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_FAIL_API_CONNECTION));
     }
   }
 
