@@ -171,40 +171,6 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     User? currentUser = getUser();
     print(currentUser?.name);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser, widget.streamControllers),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-              child: FutureBuilder<List<Attendance>>(
-                  future: getAttendanceData(currentUser),
-                  builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                          child: Column(
-                            children: buildAttendanceDataRows(snapshot.data, currentUser),
-                          )
-                      );
-
-                    } else {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return const Center(child: Text('Error: invalid state'));
-                      }
-                    }
-                  }
-              )
-          ),
-        ),
-      ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
-    );
-  }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -270,7 +236,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                   onPressed: () {
                     // disconnectWS();
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, webSocketManagers: widget.webSocketManagers))
+                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
                     );
                   },
                   icon: const Icon(Icons.notifications, size: 35,),
@@ -279,7 +245,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
             ],
           ),
         ),
-        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.webSocketManagers),
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
         body: SafeArea(
           child: TabBarView(
             children: [
@@ -338,26 +304,26 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                     Expanded(
                       child: SingleChildScrollView (
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                          child: FutureBuilder<List<Attendance>>(
-                            future: getAttendanceRequestList(selectedDateForRequest!),
-                            builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
-                              if (snapshot.hasData) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                  child: Column(
-                                    children: buildAttendanceRequestList(snapshot.data, currentUser),
-                                  )
-                                );
-                              } else {
-                                if (snapshot.hasError) {
-                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                } else {
-                                  return const Center(child: Text('Loading...'));
+                            padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                            child: FutureBuilder<List<Attendance>>(
+                                future: getAttendanceRequestList(selectedDateForRequest!),
+                                builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                        child: Column(
+                                          children: buildAttendanceRequestList(snapshot.data, currentUser),
+                                        )
+                                    );
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return const Center(child: Text('Loading...'));
+                                    }
+                                  }
                                 }
-                              }
-                            }
-                          )
+                            )
                         ),
                       ),
                     ),
@@ -419,38 +385,38 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                     Expanded(
                       child: SingleChildScrollView (
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                          child: FutureBuilder<List<User>>(
-                            future: getUserAttendanceExistList(selectedDateForOverview!),
-                            builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-                              if (snapshot.hasData) {
-                                return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                    child: Column(
-                                      children: [
-                                        FutureBuilder<List<Widget>> (
-                                          future: buildAttendanceStaffCards(snapshot.data, currentUser),
-                                          builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Column(
-                                                children: snapshot.data!
-                                              );
-                                            }
-                                            return SizedBox();
-                                          }
+                            padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                            child: FutureBuilder<List<User>>(
+                                future: getUserAttendanceExistList(selectedDateForOverview!),
+                                builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                        child: Column(
+                                            children: [
+                                              FutureBuilder<List<Widget>> (
+                                                  future: buildAttendanceStaffCards(snapshot.data, currentUser),
+                                                  builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
+                                                    if (snapshot.hasData) {
+                                                      return Column(
+                                                          children: snapshot.data!
+                                                      );
+                                                    }
+                                                    return SizedBox();
+                                                  }
+                                              )
+                                            ]
                                         )
-                                      ]
-                                    )
-                                );
-                              } else {
-                                if (snapshot.hasError) {
-                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                } else {
-                                  return const Center(child: Text('Loading...'));
+                                    );
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return const Center(child: Text('Loading...'));
+                                    }
+                                  }
                                 }
-                              }
-                            }
-                          )
+                            )
                         ),
                       ),
                     ),
@@ -462,6 +428,39 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
         ),
       ),
     );
+
+    // return Scaffold(
+    //   backgroundColor: Colors.white,
+    //   drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+    //   appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser, widget.streamControllers),
+    //   body: SafeArea(
+    //     child: SingleChildScrollView(
+    //       child: SizedBox(
+    //           child: FutureBuilder<List<Attendance>>(
+    //               future: getAttendanceData(currentUser),
+    //               builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
+    //                 if (snapshot.hasData) {
+    //                   return Padding(
+    //                       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+    //                       child: Column(
+    //                         children: buildAttendanceDataRows(snapshot.data, currentUser),
+    //                       )
+    //                   );
+    //
+    //                 } else {
+    //                   if (snapshot.hasError) {
+    //                     return Center(child: Text('Error: ${snapshot.error}'));
+    //                   } else {
+    //                     return const Center(child: Text('Error: invalid state'));
+    //                   }
+    //                 }
+    //               }
+    //           )
+    //       ),
+    //     ),
+    //   ),
+    //   bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
+    // );
   }
 
   List<Widget> buildAttendanceRequestList(List<Attendance>? attendanceRequestList, User? currentUser) {
@@ -921,8 +920,8 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
           child: MaterialButton(
             // minWidth: double.infinity,
             height:40,
-            onPressed: isPending == false ? () {
-              showConfirmationUpdateStatusDialog(selectedDate, user_created_id, user_created_name, "Pending", currentUser);
+            onPressed: isPending == false && true ? () {
+              // showConfirmationUpdateStatusDialog(selectedDate, user_created_id, user_created_name, "Pending", currentUser);
             } : null,
             child: const Text(
               "Pending",

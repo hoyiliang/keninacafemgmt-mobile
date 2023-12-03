@@ -483,66 +483,64 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
             child: Align(
               alignment: Alignment.center,
               child: Column(
-                  children: [
-                    SizedBox(
-                      width: 210.0,
-                      // height: 300,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                disconnectWS();
-                                Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => TakeAttendancePage(user: currentUser, webSocketManagers: widget.webSocketManagers)));
-                              },
-                              child: Column(
-                                children: [
-                                  Image.asset('images/status.png', width: 140, height: 150,),
-                                  const Padding(
-                                    padding: EdgeInsets.fromLTRB(10, 4, 10, 13),
-                                    child: Text('Clock In / Out', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                                  ),
-                                ],
-                              ),
+                children: [
+                  SizedBox(
+                    width: 210.0,
+                    // height: 300,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => TakeAttendancePage(user: currentUser, streamControllers: widget.streamControllers)));
+                            },
+                            child: Column(
+                              children: [
+                                Image.asset('images/status.png', width: 140, height: 150,),
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(10, 4, 10, 13),
+                                  child: Text('Clock In / Out', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 196,
-                  // height: 300,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser, streamControllers: widget.streamControllers,)));
-                          },
-                          child: Column(
-                            children: [
-                              Image.asset('images/attendance.png'),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                child: Text('Attendance Status', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ]
+                  ),
+                  SizedBox(
+                    width: 196,
+                    // height: 300,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => ViewAttendanceStatusPage(user: currentUser, streamControllers: widget.streamControllers,)));
+                            },
+                            child: Column(
+                              children: [
+                                Image.asset('images/attendance.png'),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  child: Text('Attendance Status', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                ),
+                              ]
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ]
               ),
             )
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
