@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
+import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
@@ -120,17 +121,17 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }

@@ -103,17 +103,17 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }

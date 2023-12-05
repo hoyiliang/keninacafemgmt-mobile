@@ -9,6 +9,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
+import 'manageAttendanceRequest.dart';
 
 void main() {
   runApp(const MyApp());
@@ -120,17 +121,17 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }
@@ -144,7 +145,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildAppBar(context, 'Attendance Status', currentUser, widget.streamControllers),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Status', currentUser, widget.streamControllers),
       body: SafeArea(
         child: Column(
           children: [

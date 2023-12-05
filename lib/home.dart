@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/Announcement/createAnnouncement.dart';
+import 'package:keninacafe/Attendance/manageAttendanceRequest.dart';
 import 'package:keninacafe/Order/manageOrder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'Entity/User.dart';
@@ -112,16 +113,16 @@ class _HomePageState extends State<HomePage> {
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
         content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+        action: SnackBarAction(
+          label: 'View',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+              ),
+            );
+          },
+        )
       );
     });
   }

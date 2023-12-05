@@ -16,6 +16,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
+import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
@@ -133,17 +134,17 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }
