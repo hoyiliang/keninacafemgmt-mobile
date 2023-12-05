@@ -9,7 +9,8 @@ class OrderFoodItemMoreInfo {
   final bool is_done;
   final int food_order;
   final String menu_item_name;
-  final double menu_item_price;
+  final double menu_item_price_standard;
+  final double menu_item_price_large;
   final double numOrder;
 
   OrderFoodItemMoreInfo({
@@ -20,7 +21,8 @@ class OrderFoodItemMoreInfo {
     required this.is_done,
     required this.food_order,
     required this.menu_item_name,
-    required this.menu_item_price,
+    required this.menu_item_price_standard,
+    required this.menu_item_price_large,
     required this.numOrder,
   });
 
@@ -36,7 +38,8 @@ class OrderFoodItemMoreInfo {
       is_done: json['is_done'],
       food_order: json['food_order'],
       menu_item_name: json['menu_item_name'],
-      menu_item_price: json['menu_item_price'] ?? 0,
+      menu_item_price_standard: json['menu_item_price_standard'] ?? 0,
+      menu_item_price_large: json['menu_item_price_large'] ?? 0,
       numOrder: json['num_order'],
     );
   }

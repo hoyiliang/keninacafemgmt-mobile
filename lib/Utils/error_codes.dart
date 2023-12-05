@@ -2,6 +2,8 @@ class ErrorCodes {
   static const String OPERATION_OK = 'E-000';
   static const String LOGIN_FAIL_NO_USER = 'E-001';
   static const String LOGIN_FAIL_API_CONNECTION = 'E-002';
+  static const String LOGIN_FAIL_PASSWORD_INCORRECT = 'E-072';
+  static const String LOGIN_FAIL_USER_DEACTIVATED_DELETED = 'E-073';
   static const String ANNOUNCEMENT_CREATE_FAIL_BACKEND = 'E-003';
   static const String ANNOUNCEMENT_CREATE_FAIL_API_CONNECTION = 'E-004';
   static const String DELETE_ANNOUNCEMENT_FAIL_BACKEND = 'E-052';
