@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/SupplierManagement/viewSupplierDetails.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
+import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/Receipt.dart';
 import '../Entity/Stock.dart';
 import '../Entity/StockReceipt.dart';
@@ -125,17 +126,17 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }

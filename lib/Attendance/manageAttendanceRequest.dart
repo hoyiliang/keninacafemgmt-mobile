@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -147,19 +148,15 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     });
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
-      SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
-      );
+      setState(() {
+        // do nothing
+      });
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        final snackBar = SnackBar(
+          content: const Text('Received new attendance request!'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      });
     });
   }
 
