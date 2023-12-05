@@ -14,6 +14,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
+import 'manageAttendanceRequest.dart';
 
 void main() {
   runApp(const MyApp());
@@ -113,17 +114,17 @@ class _AttendanceDashboardState extends State<AttendanceDashboardPage> {
 
     widget.streamControllers!['attendance']?.stream.listen((message) {
       SnackBar(
-        content: const Text('Received new attendance request!'),
-        // action: SnackBarAction(
-        //   label: 'View',
-        //   onPressed: () {
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => (user: getUser(), streamControllers: widget.streamControllers),
-        //       ),
-        //     );
-        //   },
-        // )
+          content: const Text('Received new attendance request!'),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
+                ),
+              );
+            },
+          )
       );
     });
   }
