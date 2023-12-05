@@ -252,7 +252,6 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
         //   ),
         // ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
@@ -397,49 +396,83 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
       cards.add(
         const SizedBox(height: 10.0,),
       );
-      for (Attendance a in listAttendanceData!) {
-        cards.add(
-          Card(
-            child: Container(
-              constraints: const BoxConstraints(
-                maxHeight: double.infinity,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blueGrey, width: 4.0),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 15, 0, 5),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  _getDayName(a.dateAttendanceTaken.weekday),
-                                  style: TextStyle(
-                                    fontSize: 22.0,
-                                    color: Colors.grey.shade900,
-                                    fontFamily: "YoungSerif",
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.clip,
+      cards.add(
+        Card(
+          child: Container(
+            constraints: const BoxConstraints(
+              maxHeight: double.infinity,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blueGrey, width: 4.0),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 15, 0, 5),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                _getDayName(listAttendanceData[0].dateAttendanceTaken.weekday),
+                                style: TextStyle(
+                                  fontSize: 22.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "YoungSerif",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ),
+                            const Spacer(),
+                            buildAttendanceStatus(listAttendanceData[0]),
+                            const SizedBox(width: 2.0,),
+                          ],
+                        ),
+                        const SizedBox(height: 5.0,),
+                        Row(
+                          children: [
+                            if (listAttendanceData[0].is_clock_in && !listAttendanceData[0].is_clock_out)
+                              Text(
+                                "Time Clock In : ",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade700,
+                                  fontFamily: "Oswald",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            else
+                              Text(
+                                "Time Clock Out : ",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade700,
+                                  fontFamily: "Oswald",
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const Spacer(),
-                              buildAttendanceStatus(a),
-                              const SizedBox(width: 2.0,),
-                            ],
-                          ),
-                          const SizedBox(height: 5.0,),
+                            Text(
+                              "${listAttendanceData[0].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.grey.shade800,
+                                fontFamily: "BreeSerif",
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2.0,),
+                        if (listAttendanceData.length == 2)
                           Row(
                             children: [
-                              if (a.is_clock_in && !a.is_clock_out)
+                              if (listAttendanceData[1].is_clock_in && !listAttendanceData[1].is_clock_out)
                                 Text(
                                   "Time Clock In : ",
                                   style: TextStyle(
@@ -460,7 +493,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
                                   ),
                                 ),
                               Text(
-                                "${a.dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${a.dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${a.dateAttendanceTaken.second.toString().padLeft(2, '0')}",
+                                "${listAttendanceData[1].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
                                 style: TextStyle(
                                   fontSize: 20.0,
                                   color: Colors.grey.shade800,
@@ -470,44 +503,43 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 2.0,),
-                          if (a.user_updated_name != "")
-                            Row(
-                              children: [
-                                Text(
-                                  "Updated By : ",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    color: Colors.grey.shade700,
-                                    fontFamily: "Oswald",
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        const SizedBox(height: 2.0,),
+                        if (listAttendanceData[0].user_updated_name != "")
+                          Row(
+                            children: [
+                              Text(
+                                "Updated By : ",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade700,
+                                  fontFamily: "Oswald",
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                Text(
-                                  a.user_updated_name,
-                                  style: TextStyle(
-                                    fontSize: 19.0,
-                                    color: Colors.grey.shade800,
-                                    fontFamily: "BreeSerif",
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                              Text(
+                                listAttendanceData[0].user_updated_name,
+                                style: TextStyle(
+                                  fontSize: 19.0,
+                                  color: Colors.grey.shade800,
+                                  fontFamily: "BreeSerif",
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
-                          const SizedBox(height: 5.0,),
-                        ],
-                      ),
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 5.0,),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        );
-        cards.add(
-          const SizedBox(height: 20,),
-        );
-      }
+        ),
+      );
+      cards.add(
+        const SizedBox(height: 20,),
+      );
     }
     return cards;
   }

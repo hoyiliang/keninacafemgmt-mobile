@@ -7,7 +7,7 @@ class FoodOrder {
   final String order_status;
   final double gross_total;
   final double grand_total;
-  final String voucher;
+  final String voucher_assign_id;
   final String user_created_name;
   final String user_updated_name;
   final DateTime dateTime;
@@ -17,7 +17,7 @@ class FoodOrder {
     required this.order_status,
     required this.gross_total,
     required this.grand_total,
-    required this.voucher,
+    required this.voucher_assign_id,
     required this.user_created_name,
     required this.user_updated_name,
     required this.dateTime,
@@ -32,7 +32,7 @@ class FoodOrder {
       order_status: json['order_status'],
       gross_total: json['gross_total'],
       grand_total: json['grand_total'],
-      voucher: json['voucher_name'] ?? '',
+      voucher_assign_id: json['voucher_assign_id'] ?? '',
       user_created_name: json['user_created_name'] ?? '',
       user_updated_name: json['user_updated_name'] ?? '',
       dateTime: DateTime.parse(json['date_created']),
@@ -45,7 +45,7 @@ class FoodOrder {
       'order_status': order_status,
       'gross_total': gross_total,
       'grand_total': grand_total,
-      'voucher': voucher,
+      'voucher_assign_id': voucher_assign_id,
       'user_created_name': user_created_name,
       'user_updated_name': user_updated_name,
       'dateTime': dateTime,

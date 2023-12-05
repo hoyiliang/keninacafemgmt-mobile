@@ -534,7 +534,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                                   if (snapshot.hasData) {
                                     return Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [buildDropDownButtonFormField(snapshot.data)]
+                                        children: [buildDropDownButtonFormField(snapshot.data, currentUser)]
                                     );
                                   } else {
                                     if (snapshot.hasError) {
@@ -875,9 +875,9 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     );
   }
 
-  Widget buildDropDownButtonFormField(List<StaffType>? staffTypes) {
+  Widget buildDropDownButtonFormField(List<StaffType>? staffTypes, User currentUser) {
     List<DropdownMenuItem<String>> staffTypeNames = [];
-    staffTypeNames = getDropDownMenuItem(staffTypes!);
+    staffTypeNames = getDropDownMenuItem(staffTypes!, currentUser);
     return DropdownButtonFormField(
       decoration: InputDecoration(
         hintText: 'e.g. Restaurant Worker',
@@ -934,10 +934,19 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     );
   }
 
-  List<DropdownMenuItem<String>> getDropDownMenuItem(List<StaffType> listStaffType) {
+  List<DropdownMenuItem<String>> getDropDownMenuItem(List<StaffType> listStaffType, User currentUser) {
     List<DropdownMenuItem<String>> staffTypes = [];
     for (StaffType a in listStaffType) {
-      staffTypes.add(DropdownMenuItem(value: a.name, child: Text(a.name)));
+      print(currentUser.staff_type);
+      print(a.name);
+      if (currentUser.staff_type == "Restaurant Manager" && a.name != "Restaurant Owner") {
+        print('1');
+        staffTypes.add(DropdownMenuItem(value: a.name, child: Text(a.name)));
+      } else if (currentUser.staff_type == "Restaurant Owner") {
+        print('2');
+        staffTypes.add(DropdownMenuItem(value: a.name, child: Text(a.name)));
+      }
+
     }
     return staffTypes;
   }
@@ -1098,8 +1107,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                         );
                       }
                     } else {
-                      // If Leave Form Data success created
-
                       Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>

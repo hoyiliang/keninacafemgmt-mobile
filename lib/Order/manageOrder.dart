@@ -13,6 +13,7 @@ import '../Entity/FoodOrder.dart';
 import '../Entity/User.dart';
 
 
+import 'completeOrderDetails.dart';
 import 'incomingOrderDetails.dart';
 import 'kitchenOrderDetails.dart';
 
@@ -188,7 +189,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
 
             elevation: 0,
             toolbarHeight: 100,
-            title: const Text("Order",
+            title: const Text("Order Dashboard",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -347,7 +348,6 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ],
           ),
         ),
-        bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
       ),
     );
   }
@@ -824,10 +824,10 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
             ),
             child: InkWell(
               onTap: () {
-                // Navigator.push(context,
-                //     MaterialPageRoute(
-                //         builder: (context) => IncomingOrderDetailsPage(user: currentUser, order: orderList[i],))
-                // );
+                Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (context) => CompleteOrderDetailsPage(user: currentUser, order: completeOrderList[i], streamControllers: widget.streamControllers))
+                );
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(

@@ -15,7 +15,7 @@ import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
 import 'VoucherManagement/voucherAvailableList.dart';
-import 'home.dart';
+import 'Dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -100,14 +100,14 @@ class AppsBarState extends State<AppsBar> {
             ),
           ),
           const SizedBox(height: 10,),
-          if (isHomePage == false)
+          if (isHomePage == false && currentUser.staff_type == "Restaurant Owner")
             ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.deepPurple.shade300,
               ),
               title: Text(
-                'Home',
+                'Dashboard',
                 style: TextStyle(
                   color: Colors.deepPurple.shade400,
                   fontWeight: FontWeight.bold,
@@ -116,7 +116,7 @@ class AppsBarState extends State<AppsBar> {
               ),
               onTap: () => {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers))
+                    MaterialPageRoute(builder: (context) => DashboardPage(user: currentUser, streamControllers: streamControllers))
                 ),
               },
             ),
@@ -286,16 +286,70 @@ class AppsBarState extends State<AppsBar> {
               ),
             ),
             onTap: () => {
-              for (String key in streamControllers!.keys) {
-                streamControllers[key]!.sink.close()
-              },
-              Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const LoginPage(), ),
-              )
+              showConfirmationLogOutDialog(context, streamControllers)
+              // streamControllers!.forEach((key, value) {
+              //   value.done;
+              // }),
+              // Navigator.pushReplacement(context,
+              //   MaterialPageRoute(builder: (context) => const LoginPage(), ),
+              // )
             },
           ),
         ],
       ),
+    );
+  }
+
+  void showConfirmationLogOutDialog(BuildContext context, final Map<String,StreamController>? streamControllers) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+          content: const Text('Are you sure to log out your account?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                showDialog(context: context, builder: (
+                    BuildContext context) =>
+                    AlertDialog(
+                      title: const Text('Log Out Successfully'),
+                      // content: Text('An Error occurred while trying to create a new order.\n\nError Code: $err_code'),
+                      actions: <Widget>[
+                        TextButton(onPressed: () =>
+                            Navigator.pop(context, 'Ok'),
+                            child: const Text('Ok')),
+                      ],
+                    ),
+                );
+                streamControllers!.forEach((key, value) {
+                  value.done;
+                });
+                Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const LoginPage(), ),
+                );
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => const LoginPage())
+                // );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text('Yes'),
+
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -594,7 +648,7 @@ class AppsBarState extends State<AppsBar> {
         // _widgetOptions.elementAt(selectedIndex);
         if (index == 0) {
           Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers)),
+            MaterialPageRoute(builder: (context) => DashboardPage(user: currentUser, streamControllers: streamControllers)),
           );
         } else if (selectedIndex == 1) {
           Navigator.of(context).push(
@@ -618,7 +672,7 @@ class AppsBarState extends State<AppsBar> {
         // Regular user-specific logic
         if (index == 0) {
           Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers)),
+            MaterialPageRoute(builder: (context) => DashboardPage(user: currentUser, streamControllers: streamControllers)),
           );
         } else if (index == 1) {
           Navigator.push(context,
@@ -645,7 +699,7 @@ class AppsBarState extends State<AppsBar> {
 
         if (index == 0) {
           Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers))
+              MaterialPageRoute(builder: (context) => DashboardPage(user: currentUser, streamControllers: streamControllers))
           );
         } else if (index == 1) {
           Navigator.of(context).push(

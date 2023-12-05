@@ -364,17 +364,24 @@ class _StaffListPageState extends State<StaffListPage> {
   List<Widget> buildStaffCards(List<User>? listStaff, User? currentUser) {
     List<Widget> cards = [];
     for (User a in listStaff!) {
+      if (a.staff_type == "Restaurant Owner") {
+
+      }
       if (a.uid != currentUser?.uid && a.is_active == true) {
         cards.add(
           Card(
             child: Container(
-              height: 220,
+              // height: 220,
+              constraints: const BoxConstraints(
+                maxHeight: double.infinity,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueGrey, width: 4.0),
                 borderRadius: BorderRadius.circular(15.0),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Padding(
@@ -517,8 +524,8 @@ class _StaffListPageState extends State<StaffListPage> {
                               ),
                             ],
                           ),
-                          // const SizedBox(height: 6.0,),
-                          const Spacer(),
+                          const SizedBox(height: 20.0,),
+                          // const Spacer(),
                           Row(
                             children: [
                               Text(
@@ -542,46 +549,48 @@ class _StaffListPageState extends State<StaffListPage> {
                     child: Column(
                       children: [
                         const SizedBox(height: 5.0,),
-                        Row(
-                          children: [
-                            Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
-                                // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                                onPressed: () async {
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) => UpdateStaffPage(staff: a, user: currentUser, streamControllers: widget.streamControllers))
-                                  );
-                                },
-                                child: Icon(Icons.edit, color: Colors.grey.shade800),
+                        if (currentUser?.staff_type == "Restaurant Manager" && a.staff_type != "Restaurant Owner" || currentUser?.staff_type == "Restaurant Owner")
+                          Row(
+                            children: [
+                              Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                                  // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                  onPressed: () async {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) => UpdateStaffPage(staff: a, user: currentUser, streamControllers: widget.streamControllers))
+                                    );
+                                  },
+                                  child: Icon(Icons.edit, color: Colors.grey.shade800),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 15.0),
-                            Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
-                                // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                                onPressed: () async {
-                                  showConfirmationDeleteDialog(a);
-                                },
-                                child: Icon(Icons.delete, color: Colors.grey.shade800),
+                              const SizedBox(width: 15.0),
+                              Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
+                                  // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
+                                  onPressed: () async {
+                                    showConfirmationDeleteDialog(a);
+                                  },
+                                  child: Icon(Icons.delete, color: Colors.grey.shade800),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 5.0,),
-                          ],
-                        ),
+                              const SizedBox(width: 5.0,),
+                            ],
+                          ),
                         const SizedBox(height: 18.0,),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15.0),
                           child: a.image == "" ? Image.asset('images/menuItem.png', width: 100, height: 100,) : Image.memory(base64Decode(a.image), width: 100, height: 100,)
                         ),
-                        const Spacer(),
+                        const SizedBox(height: 10.0,),
+                        // const Spacer(),
                         Row(
                           children: [
                             Align(
@@ -596,7 +605,7 @@ class _StaffListPageState extends State<StaffListPage> {
                                   onPressed: () {
                                     showViewAddressDialog(a.address);
                                   },
-                                  color: Colors.grey.shade200,
+                                  color: Colors.grey.shade300,
                                   child: Text(
                                     "Address",
                                     style: TextStyle(
