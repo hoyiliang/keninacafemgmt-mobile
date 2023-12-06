@@ -36,17 +36,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ViewSupplierDetailsPage(user: null, supplier: null, streamControllers: null),
+      home: const ViewSupplierDetailsPage(user: null, supplier: null),
     );
   }
 }
 
 class ViewSupplierDetailsPage extends StatefulWidget {
-  const ViewSupplierDetailsPage({super.key, this.user, this.supplier, this.streamControllers});
+  const ViewSupplierDetailsPage({super.key, this.user, this.supplier});
 
   final User? user;
   final Supplier? supplier;
-  final Map<String,StreamController>? streamControllers;
 
   @override
   State<ViewSupplierDetailsPage> createState() => _ViewSupplierDetailsPageState();
@@ -75,65 +74,6 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
   @override
   void initState() {
     super.initState();
-
-    // Web Socket
-    widget.streamControllers!['order']?.stream.listen((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new order!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
-
-    widget.streamControllers!['announcement']?.stream.listen((message) {
-      final data = jsonDecode(message);
-      String content = data['message'];
-      if (content == 'New Announcement') {
-        final snackBar = SnackBar(
-            content: const Text('Received new announcement!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateAnnouncementPage(user: getUser(),
-                            streamControllers: widget.streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } else if (content == 'Delete Announcement') {
-        print("Received delete announcement!");
-      }
-    });
-
-    widget.streamControllers!['attendance']?.stream.listen((message) {
-      SnackBar(
-          content: const Text('Received new attendance request!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
-                ),
-              );
-            },
-          )
-      );
-    });
   }
 
   @override
@@ -163,7 +103,7 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, 'Information', widget.streamControllers),
+      appBar: AppsBarState().buildViewSupplierDetailsAppBar(context, 'Information'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(

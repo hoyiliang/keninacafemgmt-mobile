@@ -808,7 +808,7 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
-  PreferredSizeWidget buildViewSupplierDetailsAppBar(BuildContext context, String title, final Map<String,StreamController>? streamControllers) {
+  PreferredSizeWidget buildViewSupplierDetailsAppBar(BuildContext context, String title) {
 
     return PreferredSize( //wrap with PreferredSize
       preferredSize: const Size.fromHeight(80),
