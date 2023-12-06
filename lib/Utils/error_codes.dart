@@ -75,4 +75,6 @@ class ErrorCodes {
   static const String CREATE_NEW_VOUCHER_FAIL_API_CONNECTION = 'E-049';
   static const String UPDATE_VOUCHER_FAIL_BACKEND = 'E-050';
   static const String UPDATE_VOUCHER_FAIL_API_CONNECTION = 'E-051';
+  static const String FORGOT_PASSWORD_INVALID_USER_FAIL_BACKEND = 'E-072';
+  static const String FORGOT_PASSWORD_FAIL_API_CONNECTION = 'E-073';
 }
