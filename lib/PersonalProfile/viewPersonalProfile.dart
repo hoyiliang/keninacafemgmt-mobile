@@ -169,10 +169,14 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                           width: 35,
                           height: 35,
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
-                          child: const Icon(
+                          child: currentUser.staff_type == "Restaurant Owner" ? const Icon(
                             LineAwesomeIcons.alternate_pencil,
                             color: Colors.black,
                             size: 20,
+                          ) : const Icon(
+                            Icons.remove_red_eye,
+                            color: Colors.black,
+                            size: 20.0,
                           ),
                         ),
                       ),

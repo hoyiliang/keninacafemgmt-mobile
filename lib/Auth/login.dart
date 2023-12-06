@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:keninacafe/Auth/passwordResetScreen.dart';
 import 'package:keninacafe/Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'dart:convert';
@@ -183,7 +184,9 @@ class _LoginPageState extends State<LoginPage> {
                         padding: const EdgeInsets.fromLTRB(25.0, 5.0, 0, 0),
                         child: TextButton(
                           onPressed: () {
-                            // Handle forgot password button press
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (context) => const PasswordResetScreenPage())
+                            );
                           },
                           child: Text(
                             'Forgot Password ?',
@@ -191,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                               decoration: TextDecoration.underline,
                               color: Colors.transparent,
                               fontWeight: FontWeight.bold,
-                              shadows: [Shadow(color: Colors.blue.shade900, offset: Offset(0, -4))],
+                              shadows: [Shadow(color: Colors.blue.shade900, offset: const Offset(0, -4))],
                               decorationThickness: 4,
                               decorationColor: Colors.blue.shade900,
                             ),
