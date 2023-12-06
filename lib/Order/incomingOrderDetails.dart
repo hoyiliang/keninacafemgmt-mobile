@@ -164,7 +164,6 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 

@@ -194,7 +194,6 @@ class _SupplierDashboardState extends State<SupplierDashboardPage> {
             )
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 }

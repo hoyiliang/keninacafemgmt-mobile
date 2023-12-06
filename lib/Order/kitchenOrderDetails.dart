@@ -164,7 +164,6 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
