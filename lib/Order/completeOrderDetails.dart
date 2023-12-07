@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../AppsBar.dart';
@@ -147,13 +148,12 @@ class _CompleteOrderDetailsPageState extends State<CompleteOrderDetailsPage> {
                     if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                      // return Center(
-                      //   child: LoadingAnimationWidget.inkDrop(
-                      //     color: Colors.white,
-                      //     size: 50,
-                      //   ),
-                      // );
+                      return Center(
+                        child: LoadingAnimationWidget.threeRotatingDots(
+                          color: Colors.black,
+                          size: 50,
+                        ),
+                      );
                     }
                   }
                 }

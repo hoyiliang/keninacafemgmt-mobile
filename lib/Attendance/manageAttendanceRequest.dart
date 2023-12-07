@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
@@ -316,7 +317,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Loading...'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
@@ -409,7 +415,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Loading...'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
@@ -819,7 +830,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                                 if (snapshot.hasError) {
                                   return Center(child: Text('Error: ${snapshot.error}'));
                                 } else {
-                                  return const Center(child: Text('Loading...'));
+                                  return Center(
+                                    child: LoadingAnimationWidget.threeRotatingDots(
+                                      color: Colors.black,
+                                      size: 50,
+                                    ),
+                                  );
                                 }
                               }
                             }

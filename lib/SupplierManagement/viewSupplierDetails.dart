@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
@@ -406,7 +407,12 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
                                   if (snapshot.hasError) {
                                     return Center(child: Text('Error: ${snapshot.error}'));
                                   } else {
-                                    return const Center(child: Text('Error: invalid state'));
+                                    return Center(
+                                      child: LoadingAnimationWidget.threeRotatingDots(
+                                        color: Colors.black,
+                                        size: 50,
+                                      ),
+                                    );
                                   }
                                 }
                               }

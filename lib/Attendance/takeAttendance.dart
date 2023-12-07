@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Attendance/viewAttendanceStatus.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
@@ -322,7 +323,12 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                           if (snapshot.hasError) {
                             return Center(child: Text('Error: ${snapshot.error}'));
                           } else {
-                            return const Center(child: Text('Loading...'));
+                            return Center(
+                              child: LoadingAnimationWidget.threeRotatingDots(
+                                color: Colors.black,
+                                size: 50,
+                              ),
+                            );
                           }
                         }
                       }
@@ -337,7 +343,12 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                             if (snapshot.hasError) {
                               return Center(child: Text('Error: ${snapshot.error}'));
                             } else {
-                              return const Center(child: Text('Loading...'));
+                              return Center(
+                                child: LoadingAnimationWidget.threeRotatingDots(
+                                  color: Colors.black,
+                                  size: 50,
+                                ),
+                              );
                             }
                           }
                         }

@@ -197,7 +197,7 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.lightBlueAccent.shade400, side: BorderSide.none, shape: const StadiumBorder()),
-                      child: const Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0)),
+                      child: currentUser.staff_type == "Restaurant Owner" ? const Text('Edit Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0)) : const Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.0))
                     ),
                   ),
                   const SizedBox(height: 30),

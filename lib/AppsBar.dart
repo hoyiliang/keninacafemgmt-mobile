@@ -483,6 +483,53 @@ class AppsBarState extends State<AppsBar> {
   }
 
   @override
+  PreferredSizeWidget buildStaffListAppBarDetails(BuildContext context, String title, User currentUser, final Map<String,StreamController>? streamControllers) {
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+          onPressed: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, streamControllers: streamControllers))
+            );
+          },
+        ),
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: streamControllers))
+                );
+              },
+              icon: const Icon(Icons.notifications, size: 35,),
+            ),
+          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).push(
+          //         MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUser))
+          //     );
+          //   },
+          //   icon: const Icon(Icons.account_circle_rounded, size: 35,),
+        ],
+      ),
+    );
+  }
+
+  @override
   PreferredSizeWidget buildAppBarDetails(BuildContext context, String title, User currentUser, final Map<String,StreamController>? streamControllers) {
 
     return PreferredSize( //wrap with PreferredSize

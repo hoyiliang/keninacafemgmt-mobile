@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/AnnouncementAssignUserMoreInfo.dart';
 import '../Entity/User.dart';
@@ -451,7 +452,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       } else {
-                        return const Center(child: Text('Error: invalid state'));
+                        return Center(
+                          child: LoadingAnimationWidget.threeRotatingDots(
+                            color: Colors.black,
+                            size: 50,
+                          ),
+                        );
                       }
                     }
                   }

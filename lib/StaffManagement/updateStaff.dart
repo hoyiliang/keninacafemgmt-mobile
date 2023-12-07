@@ -13,6 +13,7 @@ import 'package:keninacafe/StaffManagement/staffList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
@@ -564,7 +565,12 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Error: invalid state'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
