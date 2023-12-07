@@ -10,6 +10,7 @@ import 'package:keninacafe/SupplierManagement/createSupplier.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keninacafe/SupplierManagement/updateSupplier.dart';
 import 'package:keninacafe/SupplierManagement/viewSupplierDetails.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
@@ -692,7 +693,12 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                           if (snapshot.hasError) {
                             return Center(child: Text('Error: ${snapshot.error}'));
                           } else {
-                            return const Center(child: Text('Loading....'));
+                            return Center(
+                              child: LoadingAnimationWidget.threeRotatingDots(
+                                color: Colors.black,
+                                size: 50,
+                              ),
+                            );
                           }
                         }
                       }
@@ -789,7 +795,12 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Loading....'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
@@ -1041,6 +1052,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
           print(response.body);
           print('Failed to create stock.');
         }
+        print(error);
         if (error == "stock is assigned to other supplier.") {
           return (false, (ErrorCodes.CREATE_STOCK_ASSIGNED_OTHER_FAIL_BACKEND));
         } else if (error == "stock is created before for this supplier.") {

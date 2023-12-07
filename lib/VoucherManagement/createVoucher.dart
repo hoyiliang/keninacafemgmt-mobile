@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/VoucherManagement/voucherAvailableList.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
@@ -304,7 +305,12 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Error: invalid state'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
@@ -449,7 +455,12 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Error: invalid state'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }
@@ -466,7 +477,12 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                                     if (snapshot.hasError) {
                                       return Center(child: Text('Error: ${snapshot.error}'));
                                     } else {
-                                      return const Center(child: Text('Error: invalid state'));
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
                                     }
                                   }
                                 }

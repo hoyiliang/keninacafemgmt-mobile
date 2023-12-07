@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -184,7 +185,12 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
                       if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       } else {
-                        return const Center(child: Text('Error: invalid state'));
+                        return Center(
+                          child: LoadingAnimationWidget.threeRotatingDots(
+                            color: Colors.black,
+                            size: 50,
+                          ),
+                        );
                       }
                     }
                   }

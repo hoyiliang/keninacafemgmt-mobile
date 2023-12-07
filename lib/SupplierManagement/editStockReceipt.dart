@@ -14,6 +14,7 @@ import 'package:keninacafe/SupplierManagement/stockReceiptList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:keninacafe/Utils/multiselect_formfield_fixed.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
@@ -450,7 +451,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                   if (snapshot.hasError) {
                                     return Center(child: Text('Error: ${snapshot.error}'));
                                   } else {
-                                    return const Center(child: Text('Loading'));
+                                    return Center(
+                                      child: LoadingAnimationWidget.threeRotatingDots(
+                                        color: Colors.black,
+                                        size: 50,
+                                      ),
+                                    );
                                   }
                                 }
                               }
@@ -473,7 +479,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                           if (snapshot.hasError) {
                                             return Center(child: Text('Error: ${snapshot.error}'));
                                           } else {
-                                            return const Center(child: Text('Error: invalid state'));
+                                            return Center(
+                                              child: LoadingAnimationWidget.threeRotatingDots(
+                                                color: Colors.black,
+                                                size: 50,
+                                              ),
+                                            );
                                           }
                                         }
                                       }

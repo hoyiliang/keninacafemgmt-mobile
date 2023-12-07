@@ -8,6 +8,7 @@ import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/StaffManagement/updateStaff.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
@@ -310,7 +311,7 @@ class _StaffListPageState extends State<StaffListPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildAppBarDetails(context, 'Staff List', currentUser, widget.streamControllers),
+      appBar: AppsBarState().buildStaffListAppBarDetails(context, 'Staff List', currentUser, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -331,7 +332,12 @@ class _StaffListPageState extends State<StaffListPage> {
                         if (snapshot.hasError) {
                           return Center(child: Text('Error: ${snapshot.error}'));
                         } else {
-                          return const Center(child: Text('Loading Staff List.....'));
+                          return Center(
+                            child: LoadingAnimationWidget.threeRotatingDots(
+                              color: Colors.black,
+                              size: 50,
+                            ),
+                          );
                         }
                       }
                     }
