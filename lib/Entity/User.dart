@@ -76,7 +76,7 @@ class User {
       gender: jwtDecodedToken['gender'],
       dob: DateTime.parse(jwtDecodedToken['dob']),
       ic: jwtDecodedToken['ic'],
-      points: double.parse(jwtDecodedToken['points']),
+      points: jwtDecodedToken['points'],
       date_created: jwtDecodedToken['date_created'] != null ? DateTime.parse(jwtDecodedToken['date_created']) : DateTime.now(),
       date_deactivated: jwtDecodedToken['date_deactivated'] != null ? DateTime.parse(jwtDecodedToken['date_deactivated']) : DateTime.now(),
     );
