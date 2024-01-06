@@ -253,9 +253,9 @@ class _LoginPageState extends State<LoginPage> {
                                     showDialog(context: context, builder: (
                                         BuildContext context) =>
                                         AlertDialog(
-                                          title: const Text('User Not Found'),
+                                          title: const Text('Unauthorized'),
                                           content: Text(
-                                              'Please sign up first before login.\n\nError Code: $err_code'),
+                                              'Please contact Restaurant Manager or Owner.\n\nError Code: $err_code'),
                                           actions: <Widget>[
                                             TextButton(onPressed: () =>
                                                 Navigator.pop(context, 'Ok'),

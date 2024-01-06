@@ -61,65 +61,6 @@ class _ViewPersonalProfilePageState extends State<ViewPersonalProfilePage> {
   @override
   void initState() {
     super.initState();
-
-    // Web Socket
-    widget.streamControllers!['order']?.stream.listen((message) {
-      final snackBar = SnackBar(
-          content: const Text('Received new order!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ManageOrderPage(user: getUser(), streamControllers: widget.streamControllers),
-                ),
-              );
-            },
-          )
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    });
-
-    widget.streamControllers!['announcement']?.stream.listen((message) {
-      final data = jsonDecode(message);
-      String content = data['message'];
-      if (content == 'New Announcement') {
-        final snackBar = SnackBar(
-            content: const Text('Received new announcement!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateAnnouncementPage(user: getUser(),
-                            streamControllers: widget.streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } else if (content == 'Delete Announcement') {
-        print("Received delete announcement!");
-      }
-    });
-
-    widget.streamControllers!['attendance']?.stream.listen((message) {
-      SnackBar(
-          content: const Text('Received new attendance request!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ManageAttendanceRequestPage(user: getUser(), streamControllers: widget.streamControllers),
-                ),
-              );
-            },
-          )
-      );
-    });
   }
 
   @override
