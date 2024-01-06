@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
+import 'package:keninacafe/StaffManagement/staffDashboard.dart';
 import 'package:keninacafe/StaffManagement/updateStaff.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -308,62 +309,74 @@ class _StaffListPageState extends State<StaffListPage> {
 
     User? currentUser = getUser();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildStaffListAppBarDetails(context, 'Staff List', currentUser, widget.streamControllers),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(height: 15,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: FutureBuilder<List<User>>(
-                    future: getStaffList(),
-                    builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: buildStaffCards(snapshot.data, currentUser),
-                        );
-                      } else {
-                        if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          return Center(
-                            child: LoadingAnimationWidget.threeRotatingDots(
-                              color: Colors.black,
-                              size: 50,
-                            ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate to the desired page when the Android back button is pressed
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, streamControllers: widget.streamControllers)),
+        );
+
+        // Prevent the default back button behavior
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+        appBar: AppsBarState().buildStaffListAppBarDetails(context, 'Staff List', currentUser, widget.streamControllers),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: 15,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: FutureBuilder<List<User>>(
+                      future: getStaffList(),
+                      builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
+                            children: buildStaffCards(snapshot.data, currentUser),
                           );
+                        } else {
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return Center(
+                              child: LoadingAnimationWidget.threeRotatingDots(
+                                color: Colors.black,
+                                size: 50,
+                              ),
+                            );
+                          }
                         }
                       }
-                    }
-                  )
-                ),
-              ],
+                    )
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateStaffPage(user: currentUser, streamControllers: widget.streamControllers))
-          );
-        },
-        child: const Icon(
-          Icons.add,
-          size: 27.0,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => CreateStaffPage(user: currentUser, streamControllers: widget.streamControllers))
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            size: 27.0,
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        height: 20.0,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        shape: const CircularNotchedRectangle(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomAppBar(
+          height: 20.0,
+          color: Theme.of(context).colorScheme.inversePrimary,
+          shape: const CircularNotchedRectangle(),
+        ),
       ),
     );
   }

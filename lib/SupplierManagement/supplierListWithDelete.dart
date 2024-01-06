@@ -749,13 +749,17 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
         cards.add(
           Card(
             child: Container(
-              height: 192,
+              // height: 192,
+              constraints: const BoxConstraints(
+                maxHeight: double.infinity,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueGrey, width: 4.0),
                 borderRadius: BorderRadius.circular(15.0),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Padding(
@@ -970,7 +974,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
   }
 
   Future<(String, Supplier)> _submitDeleteSupplier(Supplier currentSupplier) async {
-    var (bool, err_code) = await deleteStaffProfile(currentSupplier);
+    var (bool, err_code) = await deleteSupplierProfile(currentSupplier);
     if (bool == true) {
       if (kDebugMode) {
         print("Failed to delete Supplier (${currentSupplier.name}) data.");
@@ -980,7 +984,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
     return (err_code, currentSupplier);
   }
 
-  Future<(bool, String)> deleteStaffProfile(Supplier supplierData) async {
+  Future<(bool, String)> deleteSupplierProfile(Supplier supplierData) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/supplierManagement/delete_supplier/${supplierData.id}/'),

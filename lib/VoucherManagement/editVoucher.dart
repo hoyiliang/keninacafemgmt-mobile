@@ -968,7 +968,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
           'min_spending': minSpending,
           'free_menu_item_name': freeMenuItemName,
           'applicable_menu_item_name': applicableMenuItemName,
-          'user_updated_name': currentUser.name,
+          'user_updated_id': currentUser.uid,
         }),
       );
 
@@ -1014,7 +1014,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
   Future<List<String>> getMenuItemList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list'),
+        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -937,19 +937,23 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
           'min_spending': minSpending,
           'free_menu_item_name': freeMenuItemName,
           'applicable_menu_item_name': applicableMenuItemName,
-          'user_created_name': currentUser.name,
+          'user_created_id': currentUser.uid,
         }),
       );
-
+      final responseData = json.decode(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (kDebugMode) {
           print("Create Voucher Successful.");
         }
         return (true, ErrorCodes.OPERATION_OK);
+
       } else {
         if (kDebugMode) {
           print(response.body);
           print('Failed to create voucher.');
+        }
+        if (responseData['error'] == "Voucher with the same code already exists.") {
+          return (false, (ErrorCodes.CREATE_SAME_VOUCHER));
         }
         return (false, (ErrorCodes.CREATE_NEW_VOUCHER_FAIL_BACKEND));
       }
@@ -983,7 +987,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
   Future<List<String>> getMenuItemList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list'),
+        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1015,17 +1019,32 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                     voucherCreated = voucherCreatedAsync;
                     if (!voucherCreated) {
                       if (err_code == ErrorCodes.CREATE_NEW_VOUCHER_FAIL_BACKEND) {
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
                             AlertDialog(
                               title: const Text('Error'),
-                              content: Text('An Error occurred while trying to create this new voucher (${voucherCodeController.text}).\n\nError Code: $err_code'),
+                              content: Text(
+                                  'An Error occurred while trying to create this new voucher (${voucherCodeController
+                                      .text}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
                                     Navigator.pop(context, 'Ok'),
                                     child: const Text('Ok')),
                               ],
                             ),
+                        );
+                      } else if (err_code == ErrorCodes.CREATE_SAME_VOUCHER) {
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
+                          AlertDialog(
+                            title: const Text('Voucher Exists', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: Text('Please double check the voucher list.\n\nError Code: $err_code'),
+                            actions: <Widget>[
+                              TextButton(onPressed: () =>
+                                  Navigator.pop(context, 'Ok'),
+                                  child: const Text('Ok')),
+                            ],
+                          ),
                         );
                       } else {
                         showDialog(context: context, builder: (

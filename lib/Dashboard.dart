@@ -156,24 +156,136 @@ class _DashboardPageState extends State<DashboardPage> {
 
     User? currentUser = getUser();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildAppBar(context, 'Dashboard', currentUser, widget.streamControllers),
-      body: SafeArea(
-        child: SingleChildScrollView (
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+              content: const Text('Are you sure to exit the apps?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Yes'),
+
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('No'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+        appBar: AppsBarState().buildAppBar(context, 'Dashboard', currentUser, widget.streamControllers),
+        body: SafeArea(
+          child: SingleChildScrollView (
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: Row(
+                    children: [
+                      const Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(13, 13, 5, 13),
+                          child: Text(
+                            'Overall Data on ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                              fontFamily: 'Gabarito',
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          width: 200.0,
+                          padding: const EdgeInsets.all(5.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 8.0),
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 20.0,
+                              ),
+                              const SizedBox(width: 15.0),
+                              selectedDate != null
+                                  ? Text(
+                                '${selectedDate!.day.toString().padLeft(2, '0')}/${selectedDate!.month.toString().padLeft(2, '0')}/${selectedDate!.year}',
+                                style: const TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Gabarito',
+                                ),
+                              ) : const Text(
+                                '',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (selectedDate != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
+                    child: FutureBuilder<List<Transaction>>(
+                      future: getTransactionDataByDate(selectedDate!),
+                      builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
+                        if (snapshot.hasData) {
+                          return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              child: Column(
+                                  children: [buildOverallTransactionDataCard(snapshot.data)],
+                              )
+                          );
+
+                        } else {
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return const Center(child: Text('Loading...'));
+                          }
+                        }
+                      }
+                    )
+                  ),
+                const SizedBox(height: 18.0,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Align(
                       alignment: Alignment.topLeft,
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(13, 13, 5, 13),
                         child: Text(
-                          'Overall Data on ',
+                          'Overall Profit',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18.0,
@@ -182,158 +294,81 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => _selectDate(context),
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.topRight,
                       child: Container(
-                        width: 200.0,
-                        padding: const EdgeInsets.all(5.0),
+                        width: 100.0,
+                        height: 40.0,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8.0),
+                          shape: BoxShape.rectangle,
+                          // color: Colors.grey.shade500,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 8.0),
-                            const Icon(
-                              Icons.calendar_today,
-                              size: 20.0,
+                        child: MaterialButton(
+                          // minWidth: double.infinity,
+                          height:40,
+                          onPressed: () {
+                            setState(() {
+                              displayYearGraph = true;
+                            });
+                          },
+                          child: Text(
+                            "Month",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.grey.shade700,
                             ),
-                            const SizedBox(width: 15.0),
-                            selectedDate != null
-                                ? Text(
-                              '${selectedDate!.day.toString().padLeft(2, '0')}/${selectedDate!.month.toString().padLeft(2, '0')}/${selectedDate!.year}',
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Gabarito',
-                              ),
-                            ) : const Text(
-                              '',
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
+                    const SizedBox(width: 10.0,),
                   ],
                 ),
-              ),
-
-              if (selectedDate != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
-                  child: FutureBuilder<List<Transaction>>(
-                    future: getTransactionDataByDate(selectedDate!),
-                    builder: (BuildContext context, AsyncSnapshot<List<Transaction>> snapshot) {
-                      if (snapshot.hasData) {
+                Center(
+                  child: FutureBuilder(
+                    future: loadWebView(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
                         return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                            child: Column(
-                                children: [buildOverallTransactionDataCard(snapshot.data)],
-                            )
+                          padding: const EdgeInsets.symmetric(vertical: 50.0),
+                          child: Center(
+                            child: LoadingAnimationWidget.threeRotatingDots(
+                              color: Colors.black,
+                              size: 50,
+                            ),
+                          ),
                         );
-
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Error loading web page'),
+                        );
                       } else {
-                        if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          return const Center(child: Text('Loading...'));
-                        }
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                          child: SizedBox(
+                            height: 393,
+                            width: 380,
+                            child: WebView(
+                              initialUrl: displayYearGraph ? 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/all/' : 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/${DateFormat('yyyy-MM-dd').format(selectedMonthYear)}/',
+                              javascriptMode: JavascriptMode.unrestricted,
+                              onPageFinished: (String url) {
+                              },
+                            ),
+                          ),
+                        );
                       }
-                    }
+                    },
                   )
-                ),
-              const SizedBox(height: 18.0,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(13, 13, 5, 13),
-                      child: Text(
-                        'Overall Profit',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                          fontFamily: 'Gabarito',
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Container(
-                      width: 100.0,
-                      height: 40.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        // color: Colors.grey.shade500,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      child: MaterialButton(
-                        // minWidth: double.infinity,
-                        height:40,
-                        onPressed: () {
-                          setState(() {
-                            displayYearGraph = true;
-                          });
-                        },
-                        child: Text(
-                          "Month",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0,),
-                ],
-              ),
-              Center(
-                child: FutureBuilder(
-                  future: loadWebView(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50.0),
-                        child: Center(
-                          child: LoadingAnimationWidget.threeRotatingDots(
-                            color: Colors.black,
-                            size: 50,
-                          ),
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('Error loading web page'),
-                      );
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                        child: SizedBox(
-                          height: 393,
-                          width: 380,
-                          child: WebView(
-                            initialUrl: displayYearGraph ? 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/all/' : 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/${DateFormat('yyyy-MM-dd').format(selectedMonthYear)}/',
-                            javascriptMode: JavascriptMode.unrestricted,
-                            onPageFinished: (String url) {
-                            },
-                          ),
-                        ),
-                      );
-                    }
-                  },
                 )
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),

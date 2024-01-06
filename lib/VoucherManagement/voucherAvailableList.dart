@@ -131,55 +131,90 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
 
     User? currentUser = getUser();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
-      appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser, widget.streamControllers!),
-      body: SafeArea(
-        child: SingleChildScrollView (
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 20.0),
-            child: FutureBuilder<List<Voucher>>(
-                future: getAvailableVoucherList(currentUser),
-                builder: (BuildContext context, AsyncSnapshot<List<Voucher>> snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: buildAvailableVoucherList(snapshot.data, currentUser),
-                    );
-                  } else {
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                      return Center(
-                        child: LoadingAnimationWidget.threeRotatingDots(
-                          color: Colors.black,
-                          size: 50,
-                        ),
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+              content: const Text('Are you sure to exit the apps?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Yes'),
+
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('No'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+        appBar: AppsBarState().buildAppBar(context, 'Voucher List', currentUser, widget.streamControllers!),
+        body: SafeArea(
+          child: SingleChildScrollView (
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 20.0),
+              child: FutureBuilder<List<Voucher>>(
+                  future: getAvailableVoucherList(currentUser),
+                  builder: (BuildContext context, AsyncSnapshot<List<Voucher>> snapshot) {
+                    if (snapshot.hasData) {
+                      return Column(
+                        children: buildAvailableVoucherList(snapshot.data, currentUser),
                       );
+                    } else {
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else {
+                        return Center(
+                          child: LoadingAnimationWidget.threeRotatingDots(
+                            color: Colors.black,
+                            size: 50,
+                          ),
+                        );
+                      }
                     }
                   }
-                }
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser, streamControllers: widget.streamControllers))
-          );
-        },
-        child: const Icon(
-          Icons.add,
-          size: 27.0,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => CreateVoucherPage(user: currentUser, streamControllers: widget.streamControllers))
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            size: 27.0,
+          ),
         ),
-      ),
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        height: 20.0,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        shape: const CircularNotchedRectangle(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomAppBar(
+          height: 20.0,
+          color: Theme.of(context).colorScheme.inversePrimary,
+          shape: const CircularNotchedRectangle(),
+        ),
       ),
     );
   }
@@ -232,6 +267,9 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
             firstChild: Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFFFDAB9).withOpacity(0.7),
+              ),
+              constraints: const BoxConstraints(
+                maxHeight: double.infinity,
               ),
               child: Row(
                 children: [
@@ -324,6 +362,9 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFDAB9).withOpacity(0.4),
               ),
+              constraints: const BoxConstraints(
+                maxHeight: double.infinity,
+              ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(30, 10, 15, 10),
                 child: Column(
@@ -354,25 +395,17 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     Row(
                       children: [
                         Text(
-                          'Valid for ',
+                          'Redemption Left : ',
                           style: TextStyle(
                             color: Colors.grey.shade800,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          '30 ',
-                          style: TextStyle(
-                            color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'days Only',
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
+                          discountVoucherList[i].num_redeemed.toString(),
+                          style: const TextStyle(
+                            color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -409,10 +442,14 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i], streamControllers: widget.streamControllers)),
-                              );
+                              if (discountVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(discountVoucherList[i], "Edit");
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: discountVoucherList[i], streamControllers: widget.streamControllers)),
+                                );
+                              }
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
@@ -426,7 +463,11 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              showDeleteConfirmationDialog(discountVoucherList[i]);
+                              if (discountVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(discountVoucherList[i], "Delete");
+                              } else {
+                                showDeleteConfirmationDialog(discountVoucherList[i]);
+                              }
                             },
                             child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
@@ -598,25 +639,17 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     Row(
                       children: [
                         Text(
-                          'Valid for ',
+                          'Redemption Left : ',
                           style: TextStyle(
                             color: Colors.grey.shade800,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          '30 ',
-                          style: TextStyle(
-                            color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'days Only',
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
+                          freeMenuItemVoucherList[i].num_redeemed.toString(),
+                          style: const TextStyle(
+                            color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -653,10 +686,14 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i], streamControllers: widget.streamControllers)),
-                              );
+                              if (freeMenuItemVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(freeMenuItemVoucherList[i], "Edit");
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: freeMenuItemVoucherList[i], streamControllers: widget.streamControllers)),
+                                );
+                              }
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
@@ -670,7 +707,11 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              showDeleteConfirmationDialog(freeMenuItemVoucherList[i]);
+                              if (freeMenuItemVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(freeMenuItemVoucherList[i], "Delete");
+                              } else {
+                                showDeleteConfirmationDialog(freeMenuItemVoucherList[i]);
+                              }
                             },
                             child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
@@ -842,25 +883,17 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     Row(
                       children: [
                         Text(
-                          'Valid for ',
+                          'Redemption Left : ',
                           style: TextStyle(
                             color: Colors.grey.shade800,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
-                          '30 ',
-                          style: TextStyle(
+                       Text(
+                          buyOneFreeOneVoucherList[i].num_redeemed.toString(),
+                          style: const TextStyle(
                             color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'days Only',
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -897,10 +930,14 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300,),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i], streamControllers: widget.streamControllers)),
-                              );
+                              if (buyOneFreeOneVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(buyOneFreeOneVoucherList[i], "Edit");
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditVoucherPage(user: currentUser, voucher: buyOneFreeOneVoucherList[i], streamControllers: widget.streamControllers)),
+                                );
+                              }
                             },
                             child: Icon(Icons.edit, color: Colors.grey.shade800),
                           ),
@@ -914,7 +951,11 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                             // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                             onPressed: () async {
-                              showDeleteConfirmationDialog(buyOneFreeOneVoucherList[i]);
+                              if (buyOneFreeOneVoucherList[i].num_redeemed >= 1) {
+                                showRedemptionLeftDialog(buyOneFreeOneVoucherList[i], "Delete");
+                              } else {
+                                showDeleteConfirmationDialog(buyOneFreeOneVoucherList[i]);
+                              }
                             },
                             child: Icon(Icons.delete, color: Colors.grey.shade800),
                           ),
@@ -1106,6 +1147,29 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
     );
   }
 
+  void showRedemptionLeftDialog(Voucher currentVoucher, String action) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: action == "Delete" ? const Text("Voucher can't be deleted", style: TextStyle(fontWeight: FontWeight.bold,)) : const Text("Voucher can't be edited", style: TextStyle(fontWeight: FontWeight.bold,)),
+          content: const Text('Voucher redeemed by Customer(s) has not been used all.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text('Ok'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<(String, bool)> _submitDeleteVoucher(Voucher currentVoucher) async {
     var (success, err_code) = await deleteVoucher(currentVoucher);
     if (success == false) {
@@ -1190,9 +1254,8 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
 
   Future<List<Voucher>> getAvailableVoucherList(User currentUser) async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_all_available_voucher_to_redeem'),
-        // Uri.parse('http://localhost:8000/menu/request_item_category_list'),
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/order/request_all_voucher'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

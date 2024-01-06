@@ -1,9 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:keninacafe/Auth/passwordResetScreen.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../Utils/error_codes.dart';
 import 'newPasswordScreen.dart';
 
 void main() {
@@ -26,17 +32,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const OtpEnterScreenPage(otp: null, uid: null, remainingTime: null),
+      home: const OtpEnterScreenPage(otp_id: null, uid: null),
     );
   }
 }
 
 class OtpEnterScreenPage extends StatefulWidget {
-  const OtpEnterScreenPage({super.key, this.otp, this.uid, this.remainingTime});
+  const OtpEnterScreenPage({super.key, this.otp_id, this.uid});
 
-  final String? otp;
+  final String? otp_id;
   final String? uid;
-  final int? remainingTime;
 
   @override
   State<OtpEnterScreenPage> createState() => _OtpEnterScreenPageState();
@@ -45,56 +50,90 @@ class OtpEnterScreenPage extends StatefulWidget {
 class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
   final TextEditingController otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  late Timer _timer;
-  int _timeoutInSeconds = 0;
-  int _remainingTime = 0;
+  late Timer _otpTimer;
+  late Timer _resendEmailTimer;
+  // int _timeoutInSeconds = 0;
+  int _remainingOTPTime = 0;
+  int _remainingResendEmailTime = 0;
+  bool isLoading = false;
+  bool isLoadingVerify = false;
+  String? otpIdGet;
 
-  String? getOTP() {
-    return widget.otp;
+  String? getOTPId() {
+    return widget.otp_id;
   }
 
   String? getUidEncode() {
     return widget.uid;
   }
 
-  int? getRemainingTime() {
-    return widget.remainingTime;
-  }
-
   @override
   void initState() {
     super.initState();
-    _timeoutInSeconds = getRemainingTime()!;
-    _remainingTime = getRemainingTime()!;
-    _startTimer();
+    otpIdGet = getOTPId();
+    _remainingOTPTime = 300;
+    _remainingResendEmailTime = 60;
+    _startOTPTimer();
+    _startResendEmailTimer();
   }
 
-  void _startTimer() {
-    // _timer = Timer(Duration(seconds: _timeoutInSeconds), () {
-    //   // Timeout logic
-    //   Navigator.pop(context); // Go back to the login page
-    // });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  void _startOTPTimer() {
+    _otpTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (_remainingTime > 0) {
-          _remainingTime--;
-          print(_remainingTime);
+        if (_remainingOTPTime > 0) {
+          _remainingOTPTime--;
         } else {
-          _timer.cancel(); // Stop the timer when it reaches 0
-          Navigator.pop(context); // Go back to the login page
+          _otpTimer.cancel();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PasswordResetScreenPage()),
+          );
+          showDialog(context: context, builder: (
+              BuildContext context) =>
+              AlertDialog(
+                title: const Text('Timeout'),
+                content: const Text('OTP Verification Timeout'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Ok'),
+                    onPressed: () {
+                      setState(() {});
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+          );
+        }
+      });
+    });
+  }
+
+  void _startResendEmailTimer() {
+    _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingResendEmailTime > 0) {
+          _remainingResendEmailTime--;
+        } else {
+          _resendEmailTimer.cancel(); // Stop the timer when it reaches 0
         }
       });
     });
   }
 
   void _resetTimer() {
-    _timer.cancel();
-    _startTimer();
+    _otpTimer.cancel();
+    _resendEmailTimer.cancel();
+    _remainingOTPTime = 300;
+    _remainingResendEmailTime = 60;
+    _startOTPTimer();
+    _startResendEmailTimer();
   }
 
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
+    _otpTimer.cancel();
+    _resendEmailTimer.cancel();
     super.dispose();
   }
 
@@ -104,159 +143,380 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
     });
   }
 
-  void navigateNewPasswordScreenPage(String uidEncode, int remainingTime){
-    Route route = MaterialPageRoute(builder: (context) => NewPasswordScreenPage(uid: uidEncode, remainingTime: remainingTime,));
+  void navigateNewPasswordScreenPage(String uidEncode){
+    Route route = MaterialPageRoute(builder: (context) => NewPasswordScreenPage(uid: uidEncode));
     Navigator.push(context, route).then(onGoBack);
   }
 
   @override
   Widget build(BuildContext context) {
 
-    String? otp = getOTP();
+    String? currentOtpId = getOTPId();
     String? uidEncode = getUidEncode();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Enter OTP',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+    return WillPopScope(
+      onWillPop: () async {
+        _otpTimer.cancel();
+        _resendEmailTimer.cancel();
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 80,
+          title: const Text(
+            'Verify your email',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          leading: IconButton(
+            onPressed: () => {
+              _resendEmailTimer.cancel(),
+              _otpTimer.cancel(),
+              Navigator.of(context).pop(),
+            },
+            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
+          ),
+          backgroundColor: Colors.deepPurple.shade200,
         ),
-        leading: IconButton(
-          onPressed: () => {
-            Navigator.of(context).pop(),
-          },
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
-        ),
-        backgroundColor: Colors.deepPurple.shade200,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                'Time remaining: ${_remainingTime ~/ 60}:${(_remainingTime % 60).toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'OTP will expire in: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${_remainingOTPTime ~/ 60}:${(_remainingOTPTime % 60).toString().padLeft(2, '0')}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 15.0,),
-              const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                  child: Row(
-                      children: [
-                        Text('OTP number', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                        // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                      ]
-                  )
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                child:
-                TextFormField(
-                  controller: otpController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your otp (OTP number have sent to your email).';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // Set border radius here
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade500,
-                        width: 2.0,
+                const SizedBox(height: 15.0,),
+                const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                    child: Row(
+                        children: [
+                          Text('OTP number', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                          // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                        ]
+                    )
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child:
+                  TextFormField(
+                    controller: otpController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your otp (OTP number have sent to your email).';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20), // Set border radius here
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade500,
+                          width: 2.0,
+                        ),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // Set border radius here
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade500,
-                        width: 2.0,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20), // Set border radius here
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade500,
+                          width: 2.0,
+                        ),
                       ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // Set border radius here
-                      borderSide: const BorderSide(
-                        color: Colors.red,
-                        width: 2.0,
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20), // Set border radius here
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 2.0,
+                        ),
                       ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // Set border radius here
-                      borderSide: const BorderSide(
-                        color: Colors.red,
-                        width: 2.0,
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20), // Set border radius here
+                        borderSide: const BorderSide(
+                          color: Colors.red,
+                          width: 2.0,
+                        ),
                       ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                      // hintText: 'Please enter your password',
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                    // hintText: 'Please enter your password',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Gabarito",
+                    ),
                   ),
+                ),
+                const SizedBox(height: 13,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 3,left: 3),
+                    child: MaterialButton(
+                      minWidth: double.infinity,
+                      height:50,
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          var (success, err_code) = await verifyOtp(otpController.text, currentOtpId!);
+                          if (err_code == ErrorCodes.OPERATION_OK) {
+                            setState(() {
+                              isLoadingVerify = false;
+                              otpController.text = "";
+                              _otpTimer.cancel();
+                              _resendEmailTimer.cancel();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => NewPasswordScreenPage(uid: uidEncode,),
+                                  ));
+                            });
+                          } else {
+                            setState(() {
+                              isLoadingVerify = false;
+                            });
+                            if (err_code == ErrorCodes.VERIFY_OTP_FAIL_BACKEND) {
+                              showDialog(context: context, builder: (
+                                  BuildContext context) =>
+                                  AlertDialog(
+                                    title: const Text('Error'),
+                                    content: Text('An Error occurred while trying to verify otp.\n\nError Code: $err_code'),
+                                    actions: <Widget>[
+                                      TextButton(onPressed: () =>
+                                          Navigator.pop(context, 'Ok'),
+                                          child: const Text('Ok')
+                                      ),
+                                    ],
+                                  ),
+                              );
+                            } else if (err_code == ErrorCodes.VERIFY_OTP_FAIL_NOT_MATCHED) {
+                              showDialog(context: context, builder: (
+                                  BuildContext context) =>
+                                  AlertDialog(
+                                    title: const Text('OTP Verification Failed'),
+                                    content: Text('Please check your email with otp number.\n\nError Code: $err_code'),
+                                    actions: <Widget>[
+                                      TextButton(onPressed: () =>
+                                          Navigator.pop(context, 'Ok'),
+                                          child: const Text('Ok')
+                                      ),
+                                    ],
+                                  ),
+                              );
+                            } else if (err_code == ErrorCodes.VERIFY_OTP_FAIL_API_CONNECTION) {
+                              showDialog(context: context, builder: (
+                                  BuildContext context) =>
+                                  AlertDialog(
+                                    title: const Text('Connection Error'),
+                                    content: Text(
+                                        'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                                    actions: <Widget>[
+                                      TextButton(onPressed: () =>
+                                          Navigator.pop(context, 'Ok'),
+                                          child: const Text('Ok')),
+                                    ],
+                                  ),
+                              );
+                            }
+                          }
+                        }
+                      },
+                      color: Colors.greenAccent.shade400,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40)
+                      ),
+                      child: isLoadingVerify
+                          ? LoadingAnimationWidget.threeRotatingDots(
+                        color: Colors.black,
+                        size: 20,
+                      )
+                          : const Text("Verify",style:
+                      TextStyle(
+                        fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white,
+                      ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 13.0,),
+                const Text(
+                  "Didn't receive an email?",
                   style: TextStyle(
-                    fontSize: 18.0,
-                    color: Colors.grey.shade700,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    fontFamily: "Gabarito",
                   ),
                 ),
-              ),
-              const SizedBox(height: 13,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                child: Container(
-                  padding: const EdgeInsets.only(top: 3,left: 3),
-                  child: MaterialButton(
-                    minWidth: double.infinity,
-                    height:50,
-                    onPressed: (){
-                      if (_formKey.currentState!.validate()) {
-                        if (otp.toString() == otpController.text) {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => NewPasswordScreenPage(uid: uidEncode, remainingTime: _remainingTime)),
-                          // );
-                          navigateNewPasswordScreenPage(uidEncode!, _remainingTime);
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Error'),
-                              content: const Text('OTP validation failed.'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
+                const SizedBox(height: 5.0,),
+                TextButton(
+                  onPressed: () async {
+                    if (_remainingResendEmailTime == 0) {
+                      var (otpLatest, err_code) = await resendEmail(uidEncode!, currentOtpId!);
+                      if (err_code == ErrorCodes.OPERATION_OK) {
+                        setState(() {
+                          isLoading = false;
+                          otpIdGet = otpLatest;
+                          _resetTimer();
+                        });
+                      } else {
+
+                        if (err_code == ErrorCodes.RESEND_EMAIL_FAIL_BACKEND) {
+                          showDialog(context: context, builder: (
+                              BuildContext context) =>
+                              AlertDialog(
+                                title: const Text('Error'),
+                                content: Text('An Error occurred while trying to resend the email with otp.\n\nError Code: $err_code'),
+                                actions: <Widget>[
+                                  TextButton(onPressed: () =>
+                                      Navigator.pop(context, 'Ok'),
+                                      child: const Text('Ok')),
+                                ],
+                              ),
+                          );
+                        } else if (err_code == ErrorCodes.RESEND_EMAIL_FAIL_API_CONNECTION) {
+                          showDialog(context: context, builder: (
+                              BuildContext context) =>
+                              AlertDialog(
+                                title: const Text('Connection Error'),
+                                content: Text(
+                                    'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                                actions: <Widget>[
+                                  TextButton(onPressed: () =>
+                                      Navigator.pop(context, 'Ok'),
+                                      child: const Text('Ok')),
+                                ],
+                              ),
                           );
                         }
                       }
-                    },
-                    color: Colors.greenAccent.shade400,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40)
-                    ),
-                    child: const Text("Validate",style:
-                    TextStyle(
-                      fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white,
-                    ),
-                    ),
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(50, 15),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      alignment: Alignment.centerLeft
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Try again ",
+                        style: TextStyle(
+                          // fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      if (_remainingResendEmailTime > 0)
+                        Text(
+                          '(${(_remainingResendEmailTime).toString().padLeft(2, '0')})',
+                          style: TextStyle(
+                            fontSize: 15,
+                            // fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      if (isLoading)
+                          LoadingAnimationWidget.threeRotatingDots(
+                        color: Colors.black,
+                        size: 20,
+                      )
+                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<(String, String)> resendEmail(String uidEncode, String otp_id) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/users/resend_email'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          'uidEncode': uidEncode,
+          'current_otp_id': otp_id,
+        }),
+
+      );
+      final responseData = json.decode(response.body);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return (responseData['otp'].toString(), (ErrorCodes.OPERATION_OK));
+      } else {
+        if (kDebugMode) {
+          print('Failed to resend email.');
+        }
+        return ("", (ErrorCodes.RESEND_EMAIL_FAIL_BACKEND));
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return ("", (ErrorCodes.RESEND_EMAIL_FAIL_API_CONNECTION));
+    }
+  }
+
+  Future<(bool, String)> verifyOtp(String otpEnter, String currentOtpId) async {
+    setState(() {
+      isLoadingVerify = true;
+    });
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/users/verify_otp_number'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic> {
+          'otp_number': otpEnter,
+          'current_otp_id': currentOtpId,
+        }),
+
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return (true, (ErrorCodes.OPERATION_OK));
+      } else {
+        final responseData = json.decode(response.body);
+        if (responseData['error'] == "OTP is not matched.") {
+          return (false, (ErrorCodes.VERIFY_OTP_FAIL_NOT_MATCHED));
+        }
+        if (kDebugMode) {
+          print('Failed to verify otp.');
+        }
+        return (false, (ErrorCodes.VERIFY_OTP_FAIL_BACKEND));
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return (false, (ErrorCodes.VERIFY_OTP_FAIL_API_CONNECTION));
+    }
   }
 }

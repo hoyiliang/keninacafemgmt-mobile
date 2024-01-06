@@ -18,6 +18,7 @@ class MenuItem {
   final String category_name;
   final String user_created_name;
   final String user_updated_name;
+  final int total_num_ordered;
   int numOrder; // Cart and Order purpose
   String sizeChosen; // Cart and Order purpose
   String variantChosen; // Cart and Order purpose
@@ -39,6 +40,7 @@ class MenuItem {
     required this.category_name,
     required this.user_created_name,
     required this.user_updated_name,
+    required this.total_num_ordered,
     required this.numOrder, // Cart and Order purpose
     // required this.priceNumOrder, // Cart and Order purpose
     required this.sizeChosen, // Cart and Order purpose
@@ -66,6 +68,7 @@ class MenuItem {
       category_name: json['category_name'],
       user_created_name: json['user_created_name'] ?? '',
       user_updated_name: json['user_updated_name'] ?? '',
+      total_num_ordered: json['total_num_ordered'] ?? 0,
       numOrder: 0, // Cart and Order purpose
       // priceNumOrder: 0, // Cart and Order purpose
       sizeChosen: "", // Cart and Order purpose
@@ -89,6 +92,7 @@ class MenuItem {
       'hasSize': hasSize,
       'sizes': sizes,
       'category_name': category_name,
+      'total_num_ordered': total_num_ordered,
       'numOrder': numOrder, // Cart and Order purpose
       'sizeChosen': sizeChosen, // Cart and Order purpose
       'variantChosen': variantChosen, // Cart and Order purpose

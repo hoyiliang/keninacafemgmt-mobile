@@ -944,13 +944,9 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
   List<DropdownMenuItem<String>> getDropDownMenuItem(List<StaffType> listStaffType, User currentUser) {
     List<DropdownMenuItem<String>> staffTypes = [];
     for (StaffType a in listStaffType) {
-      print(currentUser.staff_type);
-      print(a.name);
       if (currentUser.staff_type == "Restaurant Manager" && a.name != "Restaurant Owner") {
-        print('1');
         staffTypes.add(DropdownMenuItem(value: a.name, child: Text(a.name)));
       } else if (currentUser.staff_type == "Restaurant Owner") {
-        print('2');
         staffTypes.add(DropdownMenuItem(value: a.name, child: Text(a.name)));
       }
 
@@ -1027,6 +1023,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
         }),
       );
 
+      final responseData = json.decode(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         var jsonResp = jsonDecode(response.body);
         var jwtToken = jsonResp['token'];
@@ -1036,13 +1033,16 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
           print(response.body);
           print('Staff exist in system.');
         }
-        return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_FAIL_STAFF_EXISTS));
+        if (responseData['email'][0] == "user with this email already exists.") {
+          return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_SAME_STAFF));
+        }
+        return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_STAFF_FAIL_BACKEND));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_FAIL_API_CONNECTION));
+      return (User(uid: -1, image: '', is_staff: false, is_active: false, staff_type: '', name: '', ic: '', address: '', email: '', gender: '', dob: DateTime.now(), phone: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.REGISTER_STAFF_FAIL_API_CONNECTION));
     }
   }
 
@@ -1056,8 +1056,6 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        print(response.body.toString());
-
         return StaffType.getStaffTypeList(jsonDecode(response.body));
       } else {
         throw Exception('Failed to load leave type');
@@ -1085,12 +1083,27 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                   setState(() {
                     staffCreated = staffCreatedAsync;
                     if (!staffCreated) {
-                      if (err_code == ErrorCodes.LEAVE_FORM_DATA_CREATE_FAIL_BACKEND) {
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
+                      if (err_code == ErrorCodes.REGISTER_STAFF_FAIL_BACKEND) {
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
                             AlertDialog(
                               title: const Text('Error'),
-                              content: Text('An Error occurred while trying to create a new staff.\n\nError Code: $err_code'),
+                              content: Text(
+                                  'An Error occurred while trying to create a new staff.\n\nError Code: $err_code'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                      } else if (err_code == ErrorCodes.REGISTER_SAME_STAFF) {
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Email Registered'),
+                              content: Text(
+                                  'Please double check the staff list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
                                     Navigator.pop(context, 'Ok'),

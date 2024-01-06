@@ -46,6 +46,7 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   loading_animation_widget: ^1.2.0+4
   mat_month_picker_dialog: ^1.1.1
+  month_year_picker: ^0.3.0+1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -102,6 +103,7 @@ flutter:
     - images/broke_receipt.png
     - images/empty_order.png
     - images/emptyAttendance.png
+    - images/excelFile.png
 
   fonts:
     - family: AsapCondensed

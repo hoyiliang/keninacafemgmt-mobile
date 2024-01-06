@@ -9,11 +9,11 @@ import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
+import '../StaffManagement/staffDashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -167,271 +167,290 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     enterFullScreen();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade200,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(125),
-          child: AppBar(
-            bottom: PreferredSize(
-              preferredSize: const Size(0,00),
-              child: SizedBox(
-                height: 50.0,
-                child: Material(
-                  color: Colors.deepPurple[100],
-                  child: TabBar(
-                    tabs: const [
-                      Text(
-                        'Request',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17.0,
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate to the desired page when the Android back button is pressed
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, streamControllers: widget.streamControllers)),
+        );
+
+        // Prevent the default back button behavior
+        return false;
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          backgroundColor: Colors.grey.shade200,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(125),
+            child: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_outlined),
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, streamControllers: widget.streamControllers))
+                  );
+                },
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size(0,00),
+                child: SizedBox(
+                  height: 50.0,
+                  child: Material(
+                    color: Colors.deepPurple[100],
+                    child: TabBar(
+                      tabs: const [
+                        Text(
+                          'Request',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17.0,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Overview',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17.0,
+                        Text(
+                          'Overview',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17.0,
+                          ),
                         ),
+                      ],
+                      indicator: BoxDecoration(
+                          color: Colors.deepPurple[300]
                       ),
-                    ],
-                    indicator: BoxDecoration(
-                        color: Colors.deepPurple[300]
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.hovered)) {
+                            return Colors.grey.shade200;
+                          }
+                          return null;
+                        },
+                      ),
+                      unselectedLabelColor: Colors.grey.shade600,
+                      labelColor: Colors.white,
                     ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.hovered)) {
-                          return Colors.grey.shade200;
-                        }
-                        return null;
-                      },
-                    ),
-                    unselectedLabelColor: Colors.grey.shade600,
-                    labelColor: Colors.white,
                   ),
                 ),
               ),
-            ),
 
-            elevation: 0,
-            toolbarHeight: 100,
-            title: const Text("Attendance",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            centerTitle: true,
-            actions: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: IconButton(
-                  onPressed: () {
-                    // disconnectWS();
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
-                    );
-                  },
-                  icon: const Icon(Icons.notifications, size: 35,),
+              elevation: 0,
+              toolbarHeight: 100,
+              title: const Text("Attendance",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              centerTitle: true,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: IconButton(
+                    onPressed: () {
+                      // disconnectWS();
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
+                      );
+                    },
+                    icon: const Icon(Icons.notifications, size: 35,),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-        body: SafeArea(
-          child: TabBarView(
-            children: [
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      children: [
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.all(13.0),
-                            child: Text(
-                              'Select Date: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 25.0,
-                                fontFamily: 'Gabarito',
+          //drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+          body: SafeArea(
+            child: TabBarView(
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        children: [
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(13.0),
+                              child: Text(
+                                'Select Date: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 25.0,
+                                  fontFamily: 'Gabarito',
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () => _selectDateForRequest(context),
-                          child: Container(
-                            width: 200.0,
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.calendar_today),
-                                const SizedBox(width: 8.0),
-                                selectedDateForRequest != null
-                                    ? Text(
-                                  '${selectedDateForRequest!.day}/${selectedDateForRequest!.month}/${selectedDateForRequest!.year}',
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () => _selectDateForRequest(context),
+                            child: Container(
+                              width: 200.0,
+                              padding: const EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_today),
+                                  const SizedBox(width: 8.0),
+                                  selectedDateForRequest != null
+                                      ? Text(
+                                    '${selectedDateForRequest!.day}/${selectedDateForRequest!.month}/${selectedDateForRequest!.year}',
+                                    style: const TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ) : const Text(
+                                    '',
                                   ),
-                                ) : const Text(
-                                  '',
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  if (selectedDateForRequest != null)
-                    Expanded(
-                      child: SingleChildScrollView (
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                            child: FutureBuilder<List<Attendance>>(
-                                future: getAttendanceRequestList(selectedDateForRequest!),
-                                builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                        child: Column(
-                                          children: buildAttendanceRequestList(snapshot.data, currentUser),
-                                        )
-                                    );
-                                  } else {
-                                    if (snapshot.hasError) {
-                                      return Center(child: Text('Error: ${snapshot.error}'));
-                                    } else {
-                                      return Center(
-                                        child: LoadingAnimationWidget.threeRotatingDots(
-                                          color: Colors.black,
-                                          size: 50,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                }
-                            )
-                        ),
+                        ],
                       ),
                     ),
-                  const SizedBox(height: 20.0,),
-                ],
-              ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      children: [
-                        const Align(
-                          alignment: Alignment.centerLeft,
+
+                    if (selectedDateForRequest != null)
+                      Expanded(
+                        child: SingleChildScrollView (
                           child: Padding(
-                            padding: EdgeInsets.all(13.0),
-                            child: Text(
-                              'Select Date: ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 25.0,
-                                fontFamily: 'Gabarito',
+                              padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                              child: FutureBuilder<List<Attendance>>(
+                                  future: getAttendanceRequestList(selectedDateForRequest!),
+                                  builder: (BuildContext context, AsyncSnapshot<List<Attendance>> snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                          child: Column(
+                                            children: buildAttendanceRequestList(snapshot.data, currentUser),
+                                          )
+                                      );
+                                    } else {
+                                      if (snapshot.hasError) {
+                                        return Center(child: Text('Error: ${snapshot.error}'));
+                                      } else {
+                                        return Center(
+                                          child: LoadingAnimationWidget.threeRotatingDots(
+                                            color: Colors.black,
+                                            size: 50,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                              )
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20.0,),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        children: [
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.all(13.0),
+                              child: Text(
+                                'Select Date: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 25.0,
+                                  fontFamily: 'Gabarito',
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () => _selectDateForOverview(context),
-                          child: Container(
-                            width: 200.0,
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.calendar_today),
-                                const SizedBox(width: 8.0),
-                                selectedDateForOverview != null
-                                    ? Text(
-                                  '${selectedDateForOverview!.day}/${selectedDateForOverview!.month}/${selectedDateForOverview!.year}',
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () => _selectDateForOverview(context),
+                            child: Container(
+                              width: 200.0,
+                              padding: const EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_today),
+                                  const SizedBox(width: 8.0),
+                                  selectedDateForOverview != null
+                                      ? Text(
+                                    '${selectedDateForOverview!.day}/${selectedDateForOverview!.month}/${selectedDateForOverview!.year}',
+                                    style: const TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ) : const Text(
+                                    '',
                                   ),
-                                ) : const Text(
-                                  '',
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  if (selectedDateForOverview != null)
-                    Expanded(
-                      child: SingleChildScrollView (
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                            child: FutureBuilder<List<User>>(
-                                future: getUserAttendanceExistList(selectedDateForOverview!),
-                                builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                        child: Column(
-                                            children: [
-                                              FutureBuilder<List<Widget>> (
-                                                  future: buildAttendanceStaffCards(snapshot.data, currentUser),
-                                                  builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
-                                                    if (snapshot.hasData) {
-                                                      return Column(
-                                                          children: snapshot.data!
-                                                      );
+                    if (selectedDateForOverview != null)
+                      Expanded(
+                        child: SingleChildScrollView (
+                          child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                              child: FutureBuilder<List<User>>(
+                                  future: getUserAttendanceExistList(selectedDateForOverview!),
+                                  builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                          child: Column(
+                                              children: [
+                                                FutureBuilder<List<Widget>> (
+                                                    future: buildAttendanceStaffCards(snapshot.data, currentUser),
+                                                    builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot) {
+                                                      if (snapshot.hasData) {
+                                                        return Column(
+                                                            children: snapshot.data!
+                                                        );
+                                                      }
+                                                      return SizedBox();
                                                     }
-                                                    return SizedBox();
-                                                  }
-                                              )
-                                            ]
-                                        )
-                                    );
-                                  } else {
-                                    if (snapshot.hasError) {
-                                      return Center(child: Text('Error: ${snapshot.error}'));
-                                    } else {
-                                      return Center(
-                                        child: LoadingAnimationWidget.threeRotatingDots(
-                                          color: Colors.black,
-                                          size: 50,
-                                        ),
+                                                )
+                                              ]
+                                          )
                                       );
+                                    } else {
+                                      if (snapshot.hasError) {
+                                        return Center(child: Text('Error: ${snapshot.error}'));
+                                      } else {
+                                        return Center(
+                                          child: LoadingAnimationWidget.threeRotatingDots(
+                                            color: Colors.black,
+                                            size: 50,
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
-                                }
-                            )
+                              )
+                          ),
                         ),
                       ),
-                    ),
-                  const SizedBox(height: 20.0,),
-                ],
-              ),
-            ],
+                    const SizedBox(height: 20.0,),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:keninacafe/SupplierManagement/supplierDashboard.dart';
 import 'package:keninacafe/SupplierManagement/viewSupplierDetails.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -325,112 +326,124 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
 
     User? currentUser = getUser();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
-      appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Receipt List', currentUser, widget.streamControllers),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                children: [
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.all(13.0),
-                      child: Text(
-                        'Select Date: ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 25.0,
-                          fontFamily: 'Gabarito',
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate to the desired page when the Android back button is pressed
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SupplierDashboardPage(user: currentUser, streamControllers: widget.streamControllers)),
+        );
+
+        // Prevent the default back button behavior
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+        appBar: AppsBarState().buildSupplierManagementAppBarDetails(context, 'Receipt List', currentUser, widget.streamControllers),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  children: [
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.all(13.0),
+                        child: Text(
+                          'Select Date: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25.0,
+                            fontFamily: 'Gabarito',
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _selectDate(context),
-                    child: Container(
-                      width: 200.0,
-                      padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today),
-                          const SizedBox(width: 8.0),
-                          Text(
-                            '${selectedDate?.day}/${selectedDate?.month}/${selectedDate?.year}',
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                    GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        width: 200.0,
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              '${selectedDate?.day}/${selectedDate?.month}/${selectedDate?.year}',
+                              style: const TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (selectedDate != null)
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
+                      child: Column(
+                        children: [
+                          FutureBuilder<List<StockReceipt>>(
+                              future: getStockReceiptList(selectedDate!),
+                              builder: (BuildContext context, AsyncSnapshot<List<StockReceipt>> snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    children: buildStockReceiptList(snapshot.data, currentUser),
+                                  );
+                                } else {
+                                  if (snapshot.hasError) {
+                                    return Center(child: Text('Error: ${snapshot.error}'));
+                                  } else {
+                                    return Center(
+                                      child: LoadingAnimationWidget.threeRotatingDots(
+                                        color: Colors.black,
+                                        size: 50,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                          )
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            if (selectedDate != null)
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 0),
-                    child: Column(
-                      children: [
-                        FutureBuilder<List<StockReceipt>>(
-                            future: getStockReceiptList(selectedDate!),
-                            builder: (BuildContext context, AsyncSnapshot<List<StockReceipt>> snapshot) {
-                              if (snapshot.hasData) {
-                                return Column(
-                                  children: buildStockReceiptList(snapshot.data, currentUser),
-                                );
-                              } else {
-                                if (snapshot.hasError) {
-                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                } else {
-                                  return Center(
-                                    child: LoadingAnimationWidget.threeRotatingDots(
-                                      color: Colors.black,
-                                      size: 50,
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                        )
-                      ],
-                    ),
-                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CreateStockReceiptPage(user: currentUser, streamControllers: widget.streamControllers))
-          );
-        },
-        child: const Icon(
-          Icons.add,
-          size: 27.0,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => CreateStockReceiptPage(user: currentUser, streamControllers: widget.streamControllers))
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            size: 27.0,
+          ),
         ),
-      ),
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        height: 20.0,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        shape: const CircularNotchedRectangle(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomAppBar(
+          height: 20.0,
+          color: Theme.of(context).colorScheme.inversePrimary,
+          shape: const CircularNotchedRectangle(),
+        ),
       ),
     );
   }

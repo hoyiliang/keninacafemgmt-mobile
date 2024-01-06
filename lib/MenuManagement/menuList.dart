@@ -139,137 +139,172 @@ class _MenuListPageState extends State<MenuListPage>{
 
     User? currentUser = getUser();
 
-    return FutureBuilder<List<MenuItem>>(
-      future: getItemCategoryList(),
-      builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
-        if (snapshot.hasData) {
-          return DefaultTabController(
-            length: snapshot.data!.length,
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(125),
-                child: AppBar(
-                  bottom: PreferredSize(
-                    preferredSize: const Size(0,00),
-                    child: SizedBox(
-                      height: 50.0,
-                      child: Material(
-                        color: Colors.deepPurple[100],
-                        child: TabBar(
-                          isScrollable: true,
-                          tabs: [
-                            for (int i = 0; i < snapshot.data!.length; i++)
-                              Text(
-                                snapshot.data![i].category_name,
-                                // style: TextStyle(
-                                //   fontWeight: FontWeight.bold,
-                                // ),
-                              ),
-                          ],
-                          indicator: BoxDecoration(
-                              color: Colors.deepPurple[300]
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+              content: const Text('Are you sure to exit the apps?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Yes'),
+
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('No'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      },
+      child: FutureBuilder<List<MenuItem>>(
+        future: getItemCategoryList(),
+        builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
+          if (snapshot.hasData) {
+            return DefaultTabController(
+              length: snapshot.data!.length,
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(125),
+                  child: AppBar(
+                    bottom: PreferredSize(
+                      preferredSize: const Size(0,00),
+                      child: SizedBox(
+                        height: 50.0,
+                        child: Material(
+                          color: Colors.deepPurple[100],
+                          child: TabBar(
+                            isScrollable: true,
+                            tabs: [
+                              for (int i = 0; i < snapshot.data!.length; i++)
+                                Text(
+                                  snapshot.data![i].category_name,
+                                  // style: TextStyle(
+                                  //   fontWeight: FontWeight.bold,
+                                  // ),
+                                ),
+                            ],
+                            indicator: BoxDecoration(
+                                color: Colors.deepPurple[300]
+                            ),
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                  (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.hovered)) {
+                                  return Colors.grey.shade200;
+                                }
+                                return null;
+                              },
+                            ),
+                            unselectedLabelColor: Colors.grey.shade700,
+                            labelColor: Colors.white,
                           ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.hovered)) {
-                                return Colors.grey.shade200;
-                              }
-                              return null;
-                            },
-                          ),
-                          unselectedLabelColor: Colors.grey.shade700,
-                          labelColor: Colors.white,
                         ),
                       ),
                     ),
-                  ),
 
-                  elevation: 0,
-                  toolbarHeight: 100,
-                  title: const Text("Menu List",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  centerTitle: true,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
-                          );
-                        },
-                        icon: const Icon(Icons.notifications, size: 35,),
+                    elevation: 0,
+                    toolbarHeight: 100,
+                    title: const Text("Menu List",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
+                    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                    centerTitle: true,
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
+                            );
+                          },
+                          icon: const Icon(Icons.notifications, size: 35,),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-              body: SafeArea(
-                child: FutureBuilder<List<MenuItem>>(
-                  future: getMenuItemList(),
-                  builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                          child: TabBarView(
-                            children: buildTabBarView(snapshot.data, currentUser),
-                          )
-                      );
-
-                    } else {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return Center(
-                          child: LoadingAnimationWidget.threeRotatingDots(
-                            color: Colors.black,
-                            size: 50,
-                          ),
+                drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+                body: SafeArea(
+                  child: FutureBuilder<List<MenuItem>>(
+                    future: getMenuItemList(),
+                    builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
+                      if (snapshot.hasData) {
+                        return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                            child: TabBarView(
+                              children: buildTabBarView(snapshot.data, currentUser),
+                            )
                         );
+
+                      } else {
+                        if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        } else {
+                          return Center(
+                            child: LoadingAnimationWidget.threeRotatingDots(
+                              color: Colors.black,
+                              size: 50,
+                            ),
+                          );
+                        }
                       }
                     }
-                  }
+                  ),
                 ),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, streamControllers: widget.streamControllers))
-                  );
-                },
-                child: const Icon(
-                  Icons.add,
-                  size: 27.0,
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, streamControllers: widget.streamControllers))
+                    );
+                  },
+                  child: const Icon(
+                    Icons.add,
+                    size: 27.0,
+                  ),
                 ),
-              ),
-              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-              bottomNavigationBar: BottomAppBar(
-                height: 20.0,
-                color: Theme.of(context).colorScheme.inversePrimary,
-                shape: const CircularNotchedRectangle(),
-              ),
-            ),
-          );
-        } else {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return Center(
-              child: LoadingAnimationWidget.threeRotatingDots(
-                color: Colors.black,
-                size: 50,
+                floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+                bottomNavigationBar: BottomAppBar(
+                  height: 20.0,
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  shape: const CircularNotchedRectangle(),
+                ),
               ),
             );
+          } else {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              return Center(
+                child: LoadingAnimationWidget.threeRotatingDots(
+                  color: Colors.black,
+                  size: 50,
+                ),
+              );
+            }
           }
         }
-      }
+      ),
     );
   }
 
@@ -523,6 +558,21 @@ class _MenuListPageState extends State<MenuListPage>{
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
+                                            const Spacer(),
+                                            Icon(
+                                              Icons.shopping_cart_outlined,
+                                              size: 23.0,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                            const SizedBox(width: 3.0,),
+                                            Text(
+                                              menuItemList[j].total_num_ordered.toString(),
+                                              style: TextStyle(
+                                                fontSize: 17.0,
+                                                fontFamily: "Itim",
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -543,7 +593,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                               style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: !menuItemList[j].isOutOfStock? Colors.green : Colors.red),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
-                                                showUpdateIsOutOfStockConfirmationDialog(menuItemList[j]);
+                                                showUpdateIsOutOfStockConfirmationDialog(menuItemList[j], currentUser);
                                               },
                                               child: !menuItemList[j].isOutOfStock
                                                   ? const Icon(
@@ -611,13 +661,13 @@ class _MenuListPageState extends State<MenuListPage>{
       }
     }
     return tabBarView;
+
   }
 
   Future<List<MenuItem>> getItemCategoryList() async {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:8000/menu/request_item_category_list'),
-        // Uri.parse('http://localhost:8000/menu/request_item_category_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -637,7 +687,6 @@ class _MenuListPageState extends State<MenuListPage>{
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list'),
-        // Uri.parse('http://localhost:8000/menu/request_menu_item_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -690,9 +739,9 @@ class _MenuListPageState extends State<MenuListPage>{
     }
   }
 
-  Future<(String, bool)> _submitIsOutOfStockStatusMenuItem(MenuItem currentMenuItem) async {
+  Future<(String, bool)> _submitIsOutOfStockStatusMenuItem(MenuItem currentMenuItem, User currentUser) async {
     bool outOfStockStatusUpdate = !currentMenuItem.isOutOfStock;
-    var (success, err_code) = await updateIsOutOfStockStatusMenuItem(currentMenuItem, outOfStockStatusUpdate);
+    var (success, err_code) = await updateIsOutOfStockStatusMenuItem(currentMenuItem, outOfStockStatusUpdate, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to update IsOutOfStock status of the menu item (${currentMenuItem.name}) data.");
@@ -703,7 +752,7 @@ class _MenuListPageState extends State<MenuListPage>{
   }
 
 
-  Future<(bool, String)> updateIsOutOfStockStatusMenuItem(MenuItem currentMenuItem, bool outOfStockStatusUpdate) async {
+  Future<(bool, String)> updateIsOutOfStockStatusMenuItem(MenuItem currentMenuItem, bool outOfStockStatusUpdate, User currentUser) async {
     try {
       final response = await http.put(
         Uri.parse('http://10.0.2.2:8000/menu/update_is_out_of_stock/${currentMenuItem.id}/'),
@@ -712,6 +761,7 @@ class _MenuListPageState extends State<MenuListPage>{
         },
         body: jsonEncode(<String, dynamic> {
           'isOutOfStock': outOfStockStatusUpdate,
+          'user_updated_id': currentUser.uid,
         }),
       );
 
@@ -731,7 +781,7 @@ class _MenuListPageState extends State<MenuListPage>{
     }
   }
 
-  void showUpdateIsOutOfStockConfirmationDialog(MenuItem currentMenuItem) {
+  void showUpdateIsOutOfStockConfirmationDialog(MenuItem currentMenuItem, User currentUser) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -741,7 +791,7 @@ class _MenuListPageState extends State<MenuListPage>{
           actions: [
             ElevatedButton(
               onPressed: () async {
-                var (err_code, updateIsOutOfStockStatusAsync) = await _submitIsOutOfStockStatusMenuItem(currentMenuItem);
+                var (err_code, updateIsOutOfStockStatusAsync) = await _submitIsOutOfStockStatusMenuItem(currentMenuItem, currentUser);
                 setState(() {
                   if (err_code == ErrorCodes.UPDATE_ISOUTOFSTOCK_STATUS_FAIL_BACKEND) {
                     showDialog(context: context, builder: (

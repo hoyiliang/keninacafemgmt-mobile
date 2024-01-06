@@ -38,16 +38,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const NewPasswordScreenPage(uid: null, remainingTime: null),
+      home: const NewPasswordScreenPage(uid: null),
     );
   }
 }
 
 class NewPasswordScreenPage extends StatefulWidget {
-  const NewPasswordScreenPage({super.key, this.uid, this.remainingTime});
+  const NewPasswordScreenPage({super.key, this.uid});
 
   final String? uid;
-  final int? remainingTime;
 
   @override
   State<NewPasswordScreenPage> createState() => _NewPasswordScreenPageState();
@@ -61,53 +60,13 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
   bool secureConfirmPasswordText = true;
   bool updateForgotPassword = false;
 
-  late Timer _timer;
-  int _timeoutInSeconds = 0;
-  int _remainingTime = 0;
-
   String? getUidEncode() {
     return widget.uid;
-  }
-
-  int? getRemainingTime() {
-    return widget.remainingTime;
   }
 
   @override
   void initState() {
     super.initState();
-    _timeoutInSeconds = getRemainingTime()!;
-    _remainingTime = getRemainingTime()!;
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingTime != null) {
-          if (_remainingTime > 0) {
-            _remainingTime--;
-          } else {
-            _timer.cancel(); // Stop the timer when it reaches 0
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PasswordResetScreenPage()),
-            );
-          }
-        }
-      });
-    });
-  }
-
-  void _resetTimer() {
-    _timer.cancel();
-    _startTimer();
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
   }
 
   void _togglePasswordView() {
@@ -127,210 +86,204 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
 
     String? uidEncode = getUidEncode();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Set New Password',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          onPressed: () => {
-            Navigator.of(context).pop(),
-          },
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.black),
-        ),
-        backgroundColor: Colors.deepPurple.shade200,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Text(
-                  'Time remaining: ${_remainingTime ~/ 60}:${(_remainingTime % 60).toString().padLeft(2, '0')}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 15.0,),
-                const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                    child: Row(
-                        children: [
-                          Text('Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                          // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                        ]
-                    )
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child:
-                  TextFormField(
-                    obscureText: securePasswordText,
-                    controller: passwordController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#&*~]).{8,}$');
-                      if (!passwordRegex.hasMatch(value)) {
-                        return 'Please enter a valid password with at least:\nOne capital letter\nOne small letter\nOne number\nOne symbol from !, @, #, &, * or ~';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      suffix: InkWell(
-                        onTap: _togglePasswordView,
-                        child: Icon(
-                          securePasswordText ? Icons.visibility : Icons.visibility_off,
-                          color: Colors.black,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade500,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade500,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2.0,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2.0,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                      // hintText: 'Please enter your password',
-                    ),
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Gabarito",
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 13,),
-                const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                    child: Row(
-                        children: [
-                          Text('Confirm Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                          // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                        ]
-                    )
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: TextFormField(
-                    obscureText: secureConfirmPasswordText,
-                    controller: confirmPasswordController,
-                    validator: (value) {
-                      if (value != passwordController.text) {
-                        return 'Passwords do not match with the new password!';
-                      } else if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      return null;
-                    },
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Gabarito",
-                    ),
-                    decoration: InputDecoration(
-                      suffix: InkWell(
-                        onTap: _toggleConfirmPasswordView,
-                        child: Icon(
-                          secureConfirmPasswordText ? Icons.visibility : Icons.visibility_off,
-                          color: Colors.black,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade500,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade500,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2.0,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), // Set border radius here
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 2.0,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                      // hintText: 'Please enter the password again',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  child: Container(
-                    padding: const EdgeInsets.only(top: 3,left: 3),
-                    child: MaterialButton(
-                      minWidth: double.infinity,
-                      height:50,
-                      onPressed: (){
-                        if (_formKey.currentState!.validate()) {
-                          showConfirmationCreateDialog(uidEncode!);
-                        }
-                      },
-                      color: Colors.lightBlueAccent.shade400,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40)
-                      ),
-                      child: const Text("Update",style:
-                      TextStyle(
-                        fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white,
-                      ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 80,
+          automaticallyImplyLeading: false,
+          title: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(
+              'Set New Password',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
+          backgroundColor: Colors.deepPurple.shade200,
         ),
-      )
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                      child: Row(
+                          children: [
+                            Text('Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                            // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                          ]
+                      )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child:
+                    TextFormField(
+                      obscureText: securePasswordText,
+                      controller: passwordController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#&*~]).{8,}$');
+                        if (!passwordRegex.hasMatch(value)) {
+                          return 'Please enter a valid password with at least:\nOne capital letter\nOne small letter\nOne number\nOne symbol from !, @, #, &, * or ~';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        suffix: InkWell(
+                          onTap: _togglePasswordView,
+                          child: Icon(
+                            securePasswordText ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.black,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade500,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade500,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 2.0,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                        // hintText: 'Please enter your password',
+                      ),
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Gabarito",
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 13,),
+                  const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                      child: Row(
+                          children: [
+                            Text('Confirm Password', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                            // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                          ]
+                      )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: TextFormField(
+                      obscureText: secureConfirmPasswordText,
+                      controller: confirmPasswordController,
+                      validator: (value) {
+                        if (value != passwordController.text) {
+                          return 'Passwords do not match with the new password!';
+                        } else if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        return null;
+                      },
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Gabarito",
+                      ),
+                      decoration: InputDecoration(
+                        suffix: InkWell(
+                          onTap: _toggleConfirmPasswordView,
+                          child: Icon(
+                            secureConfirmPasswordText ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.black,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade500,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade500,
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 2.0,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20), // Set border radius here
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                        // hintText: 'Please enter the password again',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 3,left: 3),
+                      child: MaterialButton(
+                        minWidth: double.infinity,
+                        height:50,
+                        onPressed: (){
+                          if (_formKey.currentState!.validate()) {
+                            showConfirmationCreateDialog(uidEncode!);
+                          }
+                        },
+                        color: Colors.lightBlueAccent.shade400,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40)
+                        ),
+                        child: const Text("Update",style:
+                        TextStyle(
+                          fontWeight: FontWeight.bold,fontSize: 16, color: Colors.white,
+                        ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
+      ),
     );
   }
 
@@ -377,7 +330,6 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
                       );
                     }
                   } else {
-                    _timer.cancel();
                     Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>

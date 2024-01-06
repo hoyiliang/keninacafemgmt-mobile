@@ -882,7 +882,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   Future<List<Supplier>> getSupplierList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_list'),
+        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -929,10 +929,6 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     } else {
       stockInReceipt = stockSelected;
     }
-    print('hi');
-    print(stockSelected);
-    print(stockUpdate);
-    print(stockInReceipt);
     String supplierName = supplierNameController.text;
     String supplierNameBefore = supplierNameBeforeController.text;
     String pdfFileName = pdfFileNameController.text;
@@ -963,7 +959,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
           'supplier_name': supplierName,
           'supplier_name_before': supplierNameBefore,
           'is_file_uploaded': isFileUploaded,
-          'user_updated_name': currentUser.name,
+          'user_updated_id': currentUser.uid,
           'date_receipt': DateTime.parse(dateReceiptController.text).toString()
         }),
       );

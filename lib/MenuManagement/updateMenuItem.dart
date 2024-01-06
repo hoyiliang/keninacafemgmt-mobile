@@ -442,41 +442,6 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                               }).toList(),
                             ),
                           ),
-                          const SizedBox(height: 13.0,),
-                          const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
-                              child: Row(
-                                  children: [
-                                    Text('Category', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
-                                    // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
-                                  ]
-                              )
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              child: FutureBuilder<List<String>>(
-                                  future: getItemCategoryList(),
-                                  builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [buildItemCategoryList(snapshot.data, currentUser)]
-                                      );
-                                    } else {
-                                      if (snapshot.hasError) {
-                                        return Center(child: Text('Error: ${snapshot.error}'));
-                                      } else {
-                                        return Center(
-                                          child: LoadingAnimationWidget.threeRotatingDots(
-                                            color: Colors.black,
-                                            size: 50,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  }
-                              )
-                          ),
                           const SizedBox(height: 13,),
                           const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
@@ -806,6 +771,41 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                                   )
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 13.0,),
+                          const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                              child: Row(
+                                  children: [
+                                    Text('Category', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),),
+                                    // Text(' *', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.red),),
+                                  ]
+                              )
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              child: FutureBuilder<List<String>>(
+                                  future: getItemCategoryList(),
+                                  builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [buildItemCategoryList(snapshot.data, currentUser)]
+                                      );
+                                    } else {
+                                      if (snapshot.hasError) {
+                                        return Center(child: Text('Error: ${snapshot.error}'));
+                                      } else {
+                                        return Center(
+                                          child: LoadingAnimationWidget.threeRotatingDots(
+                                            color: Colors.black,
+                                            size: 50,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                              )
                           ),
                         ]
                     ),
@@ -1636,7 +1636,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
           'category_name': categoryName,
           'hasSize': hasSize,
           'hasVariant': hasVariant,
-          'user_updated_name': currentUser.name,
+          'user_updated_id': currentUser.uid,
         }),
       );
 
@@ -1670,7 +1670,6 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        // stock = Stock.getStockNameList(jsonDecode(response.body));
         return ItemCategory.getAllItemCategory(jsonDecode(response.body));
       } else {
         throw Exception('Failed to load the list contain all item category.');
