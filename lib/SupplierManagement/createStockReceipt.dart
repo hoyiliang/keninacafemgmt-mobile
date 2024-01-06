@@ -804,7 +804,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
           'stock_in_receipt': stockInReceipt,
           'pdf_file_name': pdfFileName,
           'pdfFile': base64Encode(await _readFile(pdfFile!)),
-          'user_created_name': currentUser.name,
+          'user_created_id': currentUser.uid,
           'supplier_name': supplierName,
           'date_receipt': dateReceipt.toString(),
         }),
@@ -855,7 +855,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
   Future<List<Supplier>> getSupplierList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_list'),
+        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

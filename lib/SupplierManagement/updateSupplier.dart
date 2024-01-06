@@ -854,7 +854,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
           'contact': contactController.text,
           'email': emailController.text,
           'address': addressController.text,
-          'user_updated_name': currentUser.name,
+          'user_updated_id': currentUser.uid,
           'stock_updated': stockUpdated,
           'stock_before': stockBefore,
         }),

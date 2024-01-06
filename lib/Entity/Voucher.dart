@@ -14,6 +14,7 @@ class Voucher {
   final int min_spending;
   final int redeem_point;
   final bool is_available;
+  final int num_redeemed;
 
   Voucher({
     required this.id,
@@ -27,6 +28,7 @@ class Voucher {
     required this.min_spending,
     required this.redeem_point,
     required this.is_available,
+    required this.num_redeemed,
   });
 
   factory Voucher.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class Voucher {
       min_spending: json['min_spending'] ?? 0,
       redeem_point: json['redeem_point'] ?? 0,
       is_available: json['is_available'],
+      num_redeemed: json['num_redeemed'],
     );
   }
 
@@ -61,6 +64,7 @@ class Voucher {
       'min_spending': min_spending,
       'redeem_point': redeem_point,
       'is_available': is_available,
+      'num_redeemed': num_redeemed,
     };
   }
 

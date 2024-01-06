@@ -21,8 +21,9 @@ class ErrorCodes {
   static const String OLD_PASSWORD_DOES_NOT_MATCH_DIALOG = 'E-011';
   static const String PASSWORD_UPDATE_FAIL_BACKEND = 'E-012';
   static const String PASSWORD_UPDATE_FAIL_API_CONNECTION = 'E-013';
-  static const String REGISTER_FAIL_STAFF_EXISTS = 'E-014';
-  static const String REGISTER_FAIL_API_CONNECTION = 'E-015';
+  static const String REGISTER_STAFF_FAIL_BACKEND = 'E-014';
+  static const String REGISTER_SAME_STAFF = 'E-078';
+  static const String REGISTER_STAFF_FAIL_API_CONNECTION = 'E-015';
   static const String UPDATE_STAFF_FAIL_BACKEND = 'E-056';
   static const String UPDATE_STAFF_FAIL_API_CONNECTION = 'E-057';
   static const String DELETE_STAFF_FAIL_BACKEND = 'E-016';
@@ -33,10 +34,13 @@ class ErrorCodes {
   static const String UPDATE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION = 'E-021';
   static final String CHANGE_ATTENDANCE_REQUEST_FAIL_BACKEND = 'E-070';
   static final String CHANGE_ATTENDANCE_REQUEST_FAIL_API_CONNECTION = 'E-071';
-  static const String REGISTER_FAIL_SUPPLIER_EXISTS = 'E-022';
-  static const String REGISTER_FAIL_SUPPLIER_API_CONNECTION = 'E-023';
-  static const String SUPPLIER_CREATE_FAIL_BACKEND = 'E-024';
-  static const String SUPPLIER_CREATE_FAIL_API_CONNECTION = 'E-025';
+  static final String DOWNLOAD_ATTENDANCE_RECORD_FAIL_BACKEND = 'E-080';
+  static final String DOWNLOAD_ATTENDANCE_RECORD_FAIL_API_CONNECTION = 'E-081';
+  static final String DOWNLOAD_ATTENDANCE_RECORD_FAIL_NO_RECORD = 'E-082';
+  static final String DOWNLOAD_ATTENDANCE_RECORD_FAIL_NO_STAFF = 'E-083';
+  static const String REGISTER_SUPPLIER_FAIL_BACKEND = 'E-022';
+  static const String REGISTER_SAME_SUPPLIER = 'E-079';
+  static const String REGISTER_SUPPLIER_FAIL_API_CONNECTION = 'E-023';
   static const String DELETE_SUPPLIER_FAIL_BACKEND = 'E-026';
   static const String DELETE_SUPPLIER_FAIL_API_CONNECTION = 'E-027';
   static const String UPDATE_SUPPLIER_FAIL_BACKEND = 'E-028';
@@ -60,6 +64,7 @@ class ErrorCodes {
   static const String UPDATE_ORDER_STATUS_FAIL_BACKEND = 'E-034';
   static const String UPDATE_ORDER_STATUS_FAIL_API_CONNECTION = 'E-035';
   static const String CREATE_MENU_ITEM_FAIL_BACKEND = 'E-036';
+  static const String CREATE_SAME_MENU_ITEM = 'E-077';
   static const String CREATE_MENU_ITEM_FAIL_API_CONNECTION = 'E-037';
   static const String DELETE_MENU_ITEM_FAIL_BACKEND = 'E-038';
   static const String DELETE_MENU_ITEM_FAIL_API_CONNECTION = 'E-039';
@@ -72,9 +77,15 @@ class ErrorCodes {
   static const String DELETE_VOUCHER_FAIL_BACKEND = 'E-046';
   static const String DELETE_VOUCHER_FAIL_API_CONNECTION = 'E-047';
   static const String CREATE_NEW_VOUCHER_FAIL_BACKEND = 'E-048';
+  static const String CREATE_SAME_VOUCHER = 'E-076';
   static const String CREATE_NEW_VOUCHER_FAIL_API_CONNECTION = 'E-049';
   static const String UPDATE_VOUCHER_FAIL_BACKEND = 'E-050';
   static const String UPDATE_VOUCHER_FAIL_API_CONNECTION = 'E-051';
   static const String FORGOT_PASSWORD_INVALID_USER_FAIL_BACKEND = 'E-072';
   static const String FORGOT_PASSWORD_FAIL_API_CONNECTION = 'E-073';
+  static const String RESEND_EMAIL_FAIL_BACKEND = 'E-074';
+  static const String RESEND_EMAIL_FAIL_API_CONNECTION = 'E-075';
+  static final String VERIFY_OTP_FAIL_BACKEND = 'E-084';
+  static final String VERIFY_OTP_FAIL_API_CONNECTION = 'E-085';
+  static final String VERIFY_OTP_FAIL_NOT_MATCHED = 'E-086';
 }

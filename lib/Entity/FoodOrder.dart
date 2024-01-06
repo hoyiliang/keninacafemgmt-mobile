@@ -11,6 +11,8 @@ class FoodOrder {
   final String user_created_name;
   final String user_updated_name;
   final DateTime dateTime;
+  final String order_mode;
+  final String table_num;
 
   FoodOrder({
     required this.id,
@@ -21,6 +23,8 @@ class FoodOrder {
     required this.user_created_name,
     required this.user_updated_name,
     required this.dateTime,
+    required this.order_mode,
+    required this.table_num,
   });
 
   factory FoodOrder.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,8 @@ class FoodOrder {
       user_created_name: json['user_created_name'] ?? '',
       user_updated_name: json['user_updated_name'] ?? '',
       dateTime: DateTime.parse(json['date_created']),
+      order_mode: json['order_mode'],
+      table_num: json['table_num'] ?? "",
     );
   }
 
@@ -49,6 +55,8 @@ class FoodOrder {
       'user_created_name': user_created_name,
       'user_updated_name': user_updated_name,
       'dateTime': dateTime,
+      'order_mode': order_mode,
+      'table_num': table_num,
     };
   }
 

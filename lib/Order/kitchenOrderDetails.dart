@@ -36,16 +36,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const KitchenOrderDetailsPage(user: null, order: null, streamControllers: null),
+      home: const KitchenOrderDetailsPage(user: null, order: null, orderMode: null, streamControllers: null),
     );
   }
 }
 
 class KitchenOrderDetailsPage extends StatefulWidget {
-  const KitchenOrderDetailsPage({super.key, this.user, this.order, this.streamControllers});
+  const KitchenOrderDetailsPage({super.key, this.user, this.order, this.orderMode, this.streamControllers});
 
   final User? user;
   final FoodOrder? order;
+  final String? orderMode;
   final Map<String,StreamController>? streamControllers;
 
   @override
@@ -63,6 +64,10 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
 
   FoodOrder? getOrder() {
     return widget.order;
+  }
+
+  String? getOrderMode() {
+    return widget.orderMode;
   }
 
   @override
@@ -135,6 +140,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
 
     User? currentUser = getUser();
     FoodOrder? currentOrder = getOrder();
+    String? currentOrderMode = getOrderMode();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -149,7 +155,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                       return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                           child: Column(
-                            children: buildMenuItemDataRows(snapshot.data, currentOrder, currentUser),
+                            children: buildMenuItemDataRows(snapshot.data, currentOrder, currentUser, currentOrderMode),
                           )
                       );
 
@@ -173,7 +179,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
     );
   }
 
-  List<Widget> buildMenuItemDataRows(List<OrderFoodItemMoreInfo>? orderFoodItemList, FoodOrder currentOrder, User? currentUser) {
+  List<Widget> buildMenuItemDataRows(List<OrderFoodItemMoreInfo>? orderFoodItemList, FoodOrder currentOrder, User? currentUser, String? currentOrderMode) {
     List<Widget> rows = [];
     bool isOrderDone = true;
     rows.add(
@@ -193,7 +199,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                     ),
                   ),
                   Text(
-                    "# ${orderFoodItemList?[0].food_order}",
+                    "# ${orderFoodItemList?[0].food_order}  [${currentOrderMode}]",
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

@@ -402,8 +402,15 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                                         fontWeight: FontWeight.bold,
                                         fontFamily: "Gabarito",
                                       ),
-                                      // validator: (emailController) {
-                                      //   if (emailController == null || emailController.isEmpty) return 'Please fill in the email of PIC !';
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter your email';
+                                      //   }
+                                      //   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                      //
+                                      //   if (!emailRegex.hasMatch(value)) {
+                                      //     return 'Please enter a valid email address';
+                                      //   }
                                       //   return null;
                                       // },
                                     ),
@@ -518,7 +525,10 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                           } else {
                             isContactFill = true;
                           }
+                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                           if (emailController.text == "") {
+                            isEmailFill = false;
+                          } else if (!emailRegex.hasMatch(emailController.text)) {
                             isEmailFill = false;
                           } else {
                             isEmailFill = true;
@@ -677,10 +687,10 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
           'email': email,
           'address': address,
           // 'stock': stockUpdate,
-          'user_created_name': currentUser.name,
+          'user_created_id': currentUser.uid,
         }),
       );
-
+      // final responseData = json.decode(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (kDebugMode) {
           print("Create Supplier Successful.");
@@ -691,13 +701,16 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
           print(response.body);
           print('Failed to create supplier.');
         }
-        return (false, (ErrorCodes.REGISTER_FAIL_SUPPLIER_EXISTS));
+        if (json.decode(response.body)['message'] == "Supplier Exists.") {
+          return (false, (ErrorCodes.REGISTER_SAME_SUPPLIER));
+        }
+        return (false, (ErrorCodes.REGISTER_SUPPLIER_FAIL_BACKEND));
       }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('API Connection Error. $e');
       }
-      return (false, (ErrorCodes.REGISTER_FAIL_SUPPLIER_API_CONNECTION));
+      return (false, (ErrorCodes.REGISTER_SUPPLIER_FAIL_API_CONNECTION));
     }
   }
 
@@ -759,12 +772,27 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
                   setState(() {
                     supplierCreated = supplierCreatedAsync;
                     if (!supplierCreated) {
-                      if (err_code == ErrorCodes.SUPPLIER_CREATE_FAIL_BACKEND) {
-                        showDialog(context: context, builder: (
-                            BuildContext context) =>
+                      Navigator.of(context).pop();
+                      if (err_code == ErrorCodes.REGISTER_SUPPLIER_FAIL_BACKEND) {
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
                             AlertDialog(
                               title: const Text('Error'),
-                              content: Text('An Error occurred while trying to create a new supplier.\n\nError Code: $err_code'),
+                              content: Text(
+                                  'An Error occurred while trying to create a new supplier.\n\nError Code: $err_code'),
+                              actions: <Widget>[
+                                TextButton(onPressed: () =>
+                                    Navigator.pop(context, 'Ok'),
+                                    child: const Text('Ok')),
+                              ],
+                            ),
+                        );
+                      } else if (err_code == ErrorCodes.REGISTER_SAME_SUPPLIER) {
+                        showDialog(
+                          context: context, builder: (BuildContext context) =>
+                            AlertDialog(
+                              title: const Text('Supplier Exists'),
+                              content: Text('Please double check the supplier list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
                                     Navigator.pop(context, 'Ok'),

@@ -124,74 +124,108 @@ class _SupplierDashboardState extends State<SupplierDashboardPage> {
     enterFullScreen();
 
     User? currentUser = getUser();
-    print(currentUser?.name);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
-      appBar: AppsBarState().buildSupplierDashboardAppBar(context, 'Supplier Dashboard', currentUser, widget.streamControllers!),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 20,),
-            child: Align(
-              alignment: Alignment.center,
-              child: Column(
-                  children: [
-                    SizedBox(
-                      width: 210.0,
-                      // height: 300,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, streamControllers: widget.streamControllers)));
-                              },
-                              child: Column(
-                                children: [
-                                  Image.asset('images/supplierManagement.png',),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    child: Text('Management', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                                  ),
-                                ],
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+              content: const Text('Are you sure to exit the apps?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Yes'),
+
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Text('No'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
+        appBar: AppsBarState().buildSupplierDashboardAppBar(context, 'Supplier Dashboard', currentUser, widget.streamControllers!),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 20,),
+              child: Align(
+                alignment: Alignment.center,
+                child: Column(
+                    children: [
+                      SizedBox(
+                        width: 210.0,
+                        // height: 300,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser, streamControllers: widget.streamControllers)));
+                                },
+                                child: Column(
+                                  children: [
+                                    Image.asset('images/supplierManagement.png',),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      child: Text('Suppliers', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 210,
-                      // height: 300,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, streamControllers: widget.streamControllers)));
-                              },
-                              child: Column(
-                                children: [
-                                  Image.asset('images/stockReceipt.png'),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    child: Text('Stock Receipt', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                                  ),
-                                ],
+                      SizedBox(
+                        width: 210,
+                        // height: 300,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20,),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) => StockReceiptListPage(user: currentUser, streamControllers: widget.streamControllers)));
+                                },
+                                child: Column(
+                                  children: [
+                                    Image.asset('images/stockReceipt.png'),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      child: Text('Stock Receipt', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ]
-              ),
-            )
+                    ]
+                ),
+              )
+          ),
         ),
       ),
     );
