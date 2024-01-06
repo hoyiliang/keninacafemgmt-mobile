@@ -96,7 +96,12 @@ class _MenuListPageState extends State<MenuListPage>{
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: const Text('Yes'),
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
 
                 ),
                 ElevatedButton(
@@ -106,7 +111,12 @@ class _MenuListPageState extends State<MenuListPage>{
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: const Text('No'),
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -734,11 +744,12 @@ class _MenuListPageState extends State<MenuListPage>{
               onPressed: () async {
                 var (err_code, updateIsOutOfStockStatusAsync) = await _submitIsOutOfStockStatusMenuItem(currentMenuItem, currentUser);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.UPDATE_ISOUTOFSTOCK_STATUS_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to update the IsOutOfStock status of the menu item (${currentMenuItem.name}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -751,7 +762,7 @@ class _MenuListPageState extends State<MenuListPage>{
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -762,22 +773,17 @@ class _MenuListPageState extends State<MenuListPage>{
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: !currentMenuItem.isOutOfStock ? Text('Disable the Menu Item (${currentMenuItem.name}) Successful') : Text('Enable the Menu Item (${currentMenuItem.name}) Successful'),
-                          // content: const Text(''),
+                          title: !currentMenuItem.isOutOfStock ? const Text('Disabled Successfully', style: TextStyle(fontWeight: FontWeight.bold,)) : const Text('Enabled Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: !currentMenuItem.isOutOfStock ? Text('The Menu Item (${currentMenuItem.name}) has been disabled.') : Text('The Menu Item (${currentMenuItem.name}) has been enabled.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
                                 setState(() {});
                                 Navigator.of(context).pop();
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                                // );
                               },
                             ),
                           ],
@@ -785,12 +791,16 @@ class _MenuListPageState extends State<MenuListPage>{
                     );
                   }
                 });
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -800,7 +810,12 @@ class _MenuListPageState extends State<MenuListPage>{
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -820,11 +835,12 @@ class _MenuListPageState extends State<MenuListPage>{
               onPressed: () async {
                 var (err_code, deleteMenuItem) = await _submitDeleteMenuItem(currentMenuItem);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_MENU_ITEM_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to delete the menu item (${currentMenuItem.name}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -837,7 +853,7 @@ class _MenuListPageState extends State<MenuListPage>{
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -848,22 +864,17 @@ class _MenuListPageState extends State<MenuListPage>{
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete This Menu Item (${currentMenuItem.name}) Successful'),
-                          // content: const Text(''),
+                          title: const Text('Deleted Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: Text('The Menu Item (${currentMenuItem.name}) has been deleted from the menu list'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
                                 setState(() {});
                                 Navigator.of(context).pop();
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                                // );
                               },
                             ),
                           ],
@@ -871,12 +882,16 @@ class _MenuListPageState extends State<MenuListPage>{
                     );
                   }
                 });
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -886,7 +901,12 @@ class _MenuListPageState extends State<MenuListPage>{
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

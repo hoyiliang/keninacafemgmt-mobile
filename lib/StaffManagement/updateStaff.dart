@@ -11,16 +11,11 @@ import 'package:keninacafe/AppsBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/StaffManagement/staffList.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
-import 'package:keninacafe/Security/Encryptor.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../Announcement/createAnnouncement.dart';
-import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import '../Entity/StaffType.dart';
-import '../Order/manageOrder.dart';
 
 void main() {
   runApp(const MyApp());
@@ -845,11 +840,12 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                 if (_formKey.currentState!.validate()) {
                   var (err_code, currentStaffUpdated) = await _submitUpdateStaffDetails(currentStaff);
                   setState(() {
+                    Navigator.of(context).pop();
                     if (err_code == ErrorCodes.UPDATE_STAFF_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to update this staff (${currentStaff.name}).\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -862,7 +858,7 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -873,11 +869,10 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                           ),
                       );
                     } else {
-                      Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Staff Successful'),
+                            title: const Text('Updated Staff Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('The Updated Staff (${staffNameController.text}) details can be viewed in the Staff List page.'),
                             actions: <Widget>[
                               TextButton(
@@ -901,7 +896,12 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -911,7 +911,12 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

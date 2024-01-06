@@ -100,7 +100,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 onPressed: () async {
                   // Perform save logic here
                   // Navigator.of(context).pop();
-                  // Navigator.of(context).pop();
+                  Navigator.of(context).pop();
                   if (_formKey.currentState!.validate()) {
                     var (announcementCreatedAsync, err_code) = await _submitAnnouncementDetails(title, description, currentUser!);
                     announcementCreated = announcementCreatedAsync;
@@ -109,7 +109,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'An Error occurred while trying to create a new announcement.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -123,7 +123,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -139,7 +139,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       descriptionController.text = '';
                       numTitleText = 0;
                       numDescriptionText = 0;
-                      Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
                       Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
@@ -160,7 +160,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
-                child: const Text('Yes'),
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
 
               ),
               ElevatedButton(
@@ -170,7 +175,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
-                child: const Text('No'),
+                child: const Text(
+                  'No',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           );
@@ -742,11 +752,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               onPressed: () async {
                 var (deleteAnnouncementAsync, err_code) = await deleteAnnouncement(currentAnnouncementAssign);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_ANNOUNCEMENT_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to delete the announcement (${currentAnnouncementAssign.title}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -759,7 +770,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -770,12 +781,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete This Announcement (${currentAnnouncementAssign.title}) Successful'),
-                          // content: const Text(''),
+                          title: const Text('Deleted Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: Text(
+                              'The announcement (${currentAnnouncementAssign.title}) is deleted.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -798,7 +809,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -808,7 +824,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -829,13 +850,14 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 if (_formKey.currentState!.validate()) {
                   var (announcementUpdatedAsync, err_code) = await _submitUpdateAnnouncementDetails(currentAnnouncementAssign, currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     announcementUpdated = announcementUpdatedAsync;
                     if (!announcementUpdated) {
                       if (err_code == ErrorCodes.UPDATE_ANNOUNCEMENT_FAIL_BACKEND) {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('An Error occurred while trying to update this announcement (${currentAnnouncementAssign.title}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -848,7 +870,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -860,7 +882,6 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         );
                       }
                     } else {
-                      Navigator.of(context).pop();
                       // Navigator.push(
                       //   context,
                       //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
@@ -868,7 +889,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Announcement Successful'),
+                            title: const Text('Updated Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('The updated announcement titled (${titleController.text}) can be viewed in the announcement page.'),
                             actions: <Widget>[
                               TextButton(
@@ -892,7 +913,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -902,7 +928,12 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -915,7 +946,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       showDialog(context: context, builder: (
         BuildContext context) =>
         AlertDialog(
-          title: const Text('Error'),
+          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
           content: Text('An Error occurred while trying to update this announcement Is Read status.\n\nError Code: $errCode'),
           actions: <Widget>[
             TextButton(onPressed: () =>
@@ -928,7 +959,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       showDialog(context: context, builder: (
         BuildContext context) =>
         AlertDialog(
-          title: const Text('Connection Error'),
+          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
           content: Text(
               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $errCode'),
           actions: <Widget>[

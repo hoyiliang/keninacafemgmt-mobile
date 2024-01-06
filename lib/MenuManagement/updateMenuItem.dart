@@ -1633,14 +1633,15 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                 if (_formKey.currentState!.validate()) {
                   var (menuItemUpdatedAsync, err_code) = await _submitUpdateMenuItemDetails(currentMenuItem, currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     menuItemUpdated = menuItemUpdatedAsync;
                     if (!menuItemUpdated) {
                       if (err_code == ErrorCodes.UPDATE_MENU_ITEM_FAIL_BACKEND) {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
-                              content: Text('An Error occurred while trying to update this new menu item (${currentMenuItem.name}).\n\nError Code: $err_code'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
+                              content: Text('An Error occurred while trying to update this menu item (${currentMenuItem.name}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
                                     Navigator.pop(context, 'Ok'),
@@ -1652,7 +1653,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1664,15 +1665,10 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                         );
                       }
                     } else {
-                      Navigator.of(context).pop();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                      // );
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Menu Item Successful'),
+                            title: const Text('Updated Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('The Menu Item (${nameController.text}) updated can be viewed in the menu.'),
                             actions: <Widget>[
                               TextButton(
@@ -1680,10 +1676,6 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser)),
-                                  // );
                                 },
                               ),
                             ],
@@ -1691,20 +1683,20 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                       );
                       _formKey.currentState?.reset();
                       setState(() {
-                        // nameController.text = '';
-                        // priceController.text = '';
-                        // descriptionController.text = '';
-                        // variantController.text = '';
                       });
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1714,7 +1706,12 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

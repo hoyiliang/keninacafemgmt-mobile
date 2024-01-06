@@ -831,7 +831,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('An Error occurred while trying to create a new receipt (${receiptNumberController.text}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -844,7 +844,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -864,8 +864,8 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Receipt Successful'),
-                            content: const Text('The Receipt can be viewed in the Record Receipt List page.'),
+                            title: const Text('Created Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: const Text('The Receipt created can be viewed in the Receipt List page.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -886,12 +886,16 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -901,7 +905,12 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

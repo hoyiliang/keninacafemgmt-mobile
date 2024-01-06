@@ -7,9 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import '../Announcement/createAnnouncement.dart';
-import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/OrderFoodItemMoreInfo.dart';
 import '../Entity/User.dart';
@@ -113,122 +110,6 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
       ),
     );
   }
-
-  // Future showRemarksCard(BuildContext context, String remarks) {
-  //   remarksController.text = remarks;
-  //
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 const Text('Edit Remarks', style: TextStyle(fontSize: 23.5,
-  //                   fontFamily: "Gabarito",
-  //                   fontWeight: FontWeight.bold,),),
-  //                 const Spacer(),
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(
-  //                       horizontal: 2.0, vertical: 0),
-  //                   child: GestureDetector(
-  //                     onTap: () {
-  //                       setState(() {
-  //                         remarksController.text = '';
-  //                         Navigator.of(context).pop();
-  //                       });
-  //                     },
-  //                     child: Container(
-  //                       width: 30,
-  //                       height: 30,
-  //                       decoration: BoxDecoration(
-  //                         shape: BoxShape.rectangle,
-  //                         color: Colors.grey.shade300,
-  //                         // border: Border.all(color: Colors.grey),
-  //                         borderRadius: BorderRadius.circular(5.0),
-  //                       ),
-  //                       // padding: const EdgeInsets.all(1),
-  //                       child: Icon(
-  //                         Icons.close_outlined,
-  //                         size: 25.0,
-  //                         color: Colors.grey.shade800,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //             Form(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.stretch,
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   TextFormField(
-  //                     controller: remarksController,
-  //                     maxLines: null,
-  //                     inputFormatters: [
-  //                       LengthLimitingTextInputFormatter(20),
-  //                       // Limit to 25 characters (words)
-  //                     ],
-  //                     onChanged: (text) {
-  //                       setState(() {
-  //                         // numTitleText = titleController.text.length;
-  //                       });
-  //                     },
-  //                     decoration: InputDecoration(
-  //                       labelText: 'Remarks',
-  //                       labelStyle: const TextStyle(color: Colors.black),
-  //                       // Set label color to white
-  //                       // prefixIcon: const Icon(Icons.email, color: Colors.black),
-  //                       border: OutlineInputBorder(
-  //                         borderRadius: BorderRadius.circular(12.0),
-  //                       ),
-  //                       enabledBorder: OutlineInputBorder(
-  //                         borderSide: const BorderSide(color: Colors.black,
-  //                             width: 2.0),
-  //                         borderRadius: BorderRadius.circular(12.0),
-  //                       ),
-  //                       focusedBorder: OutlineInputBorder(
-  //                         borderSide: const BorderSide(color: Colors.black,
-  //                             width: 2.0),
-  //                         borderRadius: BorderRadius.circular(12.0),
-  //                       ),
-  //                       errorBorder: OutlineInputBorder( // Border style for error state
-  //                         borderRadius: BorderRadius.circular(12.0),
-  //                         borderSide: const BorderSide(color: Colors.red,
-  //                           width: 2.0,),
-  //                       ),
-  //                       // hintText: 'Please enter your email',
-  //                       // hintStyle: TextStyle(color: Colors.white),
-  //                       contentPadding: const EdgeInsets.symmetric(
-  //                           horizontal: 20, vertical: 15),
-  //                     ),
-  //                     style: const TextStyle(color: Colors.black),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //
-  //         actions: [
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               // Save announcement logic goes here
-  //               // Navigator.of(context).pop();
-  //               // if (_formKey.currentState!.validate()) {
-  //               //   showConfirmationDialog(titleController.text, descriptionController.text);
-  //               // }
-  //             },
-  //             child: const Text('Confirm'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   List<Widget> buildMenuItemDataRows(List<OrderFoodItemMoreInfo>? orderFoodItemList, FoodOrder currentOrder, User? currentUser) {
     List<Widget> rows = [];
@@ -565,7 +446,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                                         showDialog(context: context, builder: (
                                             BuildContext context) =>
                                             AlertDialog(
-                                              title: const Text('Error'),
+                                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                               content: Text('An Error occurred while trying to update the remarks of the food item.\n\nError Code: $err_code'),
                                               actions: <Widget>[
                                                 TextButton(onPressed: () =>
@@ -578,7 +459,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                                         showDialog(context: context, builder: (
                                             BuildContext context) =>
                                             AlertDialog(
-                                              title: const Text('Connection Error'),
+                                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                               content: Text(
                                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                                               actions: <Widget>[
@@ -705,13 +586,14 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
               onPressed: () async {
                 var (orderStatusUpdatedAsync, err_code) = await updateIncomingOrderStatus(currentOrder, orderStatus);
                 setState(() {
+                  Navigator.of(context).pop();
                   orderStatusUpdated = orderStatusUpdatedAsync;
                   if (! orderStatusUpdated) {
                     if (err_code == ErrorCodes.UPDATE_ORDER_STATUS_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: orderStatus == "CF" ? Text('An Error occurred while trying to confirm this order.\n\nError Code: $err_code') : Text('An Error occurred while trying to reject this order.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -724,7 +606,7 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -736,11 +618,10 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                       );
                     }
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: orderStatus == "CF" ? const Text('Order Confirmed Successful') : const Text('Order Rejected Successful'),
+                          title: orderStatus == "CF" ? const Text('Order Confirmed Successfully', style: TextStyle(fontWeight: FontWeight.bold,)) : const Text('Order Rejected Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: orderStatus == "CF" ? const Text('Ask the kitchen to start to prepare the order.') : const Text('Please proceed to other order.'),
                           actions: <Widget>[
                             TextButton(
@@ -765,7 +646,12 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -775,7 +661,12 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

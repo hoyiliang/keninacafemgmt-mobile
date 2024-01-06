@@ -410,13 +410,14 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                 if (_formKey.currentState!.validate()) {
                   var (stockCreatedAsync, err_code) = await _submitStockDetails();
                   setState(() {
+                    Navigator.of(context).pop();
                     stockCreated = stockCreatedAsync;
                     if (!stockCreated) {
                       if (err_code == ErrorCodes.CREATE_STOCK_ASSIGNED_OTHER_FAIL_BACKEND) {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('This stock (${stockNameController.text}) has been assigned to other supplier, please check in the supplier list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -429,7 +430,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('This stock (${stockNameController.text}) has been assigned to this supplier, please check in the supplier list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -442,7 +443,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('An Error occurred while trying to create a new stock (${stockNameController.text}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -455,7 +456,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -467,16 +468,11 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         );
                       }
                     } else {
-                      Navigator.of(context).pop();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                      // );
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Stock Successful'),
-                            content: const Text('The Stock assigned can be viewed in the Supplier List page.'),
+                            title: const Text('Created Stock Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: const Text('The Stock created and assigned can be viewed in the Supplier List page.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -499,12 +495,16 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -514,7 +514,12 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -538,7 +543,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to delete the supplier (${supplierData.name}).\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -551,7 +556,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -566,7 +571,8 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: Text('Delete Supplier (${supplierData.name}) Successful'),
+                            title: const Text('Deleted Supplier Successful', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: Text('This supplier (${supplierData.name}) has been deleted from the supplier list.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -586,7 +592,12 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -596,7 +607,12 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

@@ -299,13 +299,14 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
               onPressed: () async {
                 var (updateForgotPasswordAsync, err_code) = await _submitForgotPassword(uidEncode);
                 setState(() {
+                  Navigator.of(context).pop();
                   updateForgotPassword = updateForgotPasswordAsync;
                   if (!updateForgotPassword) {
                     if (err_code == ErrorCodes.FORGOT_PASSWORD_INVALID_USER_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to update the password.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -318,7 +319,7 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -330,11 +331,10 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
                       );
                     }
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Password Updated Successful'),
+                          title: const Text('Password Updated Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: const Text('Try to login now !'),
                           actions: <Widget>[
                             TextButton(
@@ -359,7 +359,12 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -369,7 +374,12 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

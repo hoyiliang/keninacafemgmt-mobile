@@ -148,11 +148,12 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
               onPressed: () async {
                 var (deleteReceipt, err_code) = await _submitDeleteReceipt(receiptNumber);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_RECEIPT_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to delete the receipt ($receiptNumber).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -165,7 +166,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -176,11 +177,11 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete Receipt ($receiptNumber) Successful'),
+                          title: const Text('Deleted Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: Text('This receipt ($receiptNumber) has been deleted.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -197,7 +198,12 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -207,7 +213,12 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -221,7 +232,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
       showDialog(context: context, builder: (
           BuildContext context) =>
           AlertDialog(
-            title: const Text('Error'),
+            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text('An Error occurred while trying to download the pdf file.\n\nError Code: $err_code'),
             actions: <Widget>[
               TextButton(onPressed: () =>
@@ -234,7 +245,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
       showDialog(context: context, builder: (
           BuildContext context) =>
           AlertDialog(
-            title: const Text('Connection Error'),
+            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text(
                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
             actions: <Widget>[
@@ -255,8 +266,19 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
         fileNumber++;
       }
       await file.writeAsBytes(bytes);
-      const snackBar = SnackBar(content: Text('Exported to Documents folder.'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      showDialog(context: context, builder: (
+          BuildContext context) =>
+          AlertDialog(
+            title: const Text('Exported Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+            content: Text(
+                'The file is exported to the documents folder.'),
+            actions: <Widget>[
+              TextButton(onPressed: () =>
+                  Navigator.pop(context, 'Ok'),
+                  child: const Text('Ok')),
+            ],
+          ),
+      );
     }
   }
 

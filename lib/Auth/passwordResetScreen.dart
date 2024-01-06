@@ -63,7 +63,7 @@ class _PasswordResetScreenPageState extends State<PasswordResetScreenPage> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Success'),
+          title: Text('Success', style: TextStyle(fontWeight: FontWeight.bold,)),
           content: Text(responseData['success']),
           actions: [
             TextButton(

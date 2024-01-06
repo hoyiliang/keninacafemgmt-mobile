@@ -123,11 +123,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                 if (_formKey.currentState!.validate()) {
                   var (err_code, currentSupplierUpdated) = await _submitUpdateReceiptDetails(currentStockReceipt, currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     if (err_code == ErrorCodes.UPDATE_RECEIPT_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to update the receipt (${receiptNumberController.text}).\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -140,7 +141,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -151,12 +152,11 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                           ),
                       );
                     } else {
-                      Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: Text('Update Receipt (${receiptNumberController.text}) Successful'),
-                            // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+                            title: const Text('Updated Receipt Successful', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: Text('The updated receipt (${receiptNumberController.text}) can be viewed in the Receipt List page.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -180,7 +180,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -190,7 +195,12 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

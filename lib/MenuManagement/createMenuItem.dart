@@ -976,13 +976,14 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                 if (_formKey.currentState!.validate()) {
                   var (menuItemCreatedAsync, err_code) = await _submitCreateMenuItemDetails(currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     menuItemCreated = menuItemCreatedAsync;
                     if (!menuItemCreated) {
                       if (err_code == ErrorCodes.CREATE_MENU_ITEM_FAIL_BACKEND) {
                         showDialog(
                           context: context, builder: (BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'An Error occurred while trying to create this new menu item (${nameController
                                       .text}).\n\nError Code: $err_code'),
@@ -997,7 +998,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                         showDialog(
                           context: context, builder: (BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Menu Item Exists'),
+                              title: const Text('Menu Item Exists', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('Please double check the menu item list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -1010,7 +1011,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1022,16 +1023,11 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                         );
                       }
                     } else {
-                      Navigator.of(context).pop();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                      // );
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Menu Item Successful'),
-                            content: Text('The Menu Item (${nameController.text}) can be viewed in the menu.'),
+                            title: const Text('Created Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: Text('The Menu Item (${nameController.text}) created can be viewed in the menu.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -1048,20 +1044,20 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                       );
                       _formKey.currentState?.reset();
                       setState(() {
-                        // nameController.text = '';
-                        // priceController.text = '';
-                        // descriptionController.text = '';
-                        // variantController.text = '';
                       });
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1071,7 +1067,12 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

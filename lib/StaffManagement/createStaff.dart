@@ -1028,7 +1028,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                         showDialog(
                           context: context, builder: (BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'An Error occurred while trying to create a new staff.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1042,7 +1042,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                         showDialog(
                           context: context, builder: (BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Email Registered'),
+                              title: const Text('Email Registered', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Please double check the staff list.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1056,7 +1056,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1072,8 +1072,8 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Staff Successful'),
-                            content: const Text('The Staff can be viewed in the Staff List page.'),
+                            title: const Text('Created Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: const Text('The created staff can be viewed in the Staff List page.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -1107,7 +1107,12 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1117,7 +1122,12 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

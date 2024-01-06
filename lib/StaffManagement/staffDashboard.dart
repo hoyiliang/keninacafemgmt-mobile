@@ -87,7 +87,12 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: const Text('Yes'),
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
 
                 ),
                 ElevatedButton(
@@ -97,7 +102,12 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: const Text('No'),
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -186,7 +196,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
                                   Image.asset('images/excelFile.png',),
                                   const Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    child: Text('Download Attendance Record', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                    child: Text('Export Attendance Record', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
                                   ),
                                 ],
                               ),

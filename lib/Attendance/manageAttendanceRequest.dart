@@ -937,15 +937,15 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                 } else {
                   (attendanceRequestUpdatedAsync, err_code) = await rejectAttendance(formattedDate, user_created_id, currentUser);
                 }
-
                 setState(() {
+                  Navigator.of(context).pop();
                   attendanceRequestUpdated = attendanceRequestUpdatedAsync;
                   if (!attendanceRequestUpdated) {
                     if (err_code == ErrorCodes.UPDATE_ATTENDANCE_REQUEST_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: action == "Approve" ? Text('An Error occurred while trying to approve this attendance request.\n\nError Code: $err_code') : Text('An Error occurred while trying to reject this attendance request.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -958,7 +958,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -970,12 +970,10 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                       );
                     }
                   } else {
-
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: action == "Approve" ? const Text('Approve Attendance Request Successful') : const Text('Reject Attendance Request Successful'),
+                          title: action == "Approve" ? const Text('Approved Successfully', style: TextStyle(fontWeight: FontWeight.bold,)) : const Text('Rejected Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: const Text('Attendance status is updated and can be check in the attendance overview.'),
                           actions: <Widget>[
                             TextButton(
@@ -994,7 +992,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1004,7 +1007,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -1024,13 +1032,14 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
               onPressed: () async {
                 var (statusChangedAsync, err_code) = await changeAttendanceStatus(selectedDate, user_created_id, action, currentUser);
                 setState(() {
+                  Navigator.of(context).pop();
                   statusChanged = statusChangedAsync;
                   if (!statusChanged) {
                     if (err_code == ErrorCodes.CHANGE_ATTENDANCE_REQUEST_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to change the attendance status of this user ($user_created_name).\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -1043,7 +1052,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -1055,15 +1064,10 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                       );
                     }
                   } else {
-                    Navigator.of(context).pop();
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                    // );
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Change Attendance Status Successful'),
+                          title: const Text('Changed Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('The attendance status of this user ($user_created_name) has changed.'),
                           actions: <Widget>[
                             TextButton(
@@ -1076,10 +1080,6 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                         ),
                     );
                     setState(() {
-                      // nameController.text = '';
-                      // priceController.text = '';
-                      // descriptionController.text = '';
-                      // variantController.text = '';
                     });
                   }
                 });
@@ -1087,7 +1087,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1097,7 +1102,12 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

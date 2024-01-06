@@ -6,12 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import '../Announcement/createAnnouncement.dart';
-import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import 'package:keninacafe/Utils/error_codes.dart';
-import '../Order/manageOrder.dart';
 import '../Security/Encryptor.dart';
 
 void main() {
@@ -103,11 +99,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 if (_formKey.currentState!.validate()) {
                   var (err_code, currentUserUpdated) = await _submitUpdatePasswordDetails(oldPasswordController, newPasswordController, currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     if (err_code == ErrorCodes.PASSWORD_UPDATE_FAIL_BACKEND) {
                       showDialog(
                         context: context, builder: (BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'An Error occurred while trying to update the password.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -122,7 +119,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       showDialog(
                         context: context, builder: (BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -133,11 +130,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                       );
                     } else if (err_code == ErrorCodes.OLD_PASSWORD_DOES_NOT_MATCH_DIALOG) {
-                      Navigator.of(context).pop();
                       showDialog(
                         context: context, builder: (BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Old password does not match.'),
+                            title: const Text('Old Password Incorrect.', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: Text(
+                                'The old password entered is not matched.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
                                   Navigator.pop(context, 'Ok'),
@@ -146,16 +144,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           ),
                       );
                     } else {
-                      Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Password Successful'),
-                            // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+                            title: const Text('Update Password Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: const Text('You can try to login using the new password.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
                                 onPressed: () {
+                                  Navigator.of(context).pop();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => ViewPersonalProfilePage(user: currentUserUpdated, streamControllers: widget.streamControllers)),
@@ -176,7 +174,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -186,7 +189,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

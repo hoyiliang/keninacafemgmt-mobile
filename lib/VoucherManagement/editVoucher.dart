@@ -990,7 +990,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('An Error occurred while trying to update this voucher (${currentVoucher.voucher_code}).\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -1003,7 +1003,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1019,7 +1019,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Voucher Successful'),
+                            title: const Text('Updated Voucher Successful'),
                             content: Text('The Updated Voucher (${voucherCodeController.text}) can be viewed in the voucher list page.'),
                             actions: <Widget>[
                               TextButton(
@@ -1037,20 +1037,20 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                       );
                       _formKey.currentState?.reset();
                       setState(() {
-                        // nameController.text = '';
-                        // priceController.text = '';
-                        // descriptionController.text = '';
-                        // variantController.text = '';
                       });
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1060,7 +1060,12 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

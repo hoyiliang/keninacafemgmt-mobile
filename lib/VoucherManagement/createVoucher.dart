@@ -957,13 +957,14 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                 if (_formKey.currentState!.validate()) {
                   var (voucherCreatedAsync, err_code) = await _submitCreateVoucherDetails(currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     voucherCreated = voucherCreatedAsync;
                     if (!voucherCreated) {
                       if (err_code == ErrorCodes.CREATE_NEW_VOUCHER_FAIL_BACKEND) {
                         showDialog(
                           context: context, builder: (BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error'),
+                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'An Error occurred while trying to create this new voucher (${voucherCodeController
                                       .text}).\n\nError Code: $err_code'),
@@ -991,7 +992,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -1003,15 +1004,10 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                         );
                       }
                     } else {
-                      Navigator.of(context).pop();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => SupplierListWithDeletePage(user: currentUser)),
-                      // );
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Voucher Successful'),
+                            title: const Text('Create New Voucher Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('The Voucher (${voucherCodeController.text}) can be viewed in the voucher list page.'),
                             actions: <Widget>[
                               TextButton(
@@ -1029,20 +1025,20 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
                       );
                       _formKey.currentState?.reset();
                       setState(() {
-                        // nameController.text = '';
-                        // priceController.text = '';
-                        // descriptionController.text = '';
-                        // variantController.text = '';
                       });
                     }
                   });
                 }
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1052,7 +1048,12 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

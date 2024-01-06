@@ -97,7 +97,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
     if (err_code == ErrorCodes.DOWNLOAD_ATTENDANCE_RECORD_FAIL_BACKEND) {
       showDialog(context: context, builder: (BuildContext context) =>
           AlertDialog(
-            title: const Text('Error'),
+            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text(
                 'An Error occurred while trying to download the attendance record.\n\nError Code: $err_code'),
             actions: <Widget>[
@@ -110,7 +110,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
     } else if (err_code == ErrorCodes.DOWNLOAD_ATTENDANCE_RECORD_FAIL_NO_RECORD) {
       showDialog(context: context, builder: (BuildContext context) =>
           AlertDialog(
-            title: const Text('No Attendance Record'),
+            title: const Text('No Attendance Record', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text(
                 'No attendances have been in this month.\n\nError Code: $err_code'),
             actions: <Widget>[
@@ -123,7 +123,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
     } else if (err_code == ErrorCodes.DOWNLOAD_ATTENDANCE_RECORD_FAIL_NO_STAFF) {
       showDialog(context: context, builder: (BuildContext context) =>
           AlertDialog(
-            title: const Text('No Staff Is Available'),
+            title: const Text('No Staff Is Available', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text(
                 'No attendances have been in this month.\n\nError Code: $err_code'),
             actions: <Widget>[
@@ -137,7 +137,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
       showDialog(context: context, builder: (
           BuildContext context) =>
           AlertDialog(
-            title: const Text('Connection Error'),
+            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: Text(
                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
             actions: <Widget>[
@@ -158,8 +158,19 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
         fileNumber++;
       }
       await file.writeAsBytes(bytes);
-      const snackBar = SnackBar(content: Text('Exported to Documents folder.'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      showDialog(context: context, builder: (
+          BuildContext context) =>
+          AlertDialog(
+            title: const Text('Exported Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+            content: Text(
+                'The file is exported to the documents folder.'),
+            actions: <Widget>[
+              TextButton(onPressed: () =>
+                  Navigator.pop(context, 'Ok'),
+                  child: const Text('Ok')),
+            ],
+          ),
+      );
     }
     setState(() {
       isLoading = false;
@@ -175,7 +186,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers!),
-      appBar: AppsBarState().buildStaffListAppBarDetails(context, 'Download Record', currentUser, widget.streamControllers),
+      appBar: AppsBarState().buildStaffListAppBarDetails(context, 'Export Record', currentUser, widget.streamControllers),
       body: SafeArea(
         child: Column(
           children: [
@@ -253,7 +264,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
                       ),
                       SizedBox(height: 5.0,),
                       Text(
-                        "Download",
+                        "Export",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 25,

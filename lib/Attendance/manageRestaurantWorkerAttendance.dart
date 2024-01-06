@@ -7,12 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:keninacafe/AppsBar.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
-import '../Order/manageOrder.dart';
-import 'manageAttendanceRequest.dart';
 
 void main() {
   runApp(const MyApp());
@@ -243,7 +239,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Attendance'),
+          title: const Text('Edit Attendance', style: TextStyle(fontWeight: FontWeight.bold,)),
           content: Text('Choose presence or absence for ${date.day}/${date.month}/${date.year}'),
           actions: [
             TextButton(

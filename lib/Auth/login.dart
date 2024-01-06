@@ -95,7 +95,12 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: const Text('Yes'),
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
 
                 ),
                 ElevatedButton(
@@ -105,7 +110,12 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: const Text('No'),
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -253,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
                                     showDialog(context: context, builder: (
                                         BuildContext context) =>
                                         AlertDialog(
-                                          title: const Text('Unauthorized'),
+                                          title: const Text('Unauthorized', style: TextStyle(fontWeight: FontWeight.bold,)),
                                           content: Text(
                                               'Please contact Restaurant Manager or Owner.\n\nError Code: $err_code'),
                                           actions: <Widget>[
@@ -267,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                                     showDialog(context: context, builder: (
                                         BuildContext context) =>
                                         AlertDialog(
-                                          title: const Text('Details Mismatch'),
+                                          title: const Text('Details Mismatch', style: TextStyle(fontWeight: FontWeight.bold,)),
                                           content: Text(
                                               'Wrong combination of email and password. Please check your details.\n\nError Code: $err_code'),
                                           actions: <Widget>[
@@ -281,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                                     showDialog(context: context, builder: (
                                         BuildContext context) =>
                                         AlertDialog(
-                                          title: const Text('User Deactivated or Deleted'),
+                                          title: const Text('User Deactivated or Deleted', style: TextStyle(fontWeight: FontWeight.bold,)),
                                           content: Text(
                                               'User have been deactivated or deleted.\n\nError Code: $err_code'),
                                           actions: <Widget>[
@@ -295,7 +305,7 @@ class _LoginPageState extends State<LoginPage> {
                                     showDialog(context: context, builder: (
                                         BuildContext context) =>
                                         AlertDialog(
-                                          title: const Text('Connection Error'),
+                                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                           content: Text(
                                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                                           actions: <Widget>[
@@ -307,11 +317,10 @@ class _LoginPageState extends State<LoginPage> {
                                     );
                                   }
                                 } else {
-                                  print('yes');
                                   showDialog(context: context, builder: (
                                       BuildContext context) =>
                                       AlertDialog(
-                                        title: const Text('Login Successful'),
+                                        title: const Text('Login Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                                         content: Text(
                                             'Happy Working Day, ${currentUser.name}!'),
                                         actions: <Widget>[

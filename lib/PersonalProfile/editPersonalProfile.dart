@@ -112,11 +112,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                 if (_formKey.currentState!.validate()) {
                   var (err_code, currentUserUpdated) = await _submitUpdateDetails(currentUser);
                   setState(() {
+                    Navigator.of(context).pop();
                     if (err_code == ErrorCodes.PERSONAL_PROFILE_UPDATE_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('An Error occurred while trying to update the personal profile.\n\nError Code: $err_code'),
                             actions: <Widget>[
                               TextButton(onPressed: () =>
@@ -129,7 +130,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Connection Error'),
+                              title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text(
                                   'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                               actions: <Widget>[
@@ -139,13 +140,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                               ],
                             ),
                         );
-                      } else {
-                      Navigator.of(context).pop();
+                    } else {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Update Personal Profile Successful'),
-                            // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+                            title: const Text('Updated Successful', style: TextStyle(fontWeight: FontWeight.bold,)),
+                            content: const Text('Your personal profile has been updated.'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Ok'),
@@ -171,7 +171,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -181,7 +186,12 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

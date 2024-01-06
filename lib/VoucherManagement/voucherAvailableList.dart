@@ -88,7 +88,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
-                  child: const Text('Yes'),
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
 
                 ),
                 ElevatedButton(
@@ -98,7 +103,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
-                  child: const Text('No'),
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             );
@@ -928,11 +938,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               onPressed: () async {
                 var (err_code, deleteVoucher) = await _submitDeleteVoucher(currentVoucher);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_VOUCHER_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to delete the voucher (${currentVoucher.voucher_code}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -945,7 +956,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -956,12 +967,11 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete This Voucher (${currentVoucher.voucher_code}) Successful'),
-                          // content: const Text(''),
+                          title: const Text('Deleted Voucher Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: Text('This Voucher (${currentVoucher.voucher_code}) has been deleted from the voucher list.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -984,7 +994,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -994,7 +1009,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -1014,11 +1034,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               onPressed: () async {
                 var (err_code, updateIsAvailableStatusAsync) = await _submitIsAvailableStatusVoucher(currentVoucher);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.UPDATE_IS_AVAILABLE_VOUCHER_STATUS_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to update the IsAvailable status of the voucher (${currentVoucher.voucher_code}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -1031,7 +1052,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -1042,12 +1063,11 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: currentVoucher.is_available ? Text('Disable the voucher (${currentVoucher.voucher_code}) Successful') : Text('Enable the Menu Item (${currentVoucher.voucher_code}) Successful'),
-                          // content: const Text(''),
+                          title: currentVoucher.is_available ? const Text('Disabled Voucher Successfully', style: TextStyle(fontWeight: FontWeight.bold,)) : const Text('Enabled Voucher Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: currentVoucher.is_available ? Text('The voucher (${currentVoucher.voucher_code}) has been disabled.') : Text('The voucher (${currentVoucher.voucher_code}) has been enabled.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -1070,7 +1090,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
 
             ),
             ElevatedButton(
@@ -1080,7 +1105,12 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

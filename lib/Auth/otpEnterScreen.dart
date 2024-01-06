@@ -91,7 +91,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
           showDialog(context: context, builder: (
               BuildContext context) =>
               AlertDialog(
-                title: const Text('Timeout'),
+                title: const Text('Timeout', style: TextStyle(fontWeight: FontWeight.bold,)),
                 content: const Text('OTP Verification Timeout'),
                 actions: <Widget>[
                   TextButton(
@@ -298,7 +298,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
                               showDialog(context: context, builder: (
                                   BuildContext context) =>
                                   AlertDialog(
-                                    title: const Text('Error'),
+                                    title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                     content: Text('An Error occurred while trying to verify otp.\n\nError Code: $err_code'),
                                     actions: <Widget>[
                                       TextButton(onPressed: () =>
@@ -312,7 +312,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
                               showDialog(context: context, builder: (
                                   BuildContext context) =>
                                   AlertDialog(
-                                    title: const Text('OTP Verification Failed'),
+                                    title: const Text('Verification Failed', style: TextStyle(fontWeight: FontWeight.bold,)),
                                     content: Text('Please check your email with otp number.\n\nError Code: $err_code'),
                                     actions: <Widget>[
                                       TextButton(onPressed: () =>
@@ -326,7 +326,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
                               showDialog(context: context, builder: (
                                   BuildContext context) =>
                                   AlertDialog(
-                                    title: const Text('Connection Error'),
+                                    title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                     content: Text(
                                         'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                                     actions: <Widget>[
@@ -382,7 +382,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
                           showDialog(context: context, builder: (
                               BuildContext context) =>
                               AlertDialog(
-                                title: const Text('Error'),
+                                title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                 content: Text('An Error occurred while trying to resend the email with otp.\n\nError Code: $err_code'),
                                 actions: <Widget>[
                                   TextButton(onPressed: () =>
@@ -395,7 +395,7 @@ class _OtpEnterScreenPageState extends State<OtpEnterScreenPage> {
                           showDialog(context: context, builder: (
                               BuildContext context) =>
                               AlertDialog(
-                                title: const Text('Connection Error'),
+                                title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                 content: Text(
                                     'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                                 actions: <Widget>[

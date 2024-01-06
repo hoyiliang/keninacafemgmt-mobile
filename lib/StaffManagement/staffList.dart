@@ -175,11 +175,12 @@ class _StaffListPageState extends State<StaffListPage> {
               onPressed: () async {
                 var (err_code, currentStaffDeleted) = await _submitDeleteStaffDetails(staffData);
                 setState(() {
+                  Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_STAFF_FAIL_BACKEND) {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Error'),
+                          title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text('An Error occurred while trying to delete this staff (${staffData.name}).\n\nError Code: $err_code'),
                           actions: <Widget>[
                             TextButton(onPressed: () =>
@@ -192,7 +193,7 @@ class _StaffListPageState extends State<StaffListPage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: const Text('Connection Error'),
+                          title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: Text(
                               'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                           actions: <Widget>[
@@ -203,12 +204,11 @@ class _StaffListPageState extends State<StaffListPage> {
                         ),
                     );
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: Text('Delete Staff (${staffData.name}) Successful'),
-                          // content: const Text('The Leave Form Data can be viewed in the LA status page.'),
+                          title: const Text('Deleted Staff Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                          content: Text('The Staff (${staffData.name}) has been deleted from the staff list.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('Ok'),
@@ -227,7 +227,12 @@ class _StaffListPageState extends State<StaffListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -236,7 +241,12 @@ class _StaffListPageState extends State<StaffListPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

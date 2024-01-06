@@ -79,6 +79,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
           actions: [
             ElevatedButton(
               onPressed: () async {
+                Navigator.of(context).pop();
                 var (attendanceCreatedAsync, err_code) = await _submitAttendanceDetails(dateAttendanceTaken, currentUser, isClockIn, isClockOut);
                 setState(() {
                   attendanceCreated = attendanceCreatedAsync;
@@ -87,7 +88,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Error'),
+                            title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: isClockIn == true ? Text(
                               'An Error occurred while trying to clock in.\n\nError Code: $err_code')
                             : Text(
@@ -103,7 +104,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Connection Error'),
+                            title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text(
                                 'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                             actions: <Widget>[
@@ -115,11 +116,10 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                       );
                     }
                   } else {
-                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: isClockIn == true ? const Text('Clock In Successful') : const Text('Clock Out Successful'),
+                          title: isClockIn == true ? const Text('Clock In Successfully') : const Text('Clock Out Successfully'),
                           content: const Text(
                               'Status can be viewed in the Attendance status page.'),
                           actions: <Widget>[
@@ -135,7 +135,12 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -144,7 +149,12 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );

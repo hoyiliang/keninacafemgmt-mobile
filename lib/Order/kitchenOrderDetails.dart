@@ -414,7 +414,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                                 showDialog(context: context, builder: (
                                     BuildContext context) =>
                                     AlertDialog(
-                                      title: const Text('Error'),
+                                      title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                       content: Text('An Error occurred while trying to update the status of the food item.\n\nError Code: $err_code'),
                                       actions: <Widget>[
                                         TextButton(onPressed: () =>
@@ -427,7 +427,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                                 showDialog(context: context, builder: (
                                     BuildContext context) =>
                                     AlertDialog(
-                                      title: const Text('Connection Error'),
+                                      title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                                       content: Text(
                                           'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                                       actions: <Widget>[
@@ -509,7 +509,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
             showDialog(context: context, builder: (
                 BuildContext context) =>
                 AlertDialog(
-                  title: const Text('Error'),
+                  title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                   content: Text('An Error occurred while trying to update the order status to completed.\n\nError Code: $err_code'),
                   actions: <Widget>[
                     TextButton(onPressed: () =>
@@ -522,7 +522,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
             showDialog(context: context, builder: (
                 BuildContext context) =>
                 AlertDialog(
-                  title: const Text('Connection Error'),
+                  title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
                   content: Text(
                       'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
                   actions: <Widget>[
@@ -537,7 +537,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
           showDialog(context: context, builder: (
               BuildContext context) =>
               AlertDialog(
-                title: const Text('Order Completed'),
+                title: const Text('Order Completed', style: TextStyle(fontWeight: FontWeight.bold,)),
                 content: const Text('All the food ordered are prepared to the customers.'),
                 actions: <Widget>[
                   TextButton(
@@ -556,7 +556,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
       showDialog(context: context, builder: (
           BuildContext context) =>
           AlertDialog(
-            title: const Text('Incomplete'),
+            title: const Text('Incomplete', style: TextStyle(fontWeight: FontWeight.bold,)),
             content: const Text('This Order Have Not Completed Yet.'),
             actions: <Widget>[
               TextButton(onPressed: () =>
