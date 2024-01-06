@@ -319,14 +319,11 @@ class _LoginPageState extends State<LoginPage> {
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                               final receiveOrderChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ORDER}'));
-                                              final receiveOrderReminderChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_UNPAID_ORDER_REMINDER}'));
                                               final receiveAnnouncementChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_ANNOUNCEMENT_UPDATES}'));
                                               final receiveAttendanceRequestChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}${currentUser.staff_type.replaceAll(" ", "_")}/'));
 
                                               final receiveOrderStreamController = StreamController.broadcast();
                                               receiveOrderStreamController.addStream(receiveOrderChannel.stream);
-                                              final receiveOrderReminderStreamController = StreamController.broadcast();
-                                              receiveOrderReminderStreamController.addStream(receiveOrderReminderChannel.stream);
                                               final receiveAnnouncementStreamController = StreamController.broadcast();
                                               receiveAnnouncementStreamController.addStream(receiveAnnouncementChannel.stream);
                                               final receiveAttendanceRequestStreamController = StreamController.broadcast();
@@ -334,7 +331,6 @@ class _LoginPageState extends State<LoginPage> {
 
                                               Map<String, StreamController> streamControllers = {
                                                 'order': receiveOrderStreamController,
-                                                'orderReminder': receiveOrderReminderStreamController,
                                                 'announcement': receiveAnnouncementStreamController,
                                                 'attendance': receiveAttendanceRequestStreamController,
                                               };

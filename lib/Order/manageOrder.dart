@@ -15,6 +15,7 @@ import '../Entity/FoodOrder.dart';
 import '../Entity/User.dart';
 
 
+import '../Utils/WebSocketSingleton.dart';
 import 'completeOrderDetails.dart';
 import 'incomingOrderDetails.dart';
 import 'kitchenOrderDetails.dart';
@@ -91,61 +92,18 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     super.initState();
     selectedDate = DateTime.now();
 
-    if (widget.user?.staff_type != "Restaurant Owner" && widget.user?.staff_type != "Restaurant Manager") {
-      // Web Socket
-      widget.streamControllers!['order']?.stream.listen((message) {
-        setState(() {
-          // do nothing
-        });
+    // Web Socket
+    widget.streamControllers!['order']?.stream.listen((message) {
+      setState(() {
+        // do nothing
       });
-
-      widget.streamControllers!['announcement']?.stream.listen((message) {
-        final data = jsonDecode(message);
-        String content = data['message'];
-        if (content == 'New Announcement') {
-          final snackBar = SnackBar(
-              content: const Text('Received new announcement!'),
-              action: SnackBarAction(
-                label: 'View',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CreateAnnouncementPage(user: getUser(),
-                              streamControllers: widget.streamControllers),
-                    ),
-                  );
-                },
-              )
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        } else if (content == 'Delete Announcement') {
-          print("Received delete announcement!");
-        }
-      });
-
-      widget.streamControllers!['attendance']?.stream.listen((message) {
-        SnackBar(
-            content: const Text('Received new attendance request!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ManageAttendanceRequestPage(user: getUser(),
-                            streamControllers: widget.streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-      });
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    WebSocketSingleton(widget.streamControllers!).listen(
+        context, widget.user!);
     enterFullScreen();
 
     User? currentUser = getUser();

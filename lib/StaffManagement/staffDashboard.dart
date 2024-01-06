@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:keninacafe/AppsBar.dart';
 import 'package:keninacafe/StaffManagement/staffList.dart';
 import 'package:http/http.dart' as http;
+import 'package:keninacafe/Utils/WebSocketSingleton.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Attendance/downloadAttendanceRecord.dart';
@@ -61,75 +62,11 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
   @override
   void initState() {
     super.initState();
-
-    if (widget.user?.staff_type != "Restaurant Owner") {
-      // Web Socket
-      widget.streamControllers!['order']?.stream.listen((message) {
-        final snackBar = SnackBar(
-            content: const Text('Received new order!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ManageOrderPage(user: getUser(),
-                            streamControllers: widget.streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      });
-
-      widget.streamControllers!['announcement']?.stream.listen((message) {
-        final data = jsonDecode(message);
-        String content = data['message'];
-        if (content == 'New Announcement') {
-          final snackBar = SnackBar(
-              content: const Text('Received new announcement!'),
-              action: SnackBarAction(
-                label: 'View',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CreateAnnouncementPage(user: getUser(),
-                              streamControllers: widget.streamControllers),
-                    ),
-                  );
-                },
-              )
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        } else if (content == 'Delete Announcement') {
-          print("Received delete announcement!");
-        }
-      });
-
-      widget.streamControllers!['attendance']?.stream.listen((message) {
-        SnackBar(
-            content: const Text('Received new attendance request!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ManageAttendanceRequestPage(user: getUser(),
-                            streamControllers: widget.streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    WebSocketSingleton(widget.streamControllers!).listen(context, widget.user!);
     enterFullScreen();
 
     User? currentUser = getUser();
