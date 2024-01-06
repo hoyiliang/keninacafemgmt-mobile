@@ -104,6 +104,7 @@ flutter:
     - images/empty_order.png
     - images/emptyAttendance.png
     - images/excelFile.png
+    - images/noAnnouncement.png
 
   fonts:
     - family: AsapCondensed

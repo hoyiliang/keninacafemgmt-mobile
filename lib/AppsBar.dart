@@ -395,9 +395,15 @@ class AppsBarState extends State<AppsBar> {
   @override
   PreferredSizeWidget buildAnnouncementAppBar(BuildContext context, String title, User currentUser, final Map<String,StreamController>? streamControllers) {
 
-    return PreferredSize( //wrap with PreferredSize
+    return PreferredSize(
       preferredSize: const Size.fromHeight(80),
       child: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         elevation: 0,
         toolbarHeight: 100,
         title: Text(title,

@@ -387,8 +387,8 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-      appBar: AppsBarState().buildAnnouncementAppBar(context, 'Announcement', currentUser, widget.streamControllers),
+      // drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+      appBar: AppsBarState().buildAnnouncementAppBar(context, 'Announcement', currentUser!, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -420,7 +420,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: currentUser.staff_type != "Restaurant Worker" ? FloatingActionButton(
         onPressed: () {
           showCreateAnnouncementForm(context);
         },
@@ -428,14 +428,14 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
           Icons.add,
           size: 27.0,
         ),
-      ),
+      ) : null,
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
+      bottomNavigationBar: currentUser.staff_type != "Restaurant Worker" ? BottomAppBar(
         height: 20.0,
         color: Theme.of(context).colorScheme.inversePrimary,
         shape: const CircularNotchedRectangle(),
-      ),
+      ) : null,
       // bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context),
     );
   }
@@ -943,284 +943,303 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
   List<Widget> buildAnnouncementCards(List<AnnouncementAssignUserMoreInfo>? listAnnouncement, User? currentUser) {
     List<Widget> cards = [];
-    for (AnnouncementAssignUserMoreInfo a in listAnnouncement!) {
-      bool diffSeconds = false;
-      bool diffMinutes = false;
-      bool diffHours = false;
-      bool diffDaysInWeek = false;
-      DateTime nowDateTime = DateTime.now().toUtc().toLocal();
-      DateTime dateCreated = a.date_created;
-      String formattedDate = DateFormat('dd MMM yyyy').format(dateCreated);
-      Duration difference = nowDateTime.difference(dateCreated);
-
-      if (difference.inDays == 0 && difference.inHours == 0 && difference.inMinutes == 0 && difference.inSeconds != 0) {
-        diffSeconds = true;
-      } else if (difference.inDays == 0 && difference.inHours == 0 &&
-          difference.inMinutes != 0) {
-        diffMinutes = true;
-      } else if (difference.inDays == 0 && difference.inHours != 0) {
-        diffHours = true;
-      } else if (difference.inDays == 1 && difference.inHours != 0) {
-        diffHours = true;
-      } else if (difference.inDays != 0 && difference.inDays <= 7) {
-        diffDaysInWeek = true;
-      } else if (difference.inDays != 0 && difference.inDays > 7) {
-        diffDaysInWeek = false;
-      }
+    if (listAnnouncement!.isEmpty) {
       cards.add(
-        Container(
-          color: a.is_read ? Colors.white : Colors.grey.shade200,
-          height: currentUser?.staff_type != "Restaurant Worker" ? 165.0 : 150.0,
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            a.title,
-                            style: TextStyle(
-                              fontSize: 19.0,
-                              color: Colors.grey.shade900,
-                              fontFamily: "BreeSerif",
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.clip,
-                          ),
-                          const Spacer(),
-                          if (currentUser?.staff_type != "Restaurant Worker")
-                            Container(
-                              width: 45,
-                              height: 45,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: Colors.grey.shade300,
-                                // border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  showUpdateAnnouncementForm(a, currentUser!);
-                                },
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 30.0,
-                                  color: Colors.grey.shade800,
-                                ),
-                              )
-                            ),
-                          if (currentUser?.staff_type != "Restaurant Worker")
-                            const SizedBox(width: 25.0),
-                          if (currentUser?.staff_type != "Restaurant Worker")
-                            Container(
-                              width: 45,
-                              height: 45,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: Colors.grey.shade300,
-                                // border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  showDeleteConfirmationDialog(a);
-                                },
-                                icon: Icon(
-                                  Icons.delete,
-                                  size: 30.0,
-                                  color: Colors.grey.shade800,
-                                ),
-                              )
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 5.0,),
-                      Text(
-                        "Created by:  ${a.user_created_name}",
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          color: Colors.grey.shade700,
-                          fontFamily: "Oswald",
-                          // fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      // if (a.user_updated_name != "")
-                      Row(
-                        children: [
-                          if (a.user_updated_name != "")
-                            Text(
-                              "Updated by:  ${a.user_created_name}",
-                              style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.grey.shade700,
-                                fontFamily: "Oswald",
-                                // fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          const Spacer(),
-                          if (!a.is_read)
-                            SizedBox(
-                              height: 20,
-                              width: 70,
-                              child: Material(
-                                  elevation: 3.0, // Add elevation to simulate a border
-                                  shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                      color: Colors.red, // Border color
-                                      width: 2.0, // Border width
-                                    ),
-                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                  ),
-                                  child: const Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "Unread",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 9.0,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  )
-                              ),
-                            )
-                          else
-                            SizedBox(
-                              height: 20,
-                              width: 70,
-                              child: Material(
-                                  elevation: 3.0, // Add elevation to simulate a border
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: Colors.green.shade400, // Border color
-                                      width: 2.0, // Border width
-                                    ),
-                                    borderRadius: BorderRadius.circular(200), // Apply border radius if needed
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      "Read",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 9.0,
-                                        color: Colors.green.shade400,
-                                      ),
-                                    ),
-                                  )
-                              ),
-                            )
-                        ],
-                      ),
-                      const Spacer(),
-                      const SizedBox(height: 10.0),
-                      Row(
-                        children: [
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Container(
-                              width: 150.0,
-                              height: 30.0,
-                              padding: const EdgeInsets.only(top: 3),
-                              child: MaterialButton(
-                                minWidth: double.infinity,
-                                height: 20,
-                                onPressed: () async {
-                                  showViewAnnouncementDialog(a.description);
-                                  if (!a.is_read) {
-                                    var (announcementIsReadUpdated, err_codes) = await _submitUpdateAnnouncementIsRead(a);
-                                    if (!announcementIsReadUpdated) {
-                                      showErrorDialogIfUpdateIsReadFail(err_codes);
-                                    }
-                                    setState(() {
-
-                                    });
-                                  }
-                                },
-                                color: Colors.grey.shade200,
-                                child: Text(
-                                  "View Description",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                      color: Colors.orangeAccent.shade400
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          if (diffSeconds == true)
-                            Text(
-                              "< 1 minutes ago",
-                              style: TextStyle(
-                                fontSize: 17.0,
-                                color: Colors.grey.shade900,
-                                fontFamily: "Rajdhani",
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                          if (diffMinutes == true)
-                            Text(
-                              "${difference.inMinutes.toStringAsFixed(0)} minute(s) ago",
-                              style: TextStyle(
-                                fontSize: 17.0,
-                                color: Colors.grey.shade900,
-                                fontFamily: "Rajdhani",
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                          if (diffHours == true)
-                            Text(
-                              "${difference.inHours.toStringAsFixed(0)} hour(s) ago",
-                              style: TextStyle(
-                                fontSize: 17.0,
-                                color: Colors.grey.shade900,
-                                fontFamily: "Rajdhani",
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                          if (diffDaysInWeek == true)
-                            Text(
-                              "${difference.inDays.toStringAsFixed(0)} day(s) ago",
-                              style: TextStyle(
-                                fontSize: 17.0,
-                                color: Colors.grey.shade900,
-                                fontFamily: "Rajdhani",
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                          if (difference.inDays > 7 && diffDaysInWeek == false)
-                            Text(
-                              formattedDate,
-                              style: TextStyle(
-                                fontSize: 17.0,
-                                color: Colors.grey.shade900,
-                                fontFamily: "Rajdhani",
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Vertically center the content
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 100, 0, 30),
+              child: Image.asset(
+                "images/noAnnouncement.png",
+                // fit: BoxFit.cover,
+                // height: 500,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
-      cards.add(const Divider(height: 0,));
-      // cards.add(const SizedBox(height: 15,),);
+    } else {
+      for (AnnouncementAssignUserMoreInfo a in listAnnouncement!) {
+        bool diffSeconds = false;
+        bool diffMinutes = false;
+        bool diffHours = false;
+        bool diffDaysInWeek = false;
+        DateTime nowDateTime = DateTime.now().toUtc().toLocal();
+        DateTime dateCreated = a.date_created;
+        String formattedDate = DateFormat('dd MMM yyyy').format(dateCreated);
+        Duration difference = nowDateTime.difference(dateCreated);
+
+        if (difference.inDays == 0 && difference.inHours == 0 && difference.inMinutes == 0 && difference.inSeconds != 0) {
+          diffSeconds = true;
+        } else if (difference.inDays == 0 && difference.inHours == 0 &&
+            difference.inMinutes != 0) {
+          diffMinutes = true;
+        } else if (difference.inDays == 0 && difference.inHours != 0) {
+          diffHours = true;
+        } else if (difference.inDays == 1 && difference.inHours != 0) {
+          diffHours = true;
+        } else if (difference.inDays != 0 && difference.inDays <= 7) {
+          diffDaysInWeek = true;
+        } else if (difference.inDays != 0 && difference.inDays > 7) {
+          diffDaysInWeek = false;
+        }
+        cards.add(
+          Container(
+            color: a.is_read ? Colors.white : Colors.grey.shade200,
+            height: currentUser?.staff_type != "Restaurant Worker" ? 165.0 : 150.0,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              a.title,
+                              style: TextStyle(
+                                fontSize: 19.0,
+                                color: Colors.grey.shade900,
+                                fontFamily: "BreeSerif",
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                            const Spacer(),
+                            if (currentUser?.staff_type != "Restaurant Worker")
+                              Container(
+                                  width: 45,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    color: Colors.grey.shade300,
+                                    // border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      showUpdateAnnouncementForm(a, currentUser!);
+                                    },
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: 30.0,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  )
+                              ),
+                            if (currentUser?.staff_type != "Restaurant Worker")
+                              const SizedBox(width: 25.0),
+                            if (currentUser?.staff_type != "Restaurant Worker")
+                              Container(
+                                  width: 45,
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    color: Colors.grey.shade300,
+                                    // border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      showDeleteConfirmationDialog(a);
+                                    },
+                                    icon: Icon(
+                                      Icons.delete,
+                                      size: 30.0,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  )
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 5.0,),
+                        Text(
+                          "Created by:  ${a.user_created_name}",
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: Colors.grey.shade700,
+                            fontFamily: "Oswald",
+                            // fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // if (a.user_updated_name != "")
+                        Row(
+                          children: [
+                            if (a.user_updated_name != "")
+                              Text(
+                                "Updated by:  ${a.user_created_name}",
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: Colors.grey.shade700,
+                                  fontFamily: "Oswald",
+                                  // fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            const Spacer(),
+                            if (!a.is_read)
+                              SizedBox(
+                                height: 20,
+                                width: 70,
+                                child: Material(
+                                    elevation: 3.0, // Add elevation to simulate a border
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(
+                                        color: Colors.red, // Border color
+                                        width: 2.0, // Border width
+                                      ),
+                                      borderRadius: BorderRadius.circular(200), // Apply border radius if needed
+                                    ),
+                                    child: const Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Unread",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 9.0,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                height: 20,
+                                width: 70,
+                                child: Material(
+                                    elevation: 3.0, // Add elevation to simulate a border
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Colors.green.shade400, // Border color
+                                        width: 2.0, // Border width
+                                      ),
+                                      borderRadius: BorderRadius.circular(200), // Apply border radius if needed
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Read",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 9.0,
+                                          color: Colors.green.shade400,
+                                        ),
+                                      ),
+                                    )
+                                ),
+                              )
+                          ],
+                        ),
+                        const Spacer(),
+                        const SizedBox(height: 10.0),
+                        Row(
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                width: 150.0,
+                                height: 30.0,
+                                padding: const EdgeInsets.only(top: 3),
+                                child: MaterialButton(
+                                  minWidth: double.infinity,
+                                  height: 20,
+                                  onPressed: () async {
+                                    showViewAnnouncementDialog(a.description);
+                                    if (!a.is_read) {
+                                      var (announcementIsReadUpdated, err_codes) = await _submitUpdateAnnouncementIsRead(a);
+                                      if (!announcementIsReadUpdated) {
+                                        showErrorDialogIfUpdateIsReadFail(err_codes);
+                                      }
+                                      setState(() {
+
+                                      });
+                                    }
+                                  },
+                                  color: Colors.grey.shade200,
+                                  child: Text(
+                                    "View Description",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                        color: Colors.orangeAccent.shade400
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            if (diffSeconds == true)
+                              Text(
+                                "< 1 minutes ago",
+                                style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "Rajdhani",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            if (diffMinutes == true)
+                              Text(
+                                "${difference.inMinutes.toStringAsFixed(0)} minute(s) ago",
+                                style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "Rajdhani",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            if (diffHours == true)
+                              Text(
+                                "${difference.inHours.toStringAsFixed(0)} hour(s) ago",
+                                style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "Rajdhani",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            if (diffDaysInWeek == true)
+                              Text(
+                                "${difference.inDays.toStringAsFixed(0)} day(s) ago",
+                                style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "Rajdhani",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                            if (difference.inDays > 7 && diffDaysInWeek == false)
+                              Text(
+                                formattedDate,
+                                style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Colors.grey.shade900,
+                                  fontFamily: "Rajdhani",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        cards.add(const Divider(height: 0,));
+        // cards.add(const SizedBox(height: 15,),);
+      }
     }
     return cards;
   }
