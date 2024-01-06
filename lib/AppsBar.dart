@@ -392,6 +392,24 @@ class AppsBarState extends State<AppsBar> {
     );
   }
 
+  @override
+  PreferredSizeWidget buildAnnouncementAppBar(BuildContext context, String title, User currentUser, final Map<String,StreamController>? streamControllers) {
+
+    return PreferredSize( //wrap with PreferredSize
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        elevation: 0,
+        toolbarHeight: 100,
+        title: Text(title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+      ),
+    );
+  }
 
   @override
   PreferredSizeWidget buildSupplierDashboardAppBar(BuildContext context, String title, User currentUser, final Map<String,StreamController>? streamControllers) {
