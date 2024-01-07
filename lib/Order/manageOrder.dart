@@ -563,7 +563,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                               ),
                             ),
                             Text(
-                              "13",
+                              orderList[i].table_num,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17.0,
@@ -809,7 +809,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                               ),
                             ),
                             Text(
-                              "13",
+                              orderList[i].table_num,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17.0,
@@ -1028,7 +1028,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
                               ),
                             ),
                             Text(
-                              "13",
+                              completeOrderList[i].table_num,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17.0,

@@ -371,7 +371,7 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.blueAccent,
+                            backgroundColor: Colors.blueAccent,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             minimumSize: const Size(200, 50),
                           ),

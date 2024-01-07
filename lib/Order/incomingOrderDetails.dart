@@ -140,9 +140,9 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                 ),
               ],
             ),
-            const Row(
+            Row(
               children: [
-                Text(
+                const Text(
                   "Table :  ",
                   style: TextStyle(
                     fontSize: 20,
@@ -152,8 +152,8 @@ class _IncomingOrderDetailsPageState extends State<IncomingOrderDetailsPage> {
                   ),
                 ),
                 Text(
-                  "13",
-                  style: TextStyle(
+                  currentOrder.table_num,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,

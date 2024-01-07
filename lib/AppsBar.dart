@@ -313,7 +313,7 @@ class AppsBarState extends State<AppsBar> {
                 showDialog(context: context, builder: (
                     BuildContext context) =>
                     AlertDialog(
-                      title: const Text('Log Out Successfully'),
+                      title: const Text('Log Out Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                       // content: Text('An Error occurred while trying to create a new order.\n\nError Code: $err_code'),
                       actions: <Widget>[
                         TextButton(onPressed: () =>

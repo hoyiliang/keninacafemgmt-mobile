@@ -150,9 +150,9 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                   ),
                 ],
               ),
-              const Row(
+              Row(
                 children: [
-                  Text(
+                  const Text(
                     "Table :  ",
                     style: TextStyle(
                       fontSize: 20,
@@ -162,8 +162,8 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
                     ),
                   ),
                   Text(
-                    "13",
-                    style: TextStyle(
+                    currentOrder.table_num,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
