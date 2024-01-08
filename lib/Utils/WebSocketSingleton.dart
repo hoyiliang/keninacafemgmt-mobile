@@ -30,20 +30,28 @@ class WebSocketSingleton {
     if (!_listenedFlag) {
       // Web Socket
       _streamControllers['order']?.stream.listen((message) {
-        final snackBar = SnackBar(
-            content: const Text('Received new order!'),
-            action: SnackBarAction(
-              label: 'View',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ManageOrderPage(user: user, streamControllers: _streamControllers),
-                  ),
-                );
-              },
-            )
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        final data = jsonDecode(message);
+        String content = data['message'];
+        if (content == 'New Order') {
+          final snackBar = SnackBar(
+              content: const Text('Received new order!'),
+              action: SnackBarAction(
+                label: 'View',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ManageOrderPage(user: user,
+                              streamControllers: _streamControllers),
+                    ),
+                  );
+                },
+              )
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else {
+          print("Received delete/reject order!");
+        }
       });
 
       _streamControllers['announcement']?.stream.listen((message) {
