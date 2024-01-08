@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 
@@ -6,11 +7,14 @@ class MenuItem {
   final int id;
   final String itemClass;
   final String image;
+  bool hasImageStored;
+  Widget imageStored;
   final String name;
   final double price_standard;
   final double price_large;
   final String description;
-  final bool isOutOfStock;
+  bool isOutOfStock;
+  // bool isOutOfStockUpdate;
   final bool hasVariant;
   final String variants;
   final bool hasSize;
@@ -28,11 +32,14 @@ class MenuItem {
     required this.id,
     required this.itemClass,
     required this.image,
+    required this.hasImageStored,
+    required this.imageStored,
     required this.name,
     required this.price_standard,
     required this.price_large,
     required this.description,
     required this.isOutOfStock,
+    // required this.isOutOfStockUpdate,
     required this.hasVariant,
     required this.variants,
     required this.hasSize,
@@ -56,11 +63,14 @@ class MenuItem {
       id: json['id'],
       itemClass: json['itemClass'],
       image: json['image'] ?? '',
+      hasImageStored: false,
+      imageStored: Container(),
       name: json['name'],
       price_standard: json['price_standard'],
       price_large: json['price_large'] ?? 0,
       description: json['description'] ?? '',
       isOutOfStock: json['isOutOfStock'],
+      // isOutOfStockUpdate: json['isOutOfStock'],
       hasVariant: json['hasVariant'],
       variants: json['variants'] ?? '',
       hasSize: json['hasSize'],

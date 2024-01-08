@@ -216,7 +216,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           if (snapshot.hasError) {
                             return Center(child: Text('Error: ${snapshot.error}'));
                           } else {
-                            return const Center(child: Text('Loading...'));
+                            return Center(child: Center(
+                              child: LoadingAnimationWidget.horizontalRotatingDots(
+                                color: Colors.black,
+                                size: 50,
+                              ),
+                            ),);
                           }
                         }
                       }

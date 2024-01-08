@@ -1073,7 +1073,9 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
-                                setState(() {});
+                                setState(() {
+                                  currentVoucher.is_available = !currentVoucher.is_available;
+                                });
                                 Navigator.of(context).pop();
                                 // Navigator.push(
                                 //   context,
@@ -1086,7 +1088,6 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
                     );
                   }
                 });
-                // saveAnnouncement(title, text);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,

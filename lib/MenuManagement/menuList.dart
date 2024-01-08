@@ -40,15 +40,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MenuListPage(user: null, streamControllers: null),
+      home: const MenuListPage(user: null, tabIndex: null, itemCategoryList: null, menuItemList: null, streamControllers: null),
     );
   }
 }
 
 class MenuListPage extends StatefulWidget {
-  const MenuListPage({super.key, this.user, this.streamControllers});
+  const MenuListPage({super.key, this.user, this.tabIndex, this.itemCategoryList, this.menuItemList, this.streamControllers});
 
   final User? user;
+  final int? tabIndex;
+  final List<MenuItem>? itemCategoryList;
+  final List<MenuItem>? menuItemList;
   final Map<String,StreamController>? streamControllers;
 
   @override
@@ -61,9 +64,24 @@ class _MenuListPageState extends State<MenuListPage>{
   final descriptionController = TextEditingController();
   bool deleteUser = false;
   bool isHomePage = false;
+  int selectedTabIndex = 1000;
+  List<MenuItem>? itemCategoryList;
+  List<MenuItem>? menuItemList;
 
   User? getUser() {
     return widget.user;
+  }
+
+  List<MenuItem>? getItemCategoryStoredList() {
+    return widget.itemCategoryList;
+  }
+
+  List<MenuItem>? getMenuItemStoredList() {
+    return widget.menuItemList;
+  }
+
+  int? getTabIndex() {
+    return widget.tabIndex;
   }
 
   onGoBack(dynamic value) {
@@ -80,6 +98,15 @@ class _MenuListPageState extends State<MenuListPage>{
     enterFullScreen();
 
     User? currentUser = getUser();
+    if (menuItemList == null || menuItemList!.isEmpty) {
+      menuItemList = getMenuItemStoredList();
+    }
+    if (itemCategoryList == null || itemCategoryList!.isEmpty) {
+      itemCategoryList = getItemCategoryStoredList();
+    }
+    if (selectedTabIndex == 1000) {
+      selectedTabIndex = widget.tabIndex!;
+    }
 
     return WillPopScope(
       onWillPop: () async {
@@ -125,137 +152,188 @@ class _MenuListPageState extends State<MenuListPage>{
         );
         return false;
       },
-      child: FutureBuilder<List<MenuItem>>(
-        future: getItemCategoryList(),
-        builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
-          if (snapshot.hasData) {
-            return DefaultTabController(
-              length: snapshot.data!.length,
-              child: Scaffold(
-                backgroundColor: Colors.white,
-                appBar: PreferredSize(
-                  preferredSize: const Size.fromHeight(125),
-                  child: AppBar(
-                    bottom: PreferredSize(
-                      preferredSize: const Size(0,00),
-                      child: SizedBox(
-                        height: 50.0,
-                        child: Material(
-                          color: Colors.deepPurple[100],
-                          child: TabBar(
-                            isScrollable: true,
-                            tabs: [
-                              for (int i = 0; i < snapshot.data!.length; i++)
-                                Text(
-                                  snapshot.data![i].category_name,
-                                  // style: TextStyle(
-                                  //   fontWeight: FontWeight.bold,
-                                  // ),
-                                ),
-                            ],
-                            indicator: BoxDecoration(
-                                color: Colors.deepPurple[300]
-                            ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                                  (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.hovered)) {
-                                  return Colors.grey.shade200;
-                                }
-                                return null;
+      // child: FutureBuilder<List<MenuItem>>(
+      //   future: getItemCategoryList(),
+      //   builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
+      //     if (snapshot.hasData) {
+      child: DefaultTabController(
+        length: 17,
+        initialIndex: selectedTabIndex,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(125),
+            child: AppBar(
+              bottom: PreferredSize(
+                preferredSize: const Size(0,00),
+                child: SizedBox(
+                  height: 50.0,
+                  child: Material(
+                    color: Colors.deepPurple[100],
+                    child: (itemCategoryList == null || itemCategoryList!.isEmpty) ? FutureBuilder<List<MenuItem>>(
+                        future: getItemCategoryList(),
+                        builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
+                          if (snapshot.hasData) {
+                            itemCategoryList = snapshot.data;
+                            return TabBar(
+                              isScrollable: true,
+                              onTap: (value) {
+                                setState(() {
+                                  selectedTabIndex = value;
+                                });
                               },
-                            ),
-                            unselectedLabelColor: Colors.grey.shade700,
-                            labelColor: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    elevation: 0,
-                    toolbarHeight: 100,
-                    title: const Text("Menu List",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                    centerTitle: true,
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                                MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
+                              tabs: buildItemCategoryList(snapshot.data),
+                              indicator: BoxDecoration(
+                                  color: Colors.deepPurple[300]
+                              ),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                    (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.hovered)) {
+                                    return Colors.grey.shade200;
+                                  }
+                                  return null;
+                                },
+                              ),
+                              unselectedLabelColor: Colors.grey.shade700,
+                              labelColor: Colors.white,
                             );
-                          },
-                          icon: const Icon(Icons.notifications, size: 35,),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
-                body: SafeArea(
-                  child: FutureBuilder<List<MenuItem>>(
-                    future: getMenuItemList(),
-                    builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
-                      if (snapshot.hasData) {
-                        return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                            child: TabBarView(
-                              children: buildTabBarView(snapshot.data, currentUser),
-                            )
-                        );
-
-                      } else {
-                        if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          return Center(
-                            child: LoadingAnimationWidget.threeRotatingDots(
-                              color: Colors.black,
-                              size: 50,
-                            ),
-                          );
+                          } else {
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            } else {
+                              return Center(
+                                child: LoadingAnimationWidget.horizontalRotatingDots(
+                                  color: Colors.black,
+                                  size: 25,
+                                ),
+                              );
+                            }
+                          }
                         }
-                      }
-                    }
+                    ) : TabBar(
+                      isScrollable: true,
+                      onTap: (value) {
+                        setState(() {
+                          selectedTabIndex = value;
+                        });
+                      },
+                      tabs: buildItemCategoryList(itemCategoryList),
+                      indicator: BoxDecoration(
+                          color: Colors.deepPurple[300]
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.hovered)) {
+                            return Colors.grey.shade200;
+                          }
+                          return null;
+                        },
+                      ),
+                      unselectedLabelColor: Colors.grey.shade700,
+                      labelColor: Colors.white,
+                    ),
+                    // child: TabBar(
+                    //   isScrollable: true,
+                    //
+                    //   tabs: [
+                    //   ],
+                    //   indicator: BoxDecoration(
+                    //       color: Colors.deepPurple[300]
+                    //   ),
+                    //   indicatorSize: TabBarIndicatorSize.tab,
+                    //   overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                    //         (Set<MaterialState> states) {
+                    //       if (states.contains(MaterialState.hovered)) {
+                    //         return Colors.grey.shade200;
+                    //       }
+                    //       return null;
+                    //     },
+                    //   ),
+                    //   unselectedLabelColor: Colors.grey.shade700,
+                    //   labelColor: Colors.white,
+                    // );
                   ),
-                ),
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, streamControllers: widget.streamControllers))
-                    );
-                  },
-                  child: const Icon(
-                    Icons.add,
-                    size: 27.0,
-                  ),
-                ),
-                floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-                bottomNavigationBar: BottomAppBar(
-                  height: 20.0,
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                  shape: const CircularNotchedRectangle(),
                 ),
               ),
-            );
-          } else {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              return Center(
-                child: LoadingAnimationWidget.threeRotatingDots(
-                  color: Colors.black,
-                  size: 50,
+
+              elevation: 0,
+              toolbarHeight: 100,
+              title: const Text("Menu List",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              centerTitle: true,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => CreateAnnouncementPage(user: currentUser, streamControllers: widget.streamControllers))
+                      );
+                    },
+                    icon: const Icon(Icons.notifications, size: 35,),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          drawer: AppsBarState().buildDrawer(context, currentUser!, isHomePage, widget.streamControllers),
+          body: SafeArea(
+            child: (menuItemList == null || menuItemList!.isEmpty) ? FutureBuilder<List<MenuItem>>(
+              future: getMenuItemList(),
+              builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
+                if (snapshot.hasData) {
+                  menuItemList = snapshot.data;
+                  return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                      child: TabBarView(
+                        children: buildTabBarView(snapshot.data, currentUser),
+                      )
+                  );
+
+                } else {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    return Center(
+                      child: LoadingAnimationWidget.threeRotatingDots(
+                        color: Colors.black,
+                        size: 50,
+                      ),
+                    );
+                  }
+                }
+              }
+            ) : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                child: TabBarView(
+                  children: buildTabBarView(menuItemList, currentUser),
+                )
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateMenuItemPage(user: currentUser, tabIndex: selectedTabIndex, menuItemList: menuItemList, itemCategoryList: itemCategoryList, streamControllers: widget.streamControllers))
               );
-            }
-          }
-        }
+            },
+            child: const Icon(
+              Icons.add,
+              size: 27.0,
+            ),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: BottomAppBar(
+            height: 20.0,
+            color: Theme.of(context).colorScheme.inversePrimary,
+            shape: const CircularNotchedRectangle(),
+          ),
+        ),
       ),
     );
   }
@@ -587,7 +665,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                               style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
-                                                Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j], streamControllers: widget.streamControllers));
+                                                Route route = MaterialPageRoute(builder: (context) =>UpdateMenuItemPage(user: currentUser, menuItem: menuItemList[j], tabIndex: selectedTabIndex, streamControllers: widget.streamControllers));
                                                 Navigator.push(context, route).then(onGoBack);
                                               },
                                               child: Icon(Icons.edit, color: Colors.grey.shade800),
@@ -613,7 +691,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                       const Spacer(),
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(15.0),
-                                        child: menuItemList[j].image == "" ? Image.asset('images/menuItem.png', width: 100, height: 100,) : Image.memory(base64Decode(menuItemList[j].image), width: 100, height: 100,)
+                                        child: menuItemList[j].image == "" ? Image.asset('images/menuItem.png', width: 100, height: 100,) : buildImage(menuItemList[j])
                                       ),
                                     ],
                                   )
@@ -632,13 +710,45 @@ class _MenuListPageState extends State<MenuListPage>{
       }
     }
     return tabBarView;
+  }
 
+  Widget buildImage(MenuItem currentMenuItem) {
+    String base64Image = currentMenuItem.image;
+    Widget image;
+    if (!currentMenuItem.hasImageStored) {
+      if (base64Image == "") {
+        image = Image.asset('images/menuItem.png', width: 100, height: 100,);
+        print("nothing in base64");
+      } else {
+        image = Image.memory(base64Decode(base64Image), width: 100, height: 100,);
+        currentMenuItem.imageStored = image!;
+        currentMenuItem.hasImageStored = true;
+      }
+    } else {
+      image = currentMenuItem.imageStored;
+    }
+    return image;
+  }
+
+  List<Widget> buildItemCategoryList(List<MenuItem>? listItemCategory) {
+    List<Widget> tabs = [];
+    for (int i = 0; i < listItemCategory!.length; i++) {
+      tabs.add(
+        Text(
+          listItemCategory[i].category_name,
+          // style: TextStyle(
+          //   fontWeight: FontWeight.bold,
+          // ),
+        ),
+      );
+    }
+    return tabs;
   }
 
   Future<List<MenuItem>> getItemCategoryList() async {
     try {
       final response = await http.get(
-        Uri.parse('${IpAddress.ip_addr}/menu/request_item_category_list'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_item_category_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -802,7 +912,9 @@ class _MenuListPageState extends State<MenuListPage>{
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
-                                setState(() {});
+                                setState(() {
+                                  currentMenuItem.isOutOfStock = !currentMenuItem.isOutOfStock;
+                                });
                                 Navigator.of(context).pop();
                               },
                             ),

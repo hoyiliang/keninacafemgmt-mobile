@@ -13,7 +13,7 @@ class Voucher {
   final String free_menu_item_name;
   final int min_spending;
   final int redeem_point;
-  final bool is_available;
+  bool is_available;
   final int num_redeemed;
 
   Voucher({

@@ -882,7 +882,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
           'user_created_id': currentUser.uid,
         }),
       );
-      final responseData = json.decode(response.body);
+      // final responseData = json.decode(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (kDebugMode) {
           print("Create Voucher Successful.");
@@ -890,6 +890,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
         return (true, ErrorCodes.OPERATION_OK);
 
       } else {
+        final responseData = json.decode(response.body);
         if (kDebugMode) {
           print(response.body);
           print('Failed to create voucher.');

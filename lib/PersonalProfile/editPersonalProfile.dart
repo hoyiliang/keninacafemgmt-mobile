@@ -222,12 +222,24 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                   Stack(
                     children: [
                       SizedBox(
-                        width: 130,
-                        height: 130,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: image,
-                        ),
+                        width: 135,
+                        height: 135,
+                        // child: ClipRRect(
+                        //     borderRadius: BorderRadius.circular(100),
+                        //     child: image,
+                        // ),
+                        child: Container(
+                          width: 150, // Set the desired width
+                          height: 150, // Set the desired height
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(30), // Adjust the borderRadius as needed
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: image, // Assuming 'image' is an Image or Image.network widget
+                          ),
+                        )
                       ),
                       if (currentUser?.staff_type == "Restaurant Owner")
                         Positioned(
@@ -237,7 +249,7 @@ class _EditPersonalProfilePageState extends State<EditPersonalProfilePage> {
                             width: 35,
                             height: 35,
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade400),
                               onPressed: () async {
                                 XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
                                 final File imageFile = File(imageRaw!.path);

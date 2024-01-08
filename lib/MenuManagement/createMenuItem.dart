@@ -17,6 +17,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
+import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/ip_address.dart';
@@ -43,15 +44,18 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor:Colors.white,
         useMaterial3: true,
       ),
-      home: const CreateMenuItemPage(user: null, streamControllers: null),
+      home: const CreateMenuItemPage(user: null, tabIndex: null, itemCategoryList: null, menuItemList: null, streamControllers: null),
     );
   }
 }
 
 class CreateMenuItemPage extends StatefulWidget {
-  const CreateMenuItemPage({super.key, this.user, this.streamControllers});
+  const CreateMenuItemPage({super.key, this.user, this.tabIndex, this.itemCategoryList, this.menuItemList, this.streamControllers});
 
   final User? user;
+  final int? tabIndex;
+  final List<MenuItem>? itemCategoryList;
+  final List<MenuItem>? menuItemList;
   final Map<String,StreamController>? streamControllers;
 
   @override
@@ -84,6 +88,18 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
     return widget.user;
   }
 
+  List<MenuItem>? getItemCategoryStoredList() {
+    return widget.itemCategoryList;
+  }
+
+  List<MenuItem>? getMenuItemStoredList() {
+    return widget.menuItemList;
+  }
+
+  int? getTabIndex() {
+    return widget.tabIndex;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +111,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
     enterFullScreen();
 
     User? currentUser = getUser();
+    int? currentTabIndex = getTabIndex();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -111,12 +128,24 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                     SizedBox(
                       width: 135,
                       height: 135,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.grey.shade400,
-                        radius: 200,
+                      // child: CircleAvatar(
+                      //   backgroundColor: Colors.grey.shade400,
+                      //   radius: 200,
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(15), // Border radius
+                      //     child: ClipOval(child: image),
+                      //   ),
+                      // )
+                      child: Container(
+                        width: 150, // Set the desired width
+                        height: 150, // Set the desired height
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(30), // Adjust the borderRadius as needed
+                        ),
                         child: Padding(
-                          padding: const EdgeInsets.all(15), // Border radius
-                          child: ClipOval(child: image),
+                          padding: const EdgeInsets.all(15),
+                          child: image, // Assuming 'image' is an Image or Image.network widget
                         ),
                       )
                       // child: ClipRRect(
@@ -132,7 +161,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                         height: 35,
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade400),
                           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                           onPressed: () async {
                             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -749,7 +778,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                             showImageNotSelectedDialog();
                           }
                           if (_formKey.currentState!.validate() && isImageUploaded && hasSizeSelected && hasVariantSelected) {
-                            showConfirmationCreateDialog(currentUser);
+                            showConfirmationCreateDialog(currentUser, currentTabIndex!);
                           }
                         });
                       },
@@ -963,7 +992,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
     }
   }
 
-  void showConfirmationCreateDialog(User currentUser) {
+  void showConfirmationCreateDialog(User currentUser, int currentTabIndex) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1035,7 +1064,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
                                   Navigator.of(context).pop();
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, streamControllers: widget.streamControllers)),
+                                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, tabIndex: currentTabIndex, streamControllers: widget.streamControllers)),
                                   );
                                 },
                               ),

@@ -21,6 +21,7 @@ import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/ip_address.dart';
+import 'menuList.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,16 +44,17 @@ class MyApp extends StatelessWidget {
         unselectedWidgetColor:Colors.white,
         useMaterial3: true,
       ),
-      home: const UpdateMenuItemPage(user: null, menuItem: null, streamControllers: null),
+      home: const UpdateMenuItemPage(user: null, menuItem: null, tabIndex: null, streamControllers: null),
     );
   }
 }
 
 class UpdateMenuItemPage extends StatefulWidget {
-  const UpdateMenuItemPage({super.key, this.user, this.menuItem, this.streamControllers});
+  const UpdateMenuItemPage({super.key, this.user, this.menuItem, this.tabIndex, this.streamControllers});
 
   final User? user;
   final MenuItem? menuItem;
+  final int? tabIndex;
   final Map<String,StreamController>? streamControllers;
 
   @override
@@ -86,6 +88,10 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     return widget.menuItem;
   }
 
+  int? getTabIndex() {
+    return widget.tabIndex;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +121,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
 
     User? currentUser = getUser();
     MenuItem? currentMenuItem = getMenuItem();
+    int? currentTabIndex = getTabIndex();
 
     if (base64Image == "") {
       base64Image = currentMenuItem!.image;
@@ -143,14 +150,26 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                     SizedBox(
                       width: 135,
                       height: 135,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.grey.shade400,
-                        radius: 200,
-                        child: Padding(
-                          padding: const EdgeInsets.all(15), // Border radius
-                          child: ClipOval(child: image),
+                      // child: CircleAvatar(
+                      //   backgroundColor: Colors.grey.shade400,
+                      //   radius: 200,
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.all(15), // Border radius
+                      //     child: ClipOval(child: image),
+                      //   ),
+                      // ),
+                      child: Container(
+                        width: 150, // Set the desired width
+                        height: 150, // Set the desired height
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(30), // Adjust the borderRadius as needed
                         ),
-                      ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: image, // Assuming 'image' is an Image or Image.network widget
+                        ),
+                      )
                     ),
                     Positioned(
                       bottom: 0,
@@ -161,7 +180,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                         child:
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade400),
                           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                           onPressed: () async {
                             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -763,7 +782,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                       onPressed: (){
                         setState(() {
                           if (_formKey.currentState!.validate()) {
-                            showConfirmationUpdateDialog(currentMenuItem!, currentUser);
+                            showConfirmationUpdateDialog(currentMenuItem!, currentUser, currentTabIndex!);
                           }
                         });
                       },
@@ -1620,7 +1639,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
     }
   }
 
-  void showConfirmationUpdateDialog(MenuItem currentMenuItem, User currentUser) {
+  void showConfirmationUpdateDialog(MenuItem currentMenuItem, User currentUser, int currentTabIndex) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1675,7 +1694,10 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
                                 child: const Text('Ok'),
                                 onPressed: () {
                                   Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, tabIndex: currentTabIndex, menuItemList: [], itemCategoryList: [], streamControllers: widget.streamControllers)),
+                                  );
                                 },
                               ),
                             ],

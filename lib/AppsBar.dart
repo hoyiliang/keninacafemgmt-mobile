@@ -161,7 +161,7 @@ class AppsBarState extends State<AppsBar> {
               ),
               onTap: () => {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, streamControllers: streamControllers))
+                    MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, tabIndex: 0, menuItemList: const [], itemCategoryList: const [], streamControllers: streamControllers))
                 ),
               },
             ),

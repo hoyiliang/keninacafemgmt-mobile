@@ -140,12 +140,24 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                 Stack(
                   children: [
                     SizedBox(
-                      width: 120,
-                      height: 120,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: image
-                      ),
+                      width: 135,
+                      height: 135,
+                      // child: ClipRRect(
+                      //     borderRadius: BorderRadius.circular(100),
+                      //     child: image
+                      // ),
+                      child: Container(
+                        width: 150, // Set the desired width
+                        height: 150, // Set the desired height
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(30), // Adjust the borderRadius as needed
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: image, // Assuming 'image' is an Image or Image.network widget
+                        ),
+                      )
                     ),
                     Positioned(
                       bottom: 0,
@@ -156,7 +168,7 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                         child:
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade200),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade400),
                           // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                           onPressed: () async {
                             XFile? imageRaw = await ImagePicker().pickImage(source: ImageSource.gallery);
