@@ -19,6 +19,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -614,7 +615,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
   Future<(bool, String)> createSupplier(String name, String PIC, String email, String contact, String address, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/create_supplier'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/create_supplier'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -658,7 +659,7 @@ class _CreateSupplierPageState extends State<CreateSupplierPage> {
   // Future<List<Stock>> getStockList() async {
   //   try {
   //     final response = await http.get(
-  //       Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_list'),
+  //       Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_list'),
   //       headers: <String, String>{
   //         'Content-Type': 'application/json; charset=UTF-8',
   //       },

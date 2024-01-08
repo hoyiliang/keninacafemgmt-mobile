@@ -15,6 +15,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 import 'createStaff.dart';
 
 void main() {
@@ -609,7 +610,7 @@ class _StaffListPageState extends State<StaffListPage> {
   Future<List<User>> getStaffList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/users/request_list'),
+        Uri.parse('${IpAddress.ip_addr}/users/request_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -683,7 +684,7 @@ class _StaffListPageState extends State<StaffListPage> {
   Future<(User, String)> deleteStaffProfile(User staffData) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/users/delete_user_profile/${staffData.uid}/'),
+        Uri.parse('${IpAddress.ip_addr}/users/delete_user_profile/${staffData.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

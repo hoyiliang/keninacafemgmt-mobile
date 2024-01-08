@@ -19,6 +19,7 @@ import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -895,7 +896,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
   Future<List<Supplier>> getActiveSupplierList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_active_supplier_list'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_active_supplier_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -914,7 +915,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
   Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -944,7 +945,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
   Future<(bool, String)> deleteSupplierProfile(Supplier supplierData) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/delete_supplier/${supplierData.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/delete_supplier/${supplierData.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -990,7 +991,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
   Future<(bool, String)> createStock(String stockName, String supplierName) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/create_stock'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/create_stock'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

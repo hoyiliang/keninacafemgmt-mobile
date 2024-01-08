@@ -15,6 +15,7 @@ import '../Entity/Stock.dart';
 import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -538,7 +539,7 @@ class _ViewSupplierDetailsPageState extends State<ViewSupplierDetailsPage> {
   Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

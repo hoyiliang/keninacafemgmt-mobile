@@ -23,6 +23,7 @@ import '../Entity/Stock.dart';
 import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -833,7 +834,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   Future<List<Supplier>> getSupplierList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_list_with_no_image'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -852,7 +853,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   Future<List<Stock>> getStockWithSupplierList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_with_supplier_list'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_with_supplier_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -897,7 +898,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   Future<(bool, String)> updateSupplierProfile(String receiptNumber, String totalPrice, List stockInReceipt, String supplierName, String supplierNameBefore, String pdfFileName, DateTime dateReceipt, StockReceipt currentStockReceipt, User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/update_receipt_details/${currentStockReceipt.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/update_receipt_details/${currentStockReceipt.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

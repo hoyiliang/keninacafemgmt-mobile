@@ -13,6 +13,7 @@ import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/AnnouncementAssignUserMoreInfo.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -100,12 +101,13 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 onPressed: () async {
                   // Perform save logic here
                   // Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
                   if (_formKey.currentState!.validate()) {
                     var (announcementCreatedAsync, err_code) = await _submitAnnouncementDetails(title, description, currentUser!);
                     announcementCreated = announcementCreatedAsync;
                     if (!announcementCreated) {
                       if (err_code == ErrorCodes.ANNOUNCEMENT_CREATE_FAIL_BACKEND) {
+                        Navigator.of(context).pop();
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
@@ -120,6 +122,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                             ),
                         );
                       } else {
+                        Navigator.of(context).pop();
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
@@ -139,7 +142,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       descriptionController.text = '';
                       numTitleText = 0;
                       numDescriptionText = 0;
-                      // Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                       Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
@@ -1291,7 +1294,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   Future<(bool, String)> createAnnouncement(String title, String description, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/announcements/announcement_form'),
+        Uri.parse('${IpAddress.ip_addr}/announcements/announcement_form'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1324,7 +1327,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   Future<List<AnnouncementAssignUserMoreInfo>> getAnnouncement(User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/announcements/request_list'),
+        Uri.parse('${IpAddress.ip_addr}/announcements/request_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1347,7 +1350,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   Future<(bool, String)> deleteAnnouncement(AnnouncementAssignUserMoreInfo currentAnnouncementAssign) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/announcements/delete_announcement'),
+        Uri.parse('${IpAddress.ip_addr}/announcements/delete_announcement'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1393,7 +1396,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   Future<(bool, String)> updateAnnouncement(String title, String description, AnnouncementAssignUserMoreInfo currentAnnouncementAssign, User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/announcements/update_announcement'),
+        Uri.parse('${IpAddress.ip_addr}/announcements/update_announcement'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -1440,7 +1443,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   Future<(bool, String)> updateAnnouncementIsRead(AnnouncementAssignUserMoreInfo currentAnnouncementAssign) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/announcements/update_announcement_is_read'),
+        Uri.parse('${IpAddress.ip_addr}/announcements/update_announcement_is_read'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

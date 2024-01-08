@@ -11,6 +11,7 @@ import '../AppsBar.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/OrderFoodItemMoreInfo.dart';
 import '../Entity/User.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -451,8 +452,7 @@ class _CompleteOrderDetailsPageState extends State<CompleteOrderDetailsPage> {
   Future<List<OrderFoodItemMoreInfo>> getOrderFoodItemDetails(FoodOrder currentOrder, User currentUser) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_order_details/${currentOrder.id}/'),
-        // Uri.parse('http://localhost:8000/order/request_order_details/${currentOrder.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_order_details/${currentOrder.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

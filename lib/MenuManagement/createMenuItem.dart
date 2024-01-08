@@ -19,6 +19,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 import 'menuList.dart';
 
 void main() {
@@ -97,7 +98,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppsBarState().buildAppBarDetails(context, 'Create Menu Item', currentUser!, widget.streamControllers),
+      appBar: AppsBarState().buildAppBarDetails(context, 'Create', currentUser!, widget.streamControllers),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
@@ -899,7 +900,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
   Future<(bool, String)> createMenuItem(String name, String priceStandard, String priceLarge, String description, String variants, String itemClass, String categoryName, bool hasSize, bool hasVariant, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/menu/create_menu_item'),
+        Uri.parse('${IpAddress.ip_addr}/menu/create_menu_item'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -919,13 +920,13 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
           'user_created_id': currentUser.uid,
         }),
       );
-      final responseData = json.decode(response.body);
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (kDebugMode) {
           print("Create Menu Item Successful.");
         }
         return (true, ErrorCodes.OPERATION_OK);
       } else {
+        final responseData = json.decode(response.body);
         if (kDebugMode) {
           print(response.body);
           print('Failed to create menu item.');
@@ -946,7 +947,7 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
   Future<List<String>> getItemCategoryList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_all_item_category'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_all_item_category'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

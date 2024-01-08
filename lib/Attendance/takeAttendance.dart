@@ -14,6 +14,7 @@ import '../Announcement/createAnnouncement.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 import 'manageAttendanceRequest.dart';
 
 void main() {
@@ -413,7 +414,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
   Future<(bool, String)> createAttendanceData(String dateAttendanceTaken, int userCreatedId, bool isClockIn, bool isClockOut) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/attendance_data'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/attendance_data'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -448,7 +449,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
   Future<bool> getAttendanceClockIn(User currentUser, String now) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_one_attendance_for_checking_button/${currentUser.uid}/'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_one_attendance_for_checking_button/${currentUser.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -471,7 +472,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
   Future<bool> getAttendanceClockOut(User currentUser, String now) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_one_attendance_for_checking_button/${currentUser.uid}/'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_one_attendance_for_checking_button/${currentUser.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

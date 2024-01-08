@@ -8,6 +8,7 @@ import 'package:keninacafe/AppsBar.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -507,7 +508,7 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
   Future<List<Attendance>> getAttendanceWithStatusList(String selectedDate, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_attendance_with_status_list_by_date/${currentUser.uid}/'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_attendance_with_status_list_by_date/${currentUser.uid}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

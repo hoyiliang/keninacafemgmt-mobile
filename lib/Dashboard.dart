@@ -18,6 +18,7 @@ import 'Entity/User.dart';
 import 'package:keninacafe/AppsBar.dart';
 
 import 'Utils/WebSocketSingleton.dart';
+import 'Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -192,6 +193,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 5.0,),
                     ],
                   ),
                 ),
@@ -220,6 +222,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       }
                     )
                   ),
+                const SizedBox(width: 5.0,),
                 const SizedBox(height: 18.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -272,7 +275,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10.0,),
+                    const SizedBox(width: 15.0,),
                   ],
                 ),
                 Center(
@@ -300,7 +303,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             height: 393,
                             width: 380,
                             child: WebView(
-                              initialUrl: displayYearGraph ? 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/all/' : 'http://10.0.2.2:8000/transaction/request_owner_dashboard_graph/${DateFormat('yyyy-MM-dd').format(selectedMonthYear)}/',
+                              initialUrl: displayYearGraph ? '${IpAddress.ip_addr}/transaction/request_owner_dashboard_graph/all/' : '${IpAddress.ip_addr}/transaction/request_owner_dashboard_graph/${DateFormat('yyyy-MM-dd').format(selectedMonthYear)}/',
                               javascriptMode: JavascriptMode.unrestricted,
                               onPageFinished: (String url) {
                               },
@@ -635,7 +638,7 @@ class _DashboardPageState extends State<DashboardPage> {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/transaction/request_transaction_by_date'),
+        Uri.parse('${IpAddress.ip_addr}/transaction/request_transaction_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -657,7 +660,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<String> fetchGraphData() async {
     try{
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/transaction/request_owner_dashboard_graph'),
+        Uri.parse('${IpAddress.ip_addr}/transaction/request_owner_dashboard_graph'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -680,7 +683,7 @@ class _DashboardPageState extends State<DashboardPage> {
   // Future<String> testing() async {
   //   try{
   //     final response = await http.post(
-  //       Uri.parse('http://10.0.2.2:8000/transaction/request_testing'),
+  //       Uri.parse('${IpAddress.ip_addr}/transaction/request_testing'),
   //       headers: <String, String>{
   //         'Content-Type': 'application/json; charset=UTF-8',
   //       },

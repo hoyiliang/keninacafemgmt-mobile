@@ -217,7 +217,7 @@ class _StaffDashboardState extends State<StaffDashboardPage> {
   // Future<(dynamic, String)> downloadAttendanceRecord() async {
   //   try {
   //     final response = await http.post(
-  //       Uri.parse('http://10.0.2.2:8000/attendance/download_all_staff_attendance_by_month'),
+  //       Uri.parse('http://${IpAddress.ip_addr}/attendance/download_all_staff_attendance_by_month'),
   //
   //       headers: <String, String>{
   //         'Content-Type': 'application/json; charset=UTF-8',

@@ -22,6 +22,7 @@ import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 import 'createStockReceipt.dart';
 import 'editStockReceipt.dart';
 
@@ -737,7 +738,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   Future<(String, String)> downloadPdfFile(String receiptNumber) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_pdf_file'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_pdf_file'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -766,7 +767,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_receipt_list'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_receipt_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -789,7 +790,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -819,7 +820,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   Future<(bool, String)> deleteReceipt(String receiptNumber) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/delete_receipt'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/delete_receipt'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

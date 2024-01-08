@@ -54,7 +54,7 @@ class User {
       gender: json['gender'] ?? "",
       dob: DateTime.parse(json['dob']),
       ic: json['ic'],
-      points: double.parse(json['points']),
+      points: json['points'],
       date_created: DateTime.parse(json['date_created']),
       date_deactivated: json['date_deactivated'] != null ? DateTime.parse(json['date_deactivated']) : DateTime.now(),
     );

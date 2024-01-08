@@ -20,6 +20,7 @@ import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -1449,7 +1450,6 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
@@ -1560,7 +1560,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
   Future<(bool, String)> updateMenuItem(String name, String priceStandard, String priceLarge, String description, String variants, String itemClass, String categoryName, bool hasSize, bool hasVariant, MenuItem currentMenuItem, User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/menu/update_menu_item/${currentMenuItem.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/menu/update_menu_item/${currentMenuItem.id}/'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -1604,7 +1604,7 @@ class _UpdateMenuItemPageState extends State<UpdateMenuItemPage> {
   Future<List<String>> getItemCategoryList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_all_item_category'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_all_item_category'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

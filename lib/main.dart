@@ -1,125 +1,475 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:keninacafe/Auth/passwordResetScreen.dart';
+import 'package:keninacafe/Entity/User.dart';
+import 'package:keninacafe/Utils/error_codes.dart';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+import '../Order/manageOrder.dart';
+import '../Security/Encryptor.dart';
+import '../StaffManagement/staffDashboard.dart';
+import '../Utils/WebSockPaths.dart';
+import '../Dashboard.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
+void enterFullScreen() {
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const LoginPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool userFound = false;
+  bool submittedOnce = false;
+  bool securePasswordText = true;
+  late SharedPreferences prefs;
+  late User currentUser;
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  void initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  void _togglePasswordView() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      securePasswordText = !securePasswordText;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Colors.white,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    enterFullScreen();
+
+    return WillPopScope(
+        onWillPop: () async {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Confirmation', style: TextStyle(fontWeight: FontWeight.bold,)),
+                content: const Text('Are you sure to exit the apps?'),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      SystemNavigator.pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text(
+                      'Yes',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'No',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+          return false;
+        },
+        child: MaterialApp(
+            title: 'Login Page',
+            home: Scaffold(
+                body: ListView (
+                    children: [
+                      Image.asset('images/KE_Nina_Cafe_logo.jpg'),
+                      // const SizedBox(height: 20.0,),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                        child: Text('KE Nina Café Management', textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                      ),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: TextFormField(
+                                controller: emailController,
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  labelStyle: const TextStyle(color: Colors.black), // Set label color to white
+                                  prefixIcon: const Icon(Icons.email, color: Colors.black),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.black, width: 4.0),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.black, width: 4.0),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder( // Border style for error state
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(color: Colors.red, width: 4.0,),
+                                  ),
+                                  // hintText: 'Please enter your email',
+                                  // hintStyle: TextStyle(color: Colors.white),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 25),
+                                ),
+                                style: const TextStyle(color: Colors.black),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: TextFormField(
+                                obscureText: securePasswordText,
+                                controller: passwordController,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  labelStyle: const TextStyle(color: Colors.black),
+                                  prefixIcon: const Icon(Icons.lock, color: Colors.black),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.black, width: 4.0),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.black, width: 4.0),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  errorBorder: OutlineInputBorder( // Border style for error state
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(color: Colors.red, width: 4.0,),
+                                  ),
+                                  suffix: InkWell(
+                                    onTap: _togglePasswordView,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                                      child: Icon(securePasswordText ? Icons.visibility : Icons.visibility_off,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  // hintText: 'Please enter your password',
+                                  // hintStyle: const TextStyle(color: Colors.white),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                                ),
+                                style: const TextStyle(color: Colors.black),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            // const SizedBox(height: 20),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(25.0, 5.0, 0, 0),
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(builder: (context) => const PasswordResetScreenPage())
+                                    );
+                                  },
+                                  child: Text(
+                                    'Forgot Password ?',
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.transparent,
+                                      fontWeight: FontWeight.bold,
+                                      shadows: [Shadow(color: Colors.blue.shade900, offset: const Offset(0, -4))],
+                                      decorationThickness: 4,
+                                      decorationColor: Colors.blue.shade900,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10.0,),
+                            AnimatedOpacity(
+                              duration: const Duration(seconds: 1),
+                              opacity: 1.0,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    var (userFoundAsync, currentUser, err_code) = await _submitLoginDetails(emailController, passwordController);
+                                    setState(() {
+                                      userFound = userFoundAsync;
+                                      print(userFound);
+                                      if (!userFound) {
+                                        passwordController.text = '';
+                                        if (err_code == ErrorCodes.LOGIN_FAIL_NO_USER) {
+                                          showDialog(context: context, builder: (
+                                              BuildContext context) =>
+                                              AlertDialog(
+                                                title: const Text('Unauthorized', style: TextStyle(fontWeight: FontWeight.bold,)),
+                                                content: Text(
+                                                    'Please contact Restaurant Manager or Owner.\n\nError Code: $err_code'),
+                                                actions: <Widget>[
+                                                  TextButton(onPressed: () =>
+                                                      Navigator.pop(context, 'Ok'),
+                                                      child: const Text('Ok')),
+                                                ],
+                                              ),
+                                          );
+                                        } else if (err_code == ErrorCodes.LOGIN_FAIL_PASSWORD_INCORRECT) {
+                                          showDialog(context: context, builder: (
+                                              BuildContext context) =>
+                                              AlertDialog(
+                                                title: const Text('Details Mismatch', style: TextStyle(fontWeight: FontWeight.bold,)),
+                                                content: Text(
+                                                    'Wrong combination of email and password. Please check your details.\n\nError Code: $err_code'),
+                                                actions: <Widget>[
+                                                  TextButton(onPressed: () =>
+                                                      Navigator.pop(context, 'Ok'),
+                                                      child: const Text('Ok')),
+                                                ],
+                                              ),
+                                          );
+                                        } else if (err_code == ErrorCodes.LOGIN_FAIL_USER_DEACTIVATED_DELETED ){
+                                          showDialog(context: context, builder: (
+                                              BuildContext context) =>
+                                              AlertDialog(
+                                                title: const Text('User Deactivated or Deleted', style: TextStyle(fontWeight: FontWeight.bold,)),
+                                                content: Text(
+                                                    'User have been deactivated or deleted.\n\nError Code: $err_code'),
+                                                actions: <Widget>[
+                                                  TextButton(onPressed: () =>
+                                                      Navigator.pop(context, 'Ok'),
+                                                      child: const Text('Ok')),
+                                                ],
+                                              ),
+                                          );
+                                        } else {
+                                          showDialog(context: context, builder: (
+                                              BuildContext context) =>
+                                              AlertDialog(
+                                                title: const Text('Connection Error', style: TextStyle(fontWeight: FontWeight.bold,)),
+                                                content: Text(
+                                                    'Unable to establish connection to our services. Please make sure you have an internet connection.\n\nError Code: $err_code'),
+                                                actions: <Widget>[
+                                                  TextButton(onPressed: () =>
+                                                      Navigator.pop(context, 'Ok'),
+                                                      child: const Text('Ok')),
+                                                ],
+                                              ),
+                                          );
+                                        }
+                                      } else {
+                                        showDialog(context: context, builder: (
+                                            BuildContext context) =>
+                                            AlertDialog(
+                                              title: const Text('Login Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
+                                              content: Text(
+                                                  'Happy Working Day, ${currentUser.name}!'),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    final receiveOrderChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_NEW_ORDER}'));
+                                                    final receiveAnnouncementChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_ANNOUNCEMENT_UPDATES}'));
+                                                    final receiveAttendanceRequestChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}${currentUser.staff_type.replaceAll(" ", "_")}/'));
+
+                                                    final receiveOrderStreamController = StreamController.broadcast();
+                                                    receiveOrderStreamController.addStream(receiveOrderChannel.stream);
+                                                    final receiveAnnouncementStreamController = StreamController.broadcast();
+                                                    receiveAnnouncementStreamController.addStream(receiveAnnouncementChannel.stream);
+                                                    final receiveAttendanceRequestStreamController = StreamController.broadcast();
+                                                    receiveAttendanceRequestStreamController.addStream(receiveAttendanceRequestChannel.stream);
+
+                                                    Map<String, StreamController> streamControllers = {
+                                                      'order': receiveOrderStreamController,
+                                                      'announcement': receiveAnnouncementStreamController,
+                                                      'attendance': receiveAttendanceRequestStreamController,
+                                                    };
+
+                                                    if (currentUser.staff_type == "Restaurant Owner") {
+                                                      Navigator.of(context).pushReplacement(
+                                                          MaterialPageRoute(builder: (context) => DashboardPage(user: currentUser, streamControllers: streamControllers,))
+                                                      );
+                                                    } else if (currentUser.staff_type == "Restaurant Manager") {
+                                                      Navigator.of(context).pushReplacement(
+                                                          MaterialPageRoute(builder: (context) => StaffDashboardPage(user: currentUser, streamControllers: streamControllers,))
+                                                      );
+                                                    } else if (currentUser.staff_type == "Restaurant Worker") {
+                                                      Navigator.of(context).pushReplacement(
+                                                          MaterialPageRoute(builder: (context) => ManageOrderPage(user: currentUser, streamControllers: streamControllers,))
+                                                      );
+                                                    }
+                                                  },
+                                                  child: const Text('Ok'),
+                                                ),
+                                              ],
+                                            ),
+                                        );
+                                        // Navigator.of(context).pushReplacement(
+                                        //     MaterialPageRoute(builder: (context) => HomePage(user: currentUser, streamControllers: streamControllers,))
+                                        // );
+                                      }
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  minimumSize: const Size(200, 50),
+                                ),
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ]
+                )
+            )
+        )
+    );
+  }
+
+  Future<(bool, User, String)> _submitLoginDetails(TextEditingController emailController, TextEditingController passwordController) async {
+    String email = emailController.text;
+    String password = passwordController.text;
+    if (kDebugMode) {
+      print('Email: $email');
+      print('Password: $password');
+    }
+    String enc_pw = Encryptor().encryptPassword(password);
+    if (kDebugMode) {
+      print(enc_pw);
+    }
+    var (thisUser, err_code) = await createUser(email, enc_pw);
+    if (thisUser.uid == -1) {
+      if (kDebugMode) {
+        print("Failed to retrieve User data.");
+      }
+      return (false, thisUser, err_code);
+    }
+    return (true, thisUser, err_code);
+  }
+
+  Future<(User, String)> createUser(String email, String enc_pw) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${IpAddress.ip_addr}/users/staff_login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': enc_pw,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        var jsonResp = jsonDecode(response.body);
+        var jwtToken = jsonResp['token'];
+        if (kDebugMode) {
+          print('User found.');
+          print('JWT Token: $jwtToken');
+        }
+        return (User.fromJWT(jwtToken), (ErrorCodes.OPERATION_OK));
+      } else {
+        var jsonResp = jsonDecode(response.body);
+        var error = jsonResp['detail'];
+        print(error);
+        if (error == "User not found!") {
+          print(error);
+          return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.LOGIN_FAIL_NO_USER));
+        }
+        else if (error == "Incorrect password!") {
+          print(error);
+          return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.LOGIN_FAIL_PASSWORD_INCORRECT));
+        }
+        else if (error == "User deactivated or deleted!") {
+          print(error);
+          return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.LOGIN_FAIL_USER_DEACTIVATED_DELETED));
+        }
+
+        if (kDebugMode) {
+          print('No User found.');
+        }
+        return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.LOGIN_FAIL_NO_USER));
+      }
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print('API Connection Error. $e');
+      }
+      return (User(uid: -1, name: '', email: '', address: '', gender: '', dob: DateTime.now(), image: '', is_staff: false, is_active: false, staff_type: '', phone: '', ic: '', points: 0, date_created: DateTime.now(), date_deactivated: DateTime.now()), (ErrorCodes.LOGIN_FAIL_API_CONNECTION));
+    }
+  }
+
+  Widget pleaseLogin() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 6),
+      child:
+      Text('Please Log In.', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold),),
     );
   }
 }

@@ -4,7 +4,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:keninacafe/Auth/login.dart';
+import '../Utils/ip_address.dart';
+import '../main.dart';
 import 'otpEnterScreen.dart';
 
 void main() {
@@ -50,7 +51,7 @@ class _PasswordResetScreenPageState extends State<PasswordResetScreenPage> {
     });
 
     final String email = emailController.text;
-    const String apiUrl = 'http://10.0.2.2:8000/users/password_reset_staff';
+    const String apiUrl = '${IpAddress.ip_addr}/users/password_reset_staff';
 
     final response = await http.post(
       Uri.parse(apiUrl),

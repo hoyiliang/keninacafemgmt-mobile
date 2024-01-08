@@ -21,6 +21,7 @@ import '../Entity/Supplier.dart';
 import '../Entity/User.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -789,7 +790,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
   Future<(bool, String)> updateSupplierProfile(Supplier currentSupplier, User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/update_supplier_profile/${currentSupplier.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/update_supplier_profile/${currentSupplier.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -825,7 +826,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
   // Future<Tuple2<List<String>, List<String>>> getSupplierStockList(Supplier supplierData) async {
   //   try {
   //     final response = await http.get(
-  //       Uri.parse('http://10.0.2.2:8000/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
+  //       Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_stock_list/${supplierData.id}/'),
   //       headers: <String, String>{
   //         'Content-Type': 'application/json; charset=UTF-8',
   //       },
@@ -846,7 +847,7 @@ class _UpdateSupplierPageState extends State<UpdateSupplierPage> {
   Future<List<String>> getStockUnderSupplierList(Supplier currentSupplier) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_under_current_supplier_list/${currentSupplier.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

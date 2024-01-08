@@ -8,13 +8,13 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:keninacafe/Auth/passwordResetScreen.dart';
-import 'package:keninacafe/Auth/login.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Security/Encryptor.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 import '../main.dart';
 import 'otpEnterScreen.dart';
 
@@ -406,8 +406,7 @@ class _NewPasswordScreenPageState extends State<NewPasswordScreenPage> {
   Future<(bool, String)> changeForgotPassword(String uidEncode, String encNpw) async {
     try {
       final response = await http.post(
-        // Uri.parse('http://10.0.2.2:8000/editProfile/update_user_password/${currentUser.uid}/'),
-        Uri.parse('http://10.0.2.2:8000/users/password_reset_confirm'),
+        Uri.parse('${IpAddress.ip_addr}/users/password_reset_confirm'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

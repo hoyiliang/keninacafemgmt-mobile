@@ -21,6 +21,7 @@ import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/User.dart';
 import '../Entity/StaffType.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -943,7 +944,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
     }
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/users/register'),
+        Uri.parse('${IpAddress.ip_addr}/users/register'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -990,7 +991,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
   Future<List<StaffType>> getStaffType() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/staffManagement/request_type_list'),
+        Uri.parse('${IpAddress.ip_addr}/staffManagement/request_type_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

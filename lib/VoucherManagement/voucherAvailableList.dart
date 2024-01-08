@@ -16,6 +16,7 @@ import '../Entity/User.dart';
 import '../Entity/Voucher.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 import 'createVoucher.dart';
 import 'editVoucher.dart';
 
@@ -1156,7 +1157,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
   Future<(bool, String)> deleteVoucher(Voucher currentVoucher) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/order/delete_voucher'),
+        Uri.parse('${IpAddress.ip_addr}/order/delete_voucher'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1197,7 +1198,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
   Future<(bool, String)> updateIsOutOfStockStatusMenuItem(Voucher currentVoucher, bool availableStatusUpdate) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/order/update_voucher_status'),
+        Uri.parse('${IpAddress.ip_addr}/order/update_voucher_status'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1226,7 +1227,7 @@ class _VoucherAvailableListPageState extends State<VoucherAvailableListPage> {
   Future<List<Voucher>> getAvailableVoucherList(User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/order/request_all_voucher'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_all_voucher'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

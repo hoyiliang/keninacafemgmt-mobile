@@ -16,6 +16,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../Entity/User.dart';
 import '../Entity/StaffType.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -759,7 +760,7 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
   Future<List<StaffType>> getStaffType() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/staffManagement/request_type_list'),
+        Uri.parse('${IpAddress.ip_addr}/staffManagement/request_type_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -792,7 +793,7 @@ class _UpdateStaffPageState extends State<UpdateStaffPage> {
   Future<(User, String)> updateStaff(User currentStaff) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/staffManagement/update_staff_details'),
+        Uri.parse('${IpAddress.ip_addr}/staffManagement/update_staff_details'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

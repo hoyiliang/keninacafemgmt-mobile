@@ -9,13 +9,12 @@ import 'package:keninacafe/PersonalProfile/viewPersonalProfile.dart';
 import 'package:keninacafe/Entity/User.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-
-import 'Auth/login.dart';
 import 'Order/manageOrder.dart';
 import 'StaffManagement/staffDashboard.dart';
 import 'SupplierManagement/supplierDashboard.dart';
 import 'VoucherManagement/voucherAvailableList.dart';
 import 'Dashboard.dart';
+import 'main.dart';
 
 void main() {
   runApp(const MyApp());

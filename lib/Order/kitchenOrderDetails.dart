@@ -13,6 +13,7 @@ import '../Attendance/manageAttendanceRequest.dart';
 import '../Entity/FoodOrder.dart';
 import '../Entity/OrderFoodItemMoreInfo.dart';
 import '../Entity/User.dart';
+import '../Utils/ip_address.dart';
 import 'manageOrder.dart';
 
 void main() {
@@ -571,7 +572,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
   Future<List<OrderFoodItemMoreInfo>> getOrderFoodItemDetails(FoodOrder currentOrder) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_order_details/${currentOrder.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_order_details/${currentOrder.id}/'),
         // Uri.parse('http://localhost:8000/menu/request_item_category_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -591,7 +592,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
   Future<(bool, String)> updateOrderFoodItemStatus(OrderFoodItemMoreInfo orderFoodItem, bool isDone) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/order/update_order_food_item_status/${orderFoodItem.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/order/update_order_food_item_status/${orderFoodItem.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -619,7 +620,7 @@ class _KitchenOrderDetailsPageState extends State<KitchenOrderDetailsPage> {
   Future<(bool, String)> updateKitchenOrderStatus(FoodOrder currentOrder, bool isOrderDone) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/order/update_order_status/${currentOrder.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/order/update_order_status/${currentOrder.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

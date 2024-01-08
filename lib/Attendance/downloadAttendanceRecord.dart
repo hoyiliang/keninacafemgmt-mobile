@@ -19,6 +19,7 @@ import '../Entity/User.dart';
 import '../Entity/Supplier.dart';
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -285,7 +286,7 @@ class _DownloadAttendanceRecordPageState extends State<DownloadAttendanceRecordP
   Future<(dynamic, String)> downloadAttendanceRecord(int month, int year) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/download_all_staff_attendance_by_month'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/download_all_staff_attendance_by_month'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

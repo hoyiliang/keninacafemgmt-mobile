@@ -9,6 +9,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:keninacafe/AppsBar.dart';
 import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -275,7 +276,7 @@ class _ManageRestaurantWorkerAttendancePageState extends State<ManageRestaurantW
   Future<List<Attendance>> getAttendanceData(User? staffData) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_all_list_per_staff/${staffData?.uid}'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_all_list_per_staff/${staffData?.uid}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

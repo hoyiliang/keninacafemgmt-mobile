@@ -17,6 +17,7 @@ import '../Security/Encryptor.dart';
 import '../StaffManagement/staffDashboard.dart';
 import '../Utils/WebSockPaths.dart';
 import '../Dashboard.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
     runApp(const MyApp());
@@ -327,9 +328,9 @@ class _LoginPageState extends State<LoginPage> {
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context).pop();
-                                              final receiveOrderChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ORDER}'));
-                                              final receiveAnnouncementChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_ANNOUNCEMENT_UPDATES}'));
-                                              final receiveAttendanceRequestChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8000/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}${currentUser.staff_type.replaceAll(" ", "_")}/'));
+                                              final receiveOrderChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_NEW_ORDER}'));
+                                              final receiveAnnouncementChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_ANNOUNCEMENT_UPDATES}'));
+                                              final receiveAttendanceRequestChannel = WebSocketChannel.connect(Uri.parse('${IpAddress.ip_addr_ws}/${WebSockPaths.RECEIVE_NEW_ATTENDANCE_REQUEST}${currentUser.staff_type.replaceAll(" ", "_")}/'));
 
                                               final receiveOrderStreamController = StreamController.broadcast();
                                               receiveOrderStreamController.addStream(receiveOrderChannel.stream);
@@ -416,7 +417,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<(User, String)> createUser(String email, String enc_pw) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/users/staff_login'),
+        Uri.parse('${IpAddress.ip_addr}/users/staff_login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -18,6 +18,7 @@ import '../Entity/MenuItem.dart';
 import '../Entity/User.dart';
 import '../Entity/VoucherType.dart';
 import '../Order/manageOrder.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -865,7 +866,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
   Future<(bool, String)> createVoucher(String voucherCode, String redeemPoint, String voucherTypeName, String costOff, String minSpending, String freeMenuItemName, String applicableMenuItemName, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/order/create_voucher'),
+        Uri.parse('${IpAddress.ip_addr}/order/create_voucher'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -909,7 +910,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
   Future<List<String>> getVoucherTypeList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_voucher_type_list'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_voucher_type_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -928,7 +929,7 @@ class _CreateVoucherPageState extends State<CreateVoucherPage> {
   Future<List<String>> getMenuItemList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list_with_no_image'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_menu_item_list_with_no_image'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

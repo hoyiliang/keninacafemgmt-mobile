@@ -14,6 +14,7 @@ import '../Entity/User.dart';
 import '../Entity/Attendance.dart';
 import '../Order/manageOrder.dart';
 import '../StaffManagement/staffDashboard.dart';
+import '../Utils/ip_address.dart';
 
 void main() {
   runApp(const MyApp());
@@ -1135,7 +1136,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     }
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/change_attendance_status'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/change_attendance_status'),
 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -1172,7 +1173,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
   Future<(bool, String)> approveAttendance(String formattedDate, int user_created_id, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/update_attendance'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/update_attendance'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1208,7 +1209,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
   Future<(bool, String)> rejectAttendance(String formattedDate, int user_created_id, User currentUser) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/update_attendance'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/update_attendance'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1245,7 +1246,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_all_attendance_request_list_by_date'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_all_attendance_request_list_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1268,7 +1269,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/attendance/request_all_attendance_overview_list_by_date'),
+        Uri.parse('${IpAddress.ip_addr}/attendance/request_all_attendance_overview_list_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -1292,7 +1293,7 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/users/request_user_attendance_exist_list'),
+        Uri.parse('${IpAddress.ip_addr}/users/request_user_attendance_exist_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

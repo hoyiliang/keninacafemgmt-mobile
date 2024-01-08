@@ -16,6 +16,7 @@ import '../Entity/User.dart';
 
 
 import '../Utils/WebSocketSingleton.dart';
+import '../Utils/ip_address.dart';
 import 'completeOrderDetails.dart';
 import 'incomingOrderDetails.dart';
 import 'kitchenOrderDetails.dart';
@@ -1083,7 +1084,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
   Future<List<FoodOrder>> getIncomingOrderList(User currentUser) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_incoming_order'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_incoming_order'),
         // Uri.parse('http://localhost:8000/menu/request_item_category_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -1103,7 +1104,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
   Future<List<FoodOrder>> getKitchenOrderList(User currentUser) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/order/request_kitchen_order'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_kitchen_order'),
         // Uri.parse('http://localhost:8000/menu/request_item_category_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -1124,7 +1125,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/order/request_all_complete_food_order_list_by_date'),
+        Uri.parse('${IpAddress.ip_addr}/order/request_all_complete_food_order_list_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

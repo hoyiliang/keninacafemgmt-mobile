@@ -17,6 +17,7 @@ import '../Entity/User.dart';
 
 import '../Order/manageOrder.dart';
 import '../Utils/error_codes.dart';
+import '../Utils/ip_address.dart';
 import 'createMenuItem.dart';
 
 void main() {
@@ -276,7 +277,7 @@ class _MenuListPageState extends State<MenuListPage>{
                       Column(
                         children: [
                           SizedBox(
-                            height: 175.0,
+                            height: 198.0,
                             child: Row(
                               children: [
                                 Expanded(
@@ -486,7 +487,26 @@ class _MenuListPageState extends State<MenuListPage>{
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 6.0,),
+                                        const SizedBox(height: 10.0,),
+                                        // const Spacer(),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.shopping_cart_outlined,
+                                              size: 23.0,
+                                              color: Colors.grey.shade700,
+                                            ),
+                                            const SizedBox(width: 3.0,),
+                                            Text(
+                                              menuItemList[j].total_num_ordered.toString(),
+                                              style: TextStyle(
+                                                fontSize: 17.0,
+                                                fontFamily: "Itim",
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         const Spacer(),
                                         Row(
                                           children: [
@@ -509,21 +529,21 @@ class _MenuListPageState extends State<MenuListPage>{
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
-                                            const Spacer(),
-                                            Icon(
-                                              Icons.shopping_cart_outlined,
-                                              size: 23.0,
-                                              color: Colors.grey.shade700,
-                                            ),
-                                            const SizedBox(width: 3.0,),
-                                            Text(
-                                              menuItemList[j].total_num_ordered.toString(),
-                                              style: TextStyle(
-                                                fontSize: 17.0,
-                                                fontFamily: "Itim",
-                                                color: Colors.grey.shade700,
-                                              ),
-                                            ),
+                                            // const Spacer(),
+                                            // Icon(
+                                            //   Icons.shopping_cart_outlined,
+                                            //   size: 23.0,
+                                            //   color: Colors.grey.shade700,
+                                            // ),
+                                            // const SizedBox(width: 3.0,),
+                                            // Text(
+                                            //   menuItemList[j].total_num_ordered.toString(),
+                                            //   style: TextStyle(
+                                            //     fontSize: 17.0,
+                                            //     fontFamily: "Itim",
+                                            //     color: Colors.grey.shade700,
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ],
@@ -618,7 +638,7 @@ class _MenuListPageState extends State<MenuListPage>{
   Future<List<MenuItem>> getItemCategoryList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_item_category_list'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_item_category_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -637,7 +657,7 @@ class _MenuListPageState extends State<MenuListPage>{
   Future<List<MenuItem>> getMenuItemList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/menu/request_menu_item_list'),
+        Uri.parse('${IpAddress.ip_addr}/menu/request_menu_item_list'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -668,7 +688,7 @@ class _MenuListPageState extends State<MenuListPage>{
   Future<(bool, String)> deleteMenuItemData(MenuItem currentMenuItem) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/menu/delete_menu_item/${currentMenuItem.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/menu/delete_menu_item/${currentMenuItem.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -706,7 +726,7 @@ class _MenuListPageState extends State<MenuListPage>{
   Future<(bool, String)> updateIsOutOfStockStatusMenuItem(MenuItem currentMenuItem, bool outOfStockStatusUpdate, User currentUser) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/menu/update_is_out_of_stock/${currentMenuItem.id}/'),
+        Uri.parse('${IpAddress.ip_addr}/menu/update_is_out_of_stock/${currentMenuItem.id}/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
