@@ -769,7 +769,6 @@ class _CreateMenuItemPageState extends State<CreateMenuItemPage> {
           ),
         ),
       ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
     );
   }
 
