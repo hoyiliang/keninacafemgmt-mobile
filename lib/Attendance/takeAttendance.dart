@@ -80,11 +80,11 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
           actions: [
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop();
                 var (attendanceCreatedAsync, err_code) = await _submitAttendanceDetails(dateAttendanceTaken, currentUser, isClockIn, isClockOut);
                 setState(() {
                   attendanceCreated = attendanceCreatedAsync;
                   if (!attendanceCreated) {
+                    Navigator.of(context).pop();
                     if (err_code == ErrorCodes.CREATE_ATTENDANCE_DATA_FAIL_BACKEND) {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
@@ -117,6 +117,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                       );
                     }
                   } else {
+                    Navigator.of(context).pop();
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
