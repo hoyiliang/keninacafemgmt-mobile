@@ -226,7 +226,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
         return AlertDialog(
           title: Row(
               children: [
-                const Text('Create', style: TextStyle(fontSize: 23.5,
+                const Text('Create Stock', style: TextStyle(fontSize: 23.5,
                   fontFamily: "Gabarito",
                   fontWeight: FontWeight.bold,),),
                 const Spacer(),
@@ -278,7 +278,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                     });
                   },
                   decoration: InputDecoration(
-                    labelText: 'Stock',
+                    labelText: 'Stock Name',
                     labelStyle: const TextStyle(color: Colors.black),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
@@ -418,7 +418,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
+                              title: const Text('Stock Assigned', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('This stock (${stockNameController.text}) has been assigned to other supplier, please check in the supplier list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>
@@ -431,7 +431,7 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                         showDialog(context: context, builder: (
                             BuildContext context) =>
                             AlertDialog(
-                              title: const Text('Error', style: TextStyle(fontWeight: FontWeight.bold,)),
+                              title: const Text('Stock Assigned', style: TextStyle(fontWeight: FontWeight.bold,)),
                               content: Text('This stock (${stockNameController.text}) has been assigned to this supplier, please check in the supplier list.\n\nError Code: $err_code'),
                               actions: <Widget>[
                                 TextButton(onPressed: () =>

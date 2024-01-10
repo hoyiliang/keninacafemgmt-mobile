@@ -693,6 +693,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                                         onChanged: (value) {
                                           setState(() {
                                             gender = value.toString();
+                                            genderSelected = true;
                                           });
                                         },
                                       ),
@@ -726,6 +727,7 @@ class _CreateStaffPageState extends State<CreateStaffPage> {
                                         onChanged: (value) {
                                           setState(() {
                                             gender = value.toString();
+                                            genderSelected = true;
                                           });
                                         },
                                       ),

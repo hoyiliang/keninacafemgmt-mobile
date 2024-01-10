@@ -66,9 +66,11 @@ class EditStockReceiptPage extends StatefulWidget {
 class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   final receiptNumberController = TextEditingController();
   final totalPriceController = TextEditingController();
+  final totalPriceBeforeController = TextEditingController();
   final supplierNameController = TextEditingController();
   final supplierNameBeforeController = TextEditingController();
   final dateReceiptController = TextEditingController();
+  final dateReceiptUpdateController = TextEditingController();
   final pdfFileNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool isReceiptNumberFill = true;
@@ -103,12 +105,16 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     super.initState();
     receiptNumberController.text = getStockReceipt()!.receipt_number;
     totalPriceController.text = getStockReceipt()!.price.toStringAsFixed(2);
+    totalPriceBeforeController.text = getStockReceipt()!.price.toStringAsFixed(2);
     supplierNameController.text = getStockReceipt()!.supplier_name;
     supplierNameBeforeController.text = getStockReceipt()!.supplier_name;
     pdfFileNameController.text = getStockReceipt()!.pdf_file_name;
-    dateReceiptController.text = getStockReceipt()!.date_receipt.toString().substring(0,10);
+    if (dateReceiptController.text == "") {
+      dateReceiptController.text = getStockReceipt()!.date_receipt.toString().substring(0,10);
+    }
+    // dateReceiptUpdateController.text = "";
     base64File = base64Encode(getPdfFileBytes()!);
-    getStockWithSupplierList();
+    getStockWithSupplierList(getStockReceipt()!.date_receipt);
   }
 
   void showConfirmationDialog(StockReceipt currentStockReceipt, User currentUser) {
@@ -349,7 +355,16 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                         if (pickedDate != null) {
                                           String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
                                           setState(() {
+                                            //dateReceiptUpdateController.text = formattedDate;
                                             dateReceiptController.text = formattedDate;
+                                            supplierNameController.text = "";
+                                            // supplierNameBeforeController.text = "";
+                                            totalPriceController.text = "";
+                                            // stockSelected = [];
+                                            stockUpdate = [];
+                                            base64File = "";
+                                            pdfFileNameController.text = "";
+                                            isFileUploaded = false;
                                           });
                                         }
                                         // DateTime selectedDate = DateTime.now();
@@ -392,28 +407,51 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                               ),
                             ),
                           ),
-                          FutureBuilder<List<Supplier>>(
-                              future: getSupplierList(),
-                              builder: (BuildContext context, AsyncSnapshot<List<Supplier>> snapshot) {
-                                if (snapshot.hasData) {
-                                  return Column(
-                                    children: [buildSupplierList(snapshot.data, currentStockReceipt, currentUser)],
-                                  );
-                                } else {
-                                  if (snapshot.hasError) {
-                                    return Center(child: Text('Error: ${snapshot.error}'));
-                                  } else {
-                                    return Center(
-                                      child: LoadingAnimationWidget.threeRotatingDots(
-                                        color: Colors.black,
-                                        size: 50,
-                                      ),
+                          if (dateReceiptController.text != "")
+                            FutureBuilder<List<Supplier>>(
+                                future: getSupplierList(DateTime.parse(dateReceiptController.text)),
+                                builder: (BuildContext context, AsyncSnapshot<List<Supplier>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Column(
+                                      children: [buildSupplierList(snapshot.data, currentStockReceipt, currentUser)],
                                     );
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
+                                    }
                                   }
                                 }
-                              }
-                          ),
-                          if (supplierNameController.text != null)
+                            ),
+                          // if (dateReceiptController.text == "" && dateReceiptUpdateController != "")
+                          //   FutureBuilder<List<Supplier>>(
+                          //       future: getSupplierList(currentStockReceipt!.date_receipt),
+                          //       builder: (BuildContext context, AsyncSnapshot<List<Supplier>> snapshot) {
+                          //         if (snapshot.hasData) {
+                          //           return Column(
+                          //             children: [buildSupplierUpdateList(snapshot.data, currentStockReceipt, currentUser)],
+                          //           );
+                          //         } else {
+                          //           if (snapshot.hasError) {
+                          //             return Center(child: Text('Error: ${snapshot.error}'));
+                          //           } else {
+                          //             return Center(
+                          //               child: LoadingAnimationWidget.threeRotatingDots(
+                          //                 color: Colors.black,
+                          //                 size: 50,
+                          //               ),
+                          //             );
+                          //           }
+                          //         }
+                          //       }
+                          //   ),
+                          if (supplierNameController.text != "")
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                               child: Container(
@@ -421,7 +459,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                                       border: isStockSelected ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                                   ),
                                   child: FutureBuilder<List<Stock>>(
-                                      future: getStockWithSupplierList(),
+                                      future: getStockWithSupplierList(DateTime.parse(dateReceiptController.text)),
                                       builder: (BuildContext context, AsyncSnapshot<List<Stock>> snapshot) {
                                         if (snapshot.hasData) {
                                           return Column(
@@ -444,7 +482,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                               ),
                             ),
 
-                          if (supplierNameController.text != null)
+                          if (supplierNameController.text != "")
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                               child: Container(
@@ -492,7 +530,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                               ),
                           ),
 
-                          if (supplierNameController.text != null)
+                          if (supplierNameController.text != "")
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                               child: Container(
@@ -569,6 +607,9 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
                       height:40,
                       onPressed: (){
                         setState(() {
+                          print(stockSelected);
+                          print(stockUpdate);
+                          print('hi');
                           if (receiptNumberController.text == "") {
                             isReceiptNumberFill = false;
                           } else {
@@ -619,6 +660,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   }
 
   Widget buildSupplierList(List<Supplier>? supplierList, StockReceipt? currentStockReceipt, User? currentUser) {
+    print(dateReceiptController.text);
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
       child: Container(
@@ -644,7 +686,83 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
               Expanded(
                 flex: 4,
                 child: DropdownButtonFormField<String>(
-                  value: supplierNameController.text,
+                  key: UniqueKey(),
+                  value: supplierNameController.text == "" ? null : supplierNameController.text,
+                  decoration: InputDecoration(
+                      hintText: "Supplier",
+                      contentPadding: const EdgeInsets.only(left:20, right: 20),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      hintStyle: TextStyle(color:Colors.grey.shade700, fontSize: 18, fontWeight: FontWeight.bold)
+                  ),
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Gabarito",
+                  ),
+                  validator: (value) {
+                    if (value == null || value.toString().isEmpty) return 'Please choose the supplier !';
+                    return null;
+                  },
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      supplierNameController.text = newValue!;
+                      stockSelected = [];
+                      stockUpdate = [];
+                      currentStockReceipt = getStockReceipt();
+                    });
+                  },
+                  items: supplierList!.map((supplier) {
+                    return DropdownMenuItem<String>(
+                      value: supplier.name,
+                      child: Text(
+                        supplier.name,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              )
+            ],
+          )
+      ),
+    );
+  }
+
+  Widget buildSupplierUpdateList(List<Supplier>? supplierList, StockReceipt? currentStockReceipt, User? currentUser) {
+    print(supplierList);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
+      child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              border: isSupplierNameFill ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex:1,
+                child: Container(
+                  width: 20,
+                  decoration: BoxDecoration(
+                      border: Border(
+                          right: isSupplierNameFill ? BorderSide(color: Colors.grey.shade600, width: 2.0) : const BorderSide(color: Colors.red, width: 2.0)
+                      )
+                  ),
+                  child: Center(child: Icon(Icons.business, size: 35,color:Colors.grey.shade700)),
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: DropdownButtonFormField<String>(
+                  key: UniqueKey(),
+                  value: supplierNameController.text == "" ? null : supplierNameController.text,
                   decoration: InputDecoration(
                       hintText: "Supplier",
                       contentPadding: const EdgeInsets.only(left:20, right: 20),
@@ -831,13 +949,17 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     return field;
   }
 
-  Future<List<Supplier>> getSupplierList() async {
+  Future<List<Supplier>> getSupplierList(DateTime selectedDate) async {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
-      final response = await http.get(
-        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_list_with_no_image'),
+      final response = await http.post(
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_list_with_no_image_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
+        body: jsonEncode(<String, dynamic> {
+          'selected_date': formattedDate,
+        }),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -850,7 +972,8 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     }
   }
 
-  Future<List<Stock>> getStockWithSupplierList() async {
+  Future<List<Stock>> getStockWithSupplierList(DateTime selectedDate) async {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
         Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_with_supplier_list'),
@@ -859,6 +982,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
         },
         body: jsonEncode(<String, dynamic> {
           'supplier_name': supplierNameController.text,
+          'selected_date': formattedDate,
         }),
       );
 
@@ -875,6 +999,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
   Future<(String, StockReceipt)> _submitUpdateReceiptDetails(StockReceipt currentStockReceipt, User currentUser) async {
     String receiptNumber = receiptNumberController.text;
     String totalPrice = totalPriceController.text;
+    String totalPriceBefore = totalPriceBeforeController.text;
     List? stockInReceipt;
     if (stockSelected == stockUpdate) {
       stockInReceipt = stockUpdate;
@@ -885,7 +1010,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     String supplierNameBefore = supplierNameBeforeController.text;
     String pdfFileName = pdfFileNameController.text;
     DateTime dateReceipt = DateTime.parse(dateReceiptController.text);
-    var (success, err_code) = await updateSupplierProfile(receiptNumber, totalPrice, stockInReceipt!, supplierName, supplierNameBefore, pdfFileName, dateReceipt, currentStockReceipt, currentUser);
+    var (success, err_code) = await updateSupplierProfile(receiptNumber, totalPrice, totalPriceBefore, stockInReceipt!, supplierName, supplierNameBefore, pdfFileName, dateReceipt, currentStockReceipt, currentUser);
     if (success == false) {
       if (kDebugMode) {
         print("Failed to update the receipt.");
@@ -895,7 +1020,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
     return (err_code, currentStockReceipt);
   }
 
-  Future<(bool, String)> updateSupplierProfile(String receiptNumber, String totalPrice, List stockInReceipt, String supplierName, String supplierNameBefore, String pdfFileName, DateTime dateReceipt, StockReceipt currentStockReceipt, User currentUser) async {
+  Future<(bool, String)> updateSupplierProfile(String receiptNumber, String totalPrice, String totalPriceBefore, List stockInReceipt, String supplierName, String supplierNameBefore, String pdfFileName, DateTime dateReceipt, StockReceipt currentStockReceipt, User currentUser) async {
     try {
       final response = await http.put(
         Uri.parse('${IpAddress.ip_addr}/supplierManagement/update_receipt_details/${currentStockReceipt.id}/'),
@@ -905,6 +1030,7 @@ class _EditStockReceiptPageState extends State<EditStockReceiptPage> {
         body: jsonEncode(<String, dynamic> {
           'receipt_number': receiptNumber,
           'total_price': totalPrice,
+          'total_price_before': totalPriceBefore,
           'stock_in_receipt': stockInReceipt,
           'pdf_file_name': pdfFileName,
           'pdf_file': base64File,

@@ -76,7 +76,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(DateTime.now().toUtc().toLocal().toString().substring(0,10), style: const TextStyle(fontWeight: FontWeight.bold,)),
-          content: isClockIn == true ? const Text('Confirm to clock in?') : const Text('Confirm to clock out?'),
+          content: isClockIn == true ? Text('Confirm to clock in at the time (${dateAttendanceTaken.hour}:${dateAttendanceTaken.minute}) ?') : Text('Confirm to clock out at the time (${dateAttendanceTaken.hour}:${dateAttendanceTaken.minute}) ?'),
           actions: [
             ElevatedButton(
               onPressed: () async {
@@ -296,11 +296,11 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                             if (snapshot.hasError) {
                               return Center(child: Text('Error: ${snapshot.error}'));
                             } else {
-                              return Center(
-                                child: LoadingAnimationWidget.threeRotatingDots(
-                                  color: Colors.black,
-                                  size: 50,
-                                ),
+                              return const Center(
+                                // child: LoadingAnimationWidget.threeRotatingDots(
+                                //   color: Colors.black,
+                                //   size: 50,
+                                // ),
                               );
                             }
                           }

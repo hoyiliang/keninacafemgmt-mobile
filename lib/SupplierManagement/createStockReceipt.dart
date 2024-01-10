@@ -12,7 +12,7 @@ import 'package:keninacafe/SupplierManagement/stockReceiptList.dart';
 
 import 'package:keninacafe/Utils/error_codes.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
+import 'package:keninacafe/Utils/multiselect_formfield_fixed.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -82,6 +82,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
   List? stock;
   bool receiptCreated = false;
   bool isHomePage = false;
+  final GlobalKey _supplierDropdownKey = GlobalKey();
 
   User? getUser() {
     return widget.user;
@@ -230,7 +231,11 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                                         if (pickedDate != null) {
                                           String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
                                           setState(() {
+                                            // dateReceiptController.text = "";
                                             dateReceiptController.text = formattedDate;
+                                            supplierNameController.text = "";
+                                            stockSelected = [];
+                                            stockUpdate = [];
                                           });
                                         }
                                         // DateTime selectedDate = DateTime.now();
@@ -273,27 +278,29 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                               ),
                             ),
                           ),
-                          FutureBuilder<List<Supplier>>(
-                            future: getSupplierList(),
-                            builder: (BuildContext context, AsyncSnapshot<List<Supplier>> snapshot) {
-                              if (snapshot.hasData) {
-                                return Column(
-                                  children: [buildSupplierList(snapshot.data, currentUser)],
-                                );
-                              } else {
-                                if (snapshot.hasError) {
-                                  return Center(child: Text('Error: ${snapshot.error}'));
-                                } else {
-                                  return Center(
-                                    child: LoadingAnimationWidget.threeRotatingDots(
-                                      color: Colors.black,
-                                      size: 50,
-                                    ),
-                                  );
+                          if (dateReceiptController.text != "")
+                            FutureBuilder<List<Supplier>>(
+                                future: getSupplierList(DateTime.parse(dateReceiptController.text)),
+                                builder: (BuildContext context, AsyncSnapshot<List<Supplier>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Column(
+                                      children: [buildSupplierList(snapshot.data, currentUser)],
+                                    );
+                                  } else {
+                                    if (snapshot.hasError) {
+                                      return Center(child: Text('Error: ${snapshot.error}'));
+                                    } else {
+                                      return Center(
+                                        child: LoadingAnimationWidget.threeRotatingDots(
+                                          color: Colors.black,
+                                          size: 50,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 }
-                              }
-                            }
-                          ),
+                            ),
+
                           if (supplierNameController.text != "")
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
@@ -302,7 +309,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                                       border: isStockSelected == true ? Border.all(color: Colors.grey.shade600, width: 2.0) : Border.all(color: Colors.red, width: 2.0)
                                   ),
                                   child: FutureBuilder<List<Stock>>(
-                                      future: getStockWithSupplierList(),
+                                      future: getStockWithSupplierList(DateTime.parse(dateReceiptController.text)),
                                       builder: (BuildContext context, AsyncSnapshot<List<Stock>> snapshot) {
                                         if (snapshot.hasData) {
                                           return Column(
@@ -537,6 +544,8 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
               Expanded(
                 flex: 4,
                 child: DropdownButtonFormField<String>(
+                  key: UniqueKey(),
+                  value: supplierNameController.text == "" ? null : supplierNameController.text,
                   decoration: InputDecoration(
                       hintText: "Supplier",
                       contentPadding: const EdgeInsets.only(left:20, right: 20),
@@ -621,6 +630,7 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
                     shrinkWrap: true,
                     children: [
                       MultiSelectFormField(
+                        key: UniqueKey(),
                         autovalidate: AutovalidateMode.disabled,
                         chipBackGroundColor: Colors.grey.shade400,
                         chipLabelStyle: const TextStyle(fontWeight: FontWeight.bold,
@@ -772,7 +782,8 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
     }
   }
 
-  Future<List<Stock>> getStockWithSupplierList() async {
+  Future<List<Stock>> getStockWithSupplierList(DateTime selectedDate) async {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
       final response = await http.post(
         Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_stock_with_supplier_list'),
@@ -781,6 +792,8 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
         },
         body: jsonEncode(<String, dynamic> {
           'supplier_name': supplierNameController.text,
+          'selected_date': formattedDate,
+
         }),
       );
 
@@ -794,13 +807,17 @@ class _CreateStockReceiptPageState extends State<CreateStockReceiptPage> {
     }
   }
 
-  Future<List<Supplier>> getSupplierList() async {
+  Future<List<Supplier>> getSupplierList(DateTime selectedDate) async {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     try {
-      final response = await http.get(
-        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_list_with_no_image'),
+      final response = await http.post(
+        Uri.parse('${IpAddress.ip_addr}/supplierManagement/request_supplier_list_with_no_image_by_date'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
+        body: jsonEncode(<String, dynamic> {
+          'selected_date': formattedDate,
+        }),
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {

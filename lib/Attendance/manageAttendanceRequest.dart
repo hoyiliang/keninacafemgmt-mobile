@@ -499,17 +499,20 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  attendanceRequestList[i].user_created_name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 25.0,
-                                    fontFamily: 'Gabarito',
+                                Expanded(
+                                  child: Text(
+                                    attendanceRequestList[i].user_created_name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25.0,
+                                      overflow: TextOverflow.clip,
+                                      fontFamily: 'Gabarito',
+                                    ),
                                   ),
                                 ),
-                                const Spacer(),
+                                // const Spacer(),
                                 Container(
                                   width: 35,
                                   height: 35,

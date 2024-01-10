@@ -137,7 +137,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     );
   }
 
-  void showDeleteConfirmationDialog(String receiptNumber) {
+  void showDeleteConfirmationDialog(int stockReceiptID, String receiptNumber) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -147,7 +147,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
           actions: [
             ElevatedButton(
               onPressed: () async {
-                var (deleteReceipt, err_code) = await _submitDeleteReceipt(receiptNumber);
+                var (deleteReceipt, err_code) = await _submitDeleteReceipt(stockReceiptID, receiptNumber);
                 setState(() {
                   Navigator.of(context).pop();
                   if (err_code == ErrorCodes.DELETE_RECEIPT_FAIL_BACKEND) {
@@ -677,7 +677,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                                 style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                 // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                 onPressed: () async {
-                                  showDeleteConfirmationDialog(stockReceiptList[i].receipt_number);
+                                  showDeleteConfirmationDialog(stockReceiptList[i].id, stockReceiptList[i].receipt_number);
                                 },
                                 child: Icon(Icons.delete, color: Colors.grey.shade800),
                               ),
@@ -806,8 +806,8 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     }
   }
 
-  Future<(bool, String)> _submitDeleteReceipt(String receiptNumber) async {
-    var (bool, err_code) = await deleteReceipt(receiptNumber);
+  Future<(bool, String)> _submitDeleteReceipt(int stockReceiptID, String receiptNumber) async {
+    var (bool, err_code) = await deleteReceipt(stockReceiptID, receiptNumber);
     if (bool == true) {
       if (kDebugMode) {
         print("Failed to delete Receipt ($receiptNumber) data.");
@@ -817,7 +817,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
     return (false, err_code);
   }
 
-  Future<(bool, String)> deleteReceipt(String receiptNumber) async {
+  Future<(bool, String)> deleteReceipt(int stockReceiptID, String receiptNumber) async {
     try {
       final response = await http.put(
         Uri.parse('${IpAddress.ip_addr}/supplierManagement/delete_receipt'),
@@ -825,7 +825,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic> {
-          'receipt_number': receiptNumber,
+          'stock_receipt_id': stockReceiptID,
         }),
       );
 

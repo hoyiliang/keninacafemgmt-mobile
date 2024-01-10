@@ -403,15 +403,26 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            Text(
-                              "${listAttendanceData[0].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                color: Colors.grey.shade800,
-                                fontFamily: "BreeSerif",
-                                fontWeight: FontWeight.bold,
+                            if (listAttendanceData[0].dateAttendanceTaken.hour.toString() == "0" && listAttendanceData[0].dateAttendanceTaken.minute.toString() == "0" && listAttendanceData[0].dateAttendanceTaken.second.toString() == "0")
+                              Text(
+                                "By Management",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade800,
+                                  fontFamily: "BreeSerif",
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            else
+                              Text(
+                                "${listAttendanceData[0].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[0].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.grey.shade800,
+                                  fontFamily: "BreeSerif",
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 2.0,),
@@ -438,15 +449,26 @@ class _ViewAttendanceStatusPageState extends State<ViewAttendanceStatusPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              Text(
-                                "${listAttendanceData[1].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                  color: Colors.grey.shade800,
-                                  fontFamily: "BreeSerif",
-                                  fontWeight: FontWeight.bold,
+                              if (listAttendanceData[1].dateAttendanceTaken.hour.toString() == "0" && listAttendanceData[1].dateAttendanceTaken.minute.toString() == "0" && listAttendanceData[1].dateAttendanceTaken.second.toString() == "0")
+                                Text(
+                                  "By Management",
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.grey.shade800,
+                                    fontFamily: "BreeSerif",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  "${listAttendanceData[1].dateAttendanceTaken.hour.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.minute.toString().padLeft(2, '0')} : ${listAttendanceData[1].dateAttendanceTaken.second.toString().padLeft(2, '0')}",
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: Colors.grey.shade800,
+                                    fontFamily: "BreeSerif",
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         const SizedBox(height: 2.0,),

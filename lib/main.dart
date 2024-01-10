@@ -375,10 +375,16 @@ class _LoginPageState extends State<LoginPage> {
                                   backgroundColor: Colors.blueAccent,
                                   padding: const EdgeInsets.symmetric(vertical: 15),
                                   minimumSize: const Size(200, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0), // Adjust the value as needed
+                                  ),
                                 ),
                                 child: const Text(
                                   'Login',
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
                             ),
