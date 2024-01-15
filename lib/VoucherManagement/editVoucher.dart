@@ -1020,7 +1020,7 @@ class _EditVoucherPageState extends State<EditVoucherPage> {
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Updated Voucher Successful'),
+                            title: const Text('Updated Voucher Successful', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: Text('The Updated Voucher (${voucherCodeController.text}) can be viewed in the voucher list page.'),
                             actions: <Widget>[
                               TextButton(

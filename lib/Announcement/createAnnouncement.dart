@@ -138,16 +138,24 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                         );
                       }
                     } else {
-                      titleController.text = '';
-                      descriptionController.text = '';
-                      numTitleText = 0;
-                      numDescriptionText = 0;
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
+                      setState(() {
+                        titleController.text = '';
+                        descriptionController.text = '';
+                        numTitleText = 0;
+                        numDescriptionText = 0;
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      });
+                      // titleController.text = '';
+                      // descriptionController.text = '';
+                      // numTitleText = 0;
+                      // numDescriptionText = 0;
+                      // Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
                       showDialog(context: context, builder: (
                           BuildContext context) =>
                           AlertDialog(
-                            title: const Text('Create New Announcement Successful'),
+                            title: const Text('Create New Announcement Successful', style: TextStyle(fontWeight: FontWeight.bold,)),
                             content: const Text(
                                 'The announcement can be viewed in the Announcement page.'),
                             actions: <Widget>[

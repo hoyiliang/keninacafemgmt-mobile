@@ -121,7 +121,7 @@ class _TakeAttendanceState extends State<TakeAttendancePage> {
                     showDialog(context: context, builder: (
                         BuildContext context) =>
                         AlertDialog(
-                          title: isClockIn == true ? const Text('Clock In Successfully') : const Text('Clock Out Successfully'),
+                          title: isClockIn == true ? const Text('Clock In Successfully', style: TextStyle(fontWeight: FontWeight.bold,)) : const Text('Clock Out Successfully', style: TextStyle(fontWeight: FontWeight.bold,)),
                           content: const Text(
                               'Status can be viewed in the Attendance status page.'),
                           actions: <Widget>[

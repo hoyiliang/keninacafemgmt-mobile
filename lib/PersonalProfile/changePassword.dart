@@ -474,7 +474,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               )
             )
         ),
-      bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
+      // bottomNavigationBar: AppsBarState().buildBottomNavigationBar(currentUser, context, widget.streamControllers),
 
     );
   }

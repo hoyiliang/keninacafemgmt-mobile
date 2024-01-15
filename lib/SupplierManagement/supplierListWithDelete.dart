@@ -478,10 +478,9 @@ class _SupplierListWithDeletePageState extends State<SupplierListWithDeletePage>
                               TextButton(
                                 child: const Text('Ok'),
                                 onPressed: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
                                   setState(() {
-
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
                                   });
                                 },
                               ),

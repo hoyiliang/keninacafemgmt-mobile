@@ -157,7 +157,7 @@ class _MenuListPageState extends State<MenuListPage>{
       //   builder: (BuildContext context, AsyncSnapshot<List<MenuItem>> snapshot) {
       //     if (snapshot.hasData) {
       child: DefaultTabController(
-        length: 17,
+        length: 18,
         initialIndex: selectedTabIndex,
         child: Scaffold(
           backgroundColor: Colors.white,
@@ -292,7 +292,7 @@ class _MenuListPageState extends State<MenuListPage>{
                   return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                       child: TabBarView(
-                        children: buildTabBarView(snapshot.data, currentUser),
+                        children: buildTabBarView(snapshot.data, currentUser, selectedTabIndex),
                       )
                   );
 
@@ -312,7 +312,7 @@ class _MenuListPageState extends State<MenuListPage>{
             ) : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                 child: TabBarView(
-                  children: buildTabBarView(menuItemList, currentUser),
+                  children: buildTabBarView(menuItemList, currentUser, selectedTabIndex),
                 )
             ),
           ),
@@ -338,7 +338,7 @@ class _MenuListPageState extends State<MenuListPage>{
     );
   }
 
-  List<Widget> buildTabBarView(List<MenuItem>? menuItemList, User currentUser) {
+  List<Widget> buildTabBarView(List<MenuItem>? menuItemList, User currentUser, int currentTabIndex) {
     List<Widget> tabBarView = [];
     for (int i = 0; i < menuItemList!.length; i++) {
       categoryName = menuItemList[i].category_name;
@@ -680,7 +680,7 @@ class _MenuListPageState extends State<MenuListPage>{
                                               style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                               // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                               onPressed: () async {
-                                                showDeleteConfirmationDialog(menuItemList[j]);
+                                                showDeleteConfirmationDialog(menuItemList[j], currentUser, currentTabIndex);
                                               },
                                               child: Icon(Icons.delete, color: Colors.grey.shade800),
                                             ),
@@ -955,7 +955,7 @@ class _MenuListPageState extends State<MenuListPage>{
     );
   }
 
-  void showDeleteConfirmationDialog(MenuItem currentMenuItem) {
+  void showDeleteConfirmationDialog(MenuItem currentMenuItem, User currentUser, int currentTabIndex) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1005,8 +1005,15 @@ class _MenuListPageState extends State<MenuListPage>{
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
-                                setState(() {});
+                                setState(() {
+                                  menuItemList = [];
+                                  itemCategoryList = [];
+                                });
                                 Navigator.of(context).pop();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => MenuListPage(user: currentUser, tabIndex: currentTabIndex, menuItemList: menuItemList, itemCategoryList: itemCategoryList, streamControllers: widget.streamControllers)),
+                                );
                               },
                             ),
                           ],

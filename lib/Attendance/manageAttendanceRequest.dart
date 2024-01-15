@@ -1077,14 +1077,16 @@ class _ManageAttendanceRequestPageState extends State<ManageAttendanceRequestPag
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                setState(() {
+                                  Navigator.of(context).pop();
+                                });
                               },
                             ),
                           ],
                         ),
                     );
-                    setState(() {
-                    });
+                    // setState(() {
+                    // });
                   }
                 });
               },

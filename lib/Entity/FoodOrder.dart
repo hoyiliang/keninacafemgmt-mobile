@@ -36,7 +36,7 @@ class FoodOrder {
       order_status: json['order_status'],
       gross_total: json['gross_total'],
       grand_total: json['grand_total'],
-      voucher_assign_id: json['voucher_assign_id'] ?? '',
+      voucher_assign_id: json['voucher_assign_id'] ?? 0,
       user_created_name: json['user_created_name'] ?? '',
       user_updated_name: json['user_updated_name'] ?? '',
       dateTime: DateTime.parse(json['date_created']),

@@ -193,7 +193,7 @@ class _ManageOrderPageState extends State<ManageOrderPage>{
 
               elevation: 0,
               toolbarHeight: 100,
-              title: const Text("Order Dashboard",
+              title: const Text("Order",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),

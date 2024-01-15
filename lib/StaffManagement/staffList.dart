@@ -164,7 +164,7 @@ class _StaffListPageState extends State<StaffListPage> {
     );
   }
 
-  void showConfirmationDeleteDialog(User staffData) {
+  void showConfirmationDeleteDialog(User staffData, User currentUser) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -214,7 +214,14 @@ class _StaffListPageState extends State<StaffListPage> {
                             TextButton(
                               child: const Text('Ok'),
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                setState(() {
+                                  Navigator.of(context).pop();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => StaffListPage(user: currentUser, streamControllers: widget.streamControllers)),
+                                  );
+                                });
+                                // Navigator.of(context).pop();
                               },
                             ),
                           ],
@@ -548,7 +555,7 @@ class _StaffListPageState extends State<StaffListPage> {
                                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.fromLTRB(0, 1, 0, 0), backgroundColor: Colors.grey.shade300),
                                   // borderRadius: BorderRadius.circular(100), color: Colors.yellow),
                                   onPressed: () async {
-                                    showConfirmationDeleteDialog(a);
+                                    showConfirmationDeleteDialog(a, currentUser!);
                                   },
                                   child: Icon(Icons.delete, color: Colors.grey.shade800),
                                 ),
