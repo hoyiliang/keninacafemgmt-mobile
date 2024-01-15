@@ -32,11 +32,11 @@ class FoodOrder {
     //   print('MenuItem.fromJson: $json');
     // }
     return FoodOrder(
-      id: json['id'],
+      id: json['id'] ?? 0,
       order_status: json['order_status'],
       gross_total: json['gross_total'],
       grand_total: json['grand_total'],
-      voucher_assign_id: json['voucher_assign_id'] ?? 0,
+      voucher_assign_id: json['voucher_assign_id'] ?? '',
       user_created_name: json['user_created_name'] ?? '',
       user_updated_name: json['user_updated_name'] ?? '',
       dateTime: DateTime.parse(json['date_created']),
