@@ -74,6 +74,7 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   String base64Image = "";
   bool isHomePage = false;
   DateTime? selectedDate;
+  bool isLoading = false;
 
   User? getUser() {
     return widget.user;
@@ -228,6 +229,9 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
   }
 
   void exportPdfFile(String receiptNumber) async {
+    setState(() {
+      isLoading = true;
+    });
     var (pdf_file, err_code) = await downloadPdfFile(receiptNumber);
     if (err_code == ErrorCodes.DOWNLOAD_PDF_FILE_FAIL_BACKEND) {
       showDialog(context: context, builder: (
@@ -281,6 +285,9 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
           ),
       );
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
 
@@ -694,7 +701,11 @@ class _StockReceiptListPageState extends State<StockReceiptListPage> {
                             border: Border.all(color: Colors.grey.shade600, width: 2.0),
                             // borderRadius: BorderRadius.circular(15.0),
                           ),
-                          child: MaterialButton(
+                          child: isLoading
+                              ? LoadingAnimationWidget.threeRotatingDots(
+                            color: Colors.black,
+                            size: 20,
+                          ) : MaterialButton(
                               minWidth: double.infinity,
                               height: 20,
                               onPressed: () async {
